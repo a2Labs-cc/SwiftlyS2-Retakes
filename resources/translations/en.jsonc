@@ -1,0 +1,21 @@
+{
+  "instadefuse.unsuccessful": "{0} tried to defuse with [darkred]{1}s[white] left (needs [darkred]{2}s[white]).",
+  "instadefuse.successful": "{0} defused with [green]{1}s[white] left on the bomb.",
+  "instadefuse.not_possible": "Instant defuse not possible there is a grenade threat!",
+  "announcement.round_info": "Bombsite: {0} - Roundtype: {1}",
+  "announcement.round_start": "A new round has begun. {0} T VS {1} CT. Good luck!",
+  "queue.added": "You have been added to the queue.",
+  "queue.waiting": "Waiting in queue... ({0}/{1} players active)",
+  "queue.moved_out": "You have been moved to queue (VIP {0} took your place).",
+  "queue.moved_in": "VIP priority: You replaced {0}.",
+  "buy.restricted": "{0} is not allowed during {1} rounds!",
+  "clutch.announce": "{0} clutched 1v{1}",
+  "chat.prefix": "{0}",
+  "damage.report.header": "[grey]-- Damage report --[white]",
+  "damage.report.line": "[grey]-->[white] ([green]{0} dmg[white] / [green]{1} hits[white]) to ([darkred]{2} dmg[white] / [darkred]{3} hits[white]) from [orange]{4}[white] ([blue]{5} HP[white])",
+  "round.now": "Now: [orange]{0}[white]",
+  "round.retake": "Retake [green]{0}[white]: [blue]{1}[white] vs [red]{2}[white]",
+  "round.defend": "Defend [red]{0}[white]: [red]{1}[white] vs [blue]{2}[white]",
+  "round.win_message": "The [green]{0}[white] team has won!",
+  "round.win_streak": "Won [green]{0}[white] rounds in a row."
+}

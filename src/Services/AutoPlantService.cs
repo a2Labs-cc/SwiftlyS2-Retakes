@@ -1,0 +1,219 @@
+using Microsoft.Extensions.Logging;
+using SwiftlyS2.Shared;
+using SwiftlyS2.Shared.Convars;
+using SwiftlyS2.Shared.GameEventDefinitions;
+using SwiftlyS2.Shared.Natives;
+using SwiftlyS2.Shared.Players;
+using SwiftlyS2.Shared.SchemaDefinitions;
+using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Models;
+
+namespace SwiftlyS2_Retakes.Services;
+
+public sealed class AutoPlantService : IAutoPlantService
+{
+  private readonly ISwiftlyCore _core;
+  private readonly ILogger _logger;
+  private readonly IMapConfigService _mapConfig;
+  private readonly Random _random;
+
+  private readonly IConVar<bool> _autoPlant;
+  private readonly IConVar<bool> _autoPlantStripC4;
+  private readonly IConVar<bool> _enforceNoC4;
+
+  public AutoPlantService(ISwiftlyCore core, ILogger logger, IMapConfigService mapConfig, Random random)
+  {
+    _core = core;
+    _logger = logger;
+    _mapConfig = mapConfig;
+    _random = random;
+
+    _autoPlant = core.ConVar.CreateOrFind("retakes_auto_plant", "Auto plant bomb at freeze end", true);
+    _autoPlantStripC4 = core.ConVar.CreateOrFind("retakes_auto_plant_strip_c4", "Auto-plant: remove C4 from planter after planting", false);
+    _enforceNoC4 = core.ConVar.CreateOrFind("retakes_enforce_no_c4", "Enforce mp_give_player_c4 0 to avoid C4 when using auto-plant", true);
+
+    EnforceNoC4();
+  }
+
+  public void EnforceNoC4()
+  {
+    if (_autoPlant.Value && _enforceNoC4.Value)
+    {
+      _core.Engine.ExecuteCommand("mp_give_player_c4 0");
+    }
+  }
+
+  public void TryAutoPlant(Bombsite bombsite, ulong? assignedPlanterSteamId = null, Spawn? assignedPlanterSpawn = null)
+  {
+    if (!_autoPlant.Value)
+    {
+      _logger.LogInformation("Retakes: auto-plant skipped (retakes_auto_plant=0)");
+      return;
+    }
+
+    var rules = _core.EntitySystem.GetGameRules();
+    if (rules is not null && rules.WarmupPeriod)
+    {
+      _logger.LogInformation("Retakes: auto-plant skipped (warmup)");
+      return;
+    }
+
+    const int maxAttempts = 15;
+
+    void Attempt(int attempt)
+    {
+      try
+      {
+        var existing = _core.EntitySystem.GetAllEntitiesByDesignerName<CPlantedC4>("planted_c4");
+        if (existing.Any(b => b is not null && b.IsValid))
+        {
+          _logger.LogInformation("Retakes: auto-plant skipped (bomb already planted)");
+          return;
+        }
+
+        IPlayer? bombCarrier = null;
+        if (assignedPlanterSteamId is not null)
+        {
+          bombCarrier = _core.PlayerManager.GetAllPlayers().FirstOrDefault(p =>
+            p.IsValid
+            && p.SteamID == assignedPlanterSteamId.Value
+            && (Team)p.Controller.TeamNum == Team.T);
+
+          if (bombCarrier is null || !bombCarrier.IsValid)
+          {
+            _logger.LogWarning("Retakes: auto-plant failed (assigned planter not found). SteamId={SteamId}", assignedPlanterSteamId.Value);
+            return;
+          }
+
+          if (!bombCarrier.Controller.PawnIsAlive || bombCarrier.Pawn is null)
+          {
+            if (attempt < maxAttempts)
+            {
+              _core.Scheduler.DelayBySeconds(0.1f, () => Attempt(attempt + 1));
+              return;
+            }
+
+            _logger.LogWarning(
+              "Retakes: auto-plant failed (assigned planter pawn not ready after retries). SteamId={SteamId} Slot={Slot}",
+              assignedPlanterSteamId.Value,
+              bombCarrier.Slot);
+            return;
+          }
+        }
+        else
+        {
+          bombCarrier = _core.PlayerManager.GetAllPlayers().FirstOrDefault(p =>
+            p.IsValid
+            && p.Controller.PawnIsAlive
+            && (Team)p.Controller.TeamNum == Team.T);
+
+          if (bombCarrier is null || !bombCarrier.IsValid)
+          {
+            _logger.LogWarning("Retakes: auto-plant failed (no valid bomb carrier)");
+            return;
+          }
+
+          if (bombCarrier.Pawn is null)
+          {
+            _logger.LogWarning("Retakes: auto-plant failed (bomb carrier pawn not ready). Slot={Slot}", bombCarrier.Slot);
+            return;
+          }
+        }
+
+        var spawn = assignedPlanterSpawn;
+        if (spawn is null)
+        {
+          var planterSpawns = _mapConfig.Spawns
+            .Where(s => s.Team == Team.T && s.Bombsite == bombsite && s.CanBePlanter)
+            .ToList();
+
+          if (planterSpawns.Count == 0)
+          {
+            _logger.LogWarning(
+              "Retakes: auto-plant failed (no T CanBePlanter spawns). Map={Map} Bombsite={Bombsite}",
+              _mapConfig.LoadedMapName,
+              bombsite);
+            return;
+          }
+
+          spawn = planterSpawns[_random.Next(planterSpawns.Count)];
+        }
+
+        // Note: SpawnManager already teleported the planter to their assigned spawn.
+        // We only plant the bomb at that position; no redundant teleport needed.
+
+        var planted = _core.EntitySystem.CreateEntityByDesignerName<CPlantedC4>("planted_c4");
+        if (planted is null || !planted.IsValid)
+        {
+          _logger.LogWarning("Retakes: auto-plant failed (CreateEntity planted_c4 returned null/invalid)");
+          return;
+        }
+
+        var body = planted.CBodyComponent;
+        var node = body?.SceneNode;
+        if (node is not null)
+        {
+          node.AbsOrigin.X = spawn.Position.X;
+          node.AbsOrigin.Y = spawn.Position.Y;
+          node.AbsOrigin.Z = spawn.Position.Z;
+        }
+
+        planted.HasExploded = false;
+        planted.BombSite = bombsite == Bombsite.A ? 0 : 1;
+        planted.BombTicking = true;
+        planted.CannotBeDefused = false;
+
+        planted.DispatchSpawn();
+
+        var rules = _core.EntitySystem.GetGameRules();
+        if (rules is not null)
+        {
+          rules.BombPlanted = true;
+          rules.BombDefused = false;
+          rules.BombPlantedUpdated();
+        }
+
+        var site = (short)(bombsite == Bombsite.A ? 0 : 1);
+        _core.GameEvent.Fire<EventBombPlanted>(e =>
+        {
+          e.Site = site;
+          e.UserId = bombCarrier.Slot;
+        });
+
+        _logger.LogInformation(
+          "Retakes: auto-planted bomb. Bombsite={Bombsite} Slot={Slot} AssignedPlanter={Assigned}",
+          bombsite,
+          bombCarrier.Slot,
+          assignedPlanterSteamId is not null);
+
+        if (_autoPlantStripC4.Value)
+        {
+          _logger.LogWarning("Retakes: retakes_auto_plant_strip_c4 is enabled, but stripping C4 is not supported (can crash server)");
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Retakes: auto-plant exception");
+      }
+    }
+
+    _core.Scheduler.DelayBySeconds(0.1f, () => Attempt(0));
+  }
+
+  private void RemoveAllC4Weapons()
+  {
+    try
+    {
+      var weapons = _core.EntitySystem.GetAllEntitiesByDesignerName<CC4>("weapon_c4");
+      foreach (var w in weapons)
+      {
+        if (w is null || !w.IsValid) continue;
+        w.Despawn();
+      }
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Retakes: failed to remove C4 weapons");
+    }
+  }
+}
