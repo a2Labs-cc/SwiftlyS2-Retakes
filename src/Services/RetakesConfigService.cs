@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using SwiftlyS2.Shared;
 using SwiftlyS2_Retakes.Configuration;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Logging;
 
 namespace SwiftlyS2_Retakes.Services;
 
@@ -81,12 +82,12 @@ public sealed class RetakesConfigService : IRetakesConfigService
   {
     try
     {
-      _logger.LogInformation("Retakes: Swiftly config base path: {Base}", _core.Configuration.BasePath);
-      _logger.LogInformation("Retakes: config.json path: {Path}", _path);
+      _logger.LogPluginDebug("Retakes: Swiftly config base path: {Base}", _core.Configuration.BasePath);
+      _logger.LogPluginDebug("Retakes: config.json path: {Path}", _path);
 
       if (!_core.Configuration.BasePathExists)
       {
-        _logger.LogWarning("Retakes: Swiftly config base path does not exist yet: {Base}", _core.Configuration.BasePath);
+        _logger.LogPluginWarning("Retakes: Swiftly config base path does not exist yet: {Base}", _core.Configuration.BasePath);
       }
 
       var section = _core.Configuration.Manager.GetSection(SectionName);
@@ -95,19 +96,20 @@ public sealed class RetakesConfigService : IRetakesConfigService
 
       if (cfg is null)
       {
-        _logger.LogWarning("Retakes: config section '{Section}' was not found or could not be parsed. Config will use defaults.", SectionName);
+        _logger.LogPluginWarning("Retakes: config section '{Section}' was not found or could not be parsed. Config will use defaults.", SectionName);
       }
 
       if (!File.Exists(_path))
       {
-        _logger.LogWarning("Retakes: config.json was not found after initialization. Expected at {Path}", _path);
+        _logger.LogPluginWarning("Retakes: config.json was not found after initialization. Expected at {Path}", _path);
       }
 
       EnsureTeamBalanceConfigPresent();
+      ApplyLoggingToggles(Config.Server);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Retakes: failed to load config.json from {Path}", _path);
+      _logger.LogPluginError(ex, "Retakes: failed to load config.json from {Path}", _path);
       Config = new RetakesConfig();
     }
   }
@@ -167,7 +169,7 @@ public sealed class RetakesConfigService : IRetakesConfigService
     }
     catch (Exception ex)
     {
-      _logger.LogWarning(ex, "Retakes: failed to ensure TeamBalance exists in config.json");
+      _logger.LogPluginWarning(ex, "Retakes: failed to ensure TeamBalance exists in config.json");
     }
   }
 
@@ -188,11 +190,11 @@ public sealed class RetakesConfigService : IRetakesConfigService
 
       var json = JsonSerializer.Serialize(wrapped, JsonOptions);
       File.WriteAllText(_path, json);
-      _logger.LogInformation("Retakes: config.json saved to {Path}", _path);
+      _logger.LogPluginInformation("Retakes: config.json saved to {Path}", _path);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Retakes: failed to save config.json to {Path}", _path);
+      _logger.LogPluginError(ex, "Retakes: failed to save config.json to {Path}", _path);
     }
   }
 
@@ -200,5 +202,11 @@ public sealed class RetakesConfigService : IRetakesConfigService
   {
     _conVarApplicator.ApplyConfig(Config);
     _cfgGenerator.Apply(Config, restartGame);
+    ApplyLoggingToggles(Config.Server);
+  }
+
+  private static void ApplyLoggingToggles(ServerConfig server)
+  {
+    LoggingToggle.DebugEnabled = server.DebugEnabled;
   }
 }

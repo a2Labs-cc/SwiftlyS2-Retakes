@@ -97,7 +97,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  11,
-                       "Name":  null
+                       "Name":  "Triple Side"
                    },
                    {
                        "Vector":  "-1,301.03 828.16 54.03",
@@ -106,7 +106,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  12,
-                       "Name":  null
+                       "Name":  "Triple"
                    },
                    {
                        "Vector":  "-1,562.02 731.65 56.03",
@@ -115,7 +115,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  13,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "-1,527.92 931.31 54.03",
@@ -250,7 +250,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  28,
-                       "Name":  null
+                       "Name":  "Pilar"
                    },
                    {
                        "Vector":  "1,112.24 57.82 134.03",
@@ -259,7 +259,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  29,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "792.17 152.03 130.03",

@@ -16,5 +16,11 @@ public interface IAnnouncementService
   /// <param name="lastWinner">The winner of the last round</param>
   void AnnounceBombsite(Bombsite bombsite, RoundType roundType, Team lastWinner);
 
+  /// <summary>
+  /// Announces the specific plant position name to Terrorist players.
+  /// </summary>
+  /// <param name="siteName">The name of the spawn point where the bomb is being planted</param>
+  void AnnouncePlantSite(string siteName);
+
   void ClearAnnouncement();
 }

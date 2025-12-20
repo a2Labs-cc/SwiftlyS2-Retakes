@@ -113,7 +113,7 @@ public sealed class RoundEventHandlers
     if (core is null) return HookResult.Continue;
 
     // Warmup-end can fire before CCSGameRules.WarmupPeriod flips, so delay slightly.
-    core.Scheduler.DelayBySeconds(0.2f, () =>
+    core.Scheduler.DelayBySeconds(1.0f, () =>
     {
       _config.ApplyToConvars(restartGame: false);
     });
@@ -360,6 +360,11 @@ public sealed class RoundEventHandlers
 
     var roundType = _allocation.CurrentRoundType ?? RoundType.FullBuy;
     _announcement.AnnounceBombsite(bombsite, roundType, _state.LastWinner);
+
+    if (_spawnManager.TryGetAssignedPlanter(out _, out var planterSpawn) && !string.IsNullOrEmpty(planterSpawn.Name))
+    {
+      _announcement.AnnouncePlantSite(planterSpawn.Name);
+    }
 
     _buyMenu.OnRoundTypeSelected();
 

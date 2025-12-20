@@ -76,7 +76,7 @@ public sealed class SpawnVisualizationService : ISpawnVisualizationService
   {
     HideSpawns();
 
-    var spawnList = spawns.Where(s => s.Bombsite == bombsite && (s.Team == Team.T || s.Team == Team.CT)).ToList();
+    var spawnList = spawns.Where(s => (bombsite == Bombsite.Both || s.Bombsite == bombsite) && (s.Team == Team.T || s.Team == Team.CT)).ToList();
     if (spawnList.Count == 0)
     {
       return;

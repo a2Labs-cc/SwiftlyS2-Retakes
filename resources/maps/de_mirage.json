@@ -16,7 +16,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  2,
-                       "Name":  null
+                       "Name":  "Opposite Default"
                    },
                    {
                        "Vector":  "-554.97 -2,103.69 -179.97",
@@ -25,7 +25,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  3,
-                       "Name":  null
+                       "Name":  "Triple Box"
                    },
                    {
                        "Vector":  "-253.97 -2,134.08 -172.95",
@@ -34,7 +34,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  4,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "-583.17 -2,393.24 -167.97",
@@ -178,7 +178,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  20,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "-1,892.41 242.03 -159.97",
@@ -187,7 +187,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  21,
-                       "Name":  null
+                       "Name":  "Cat"
                    },
                    {
                        "Vector":  "-2,198.97 89.03 -159.97",
@@ -196,7 +196,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  22,
-                       "Name":  null
+                       "Name":  "Corner"
                    },
                    {
                        "Vector":  "-2,494.53 312.34 -167.97",
@@ -296,6 +296,15 @@
                        "CanBePlanter":  false,
                        "Id":  33,
                        "Name":  null
+                   },
+                   {
+                        "Vector": "-625.67487 -1990.3344 -179.96875",
+                        "QAngle": "47.050823 -58.28564 0",
+                        "Team": 2,
+                        "Bombsite": 0,
+                        "CanBePlanter": true,
+                        "Id": 34,
+                        "Name": "Opposite Triple Box"
                    }
                ]
 }

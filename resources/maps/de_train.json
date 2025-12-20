@@ -7,7 +7,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  1,
-                       "Name":  null
+                       "Name":  "Train"
                    },
                    {
                        "Vector":  "400.76358 36.26184 -215.96875",
@@ -106,7 +106,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  12,
-                       "Name":  null
+                       "Name":  "Old Heaven"
                    },
                    {
                        "Vector":  "641.9331 -114.88289 -159.31398",
@@ -115,7 +115,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  13,
-                       "Name":  null
+                       "Name":  "Old Bomb"
                    },
                    {
                        "Vector":  "-463.31555 -1764.1312 -166.96875",
@@ -169,7 +169,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  19,
-                       "Name":  null
+                       "Name":  "Train Side"
                    },
                    {
                        "Vector":  "-232.72836 -1275.144 -277.96872",
@@ -178,7 +178,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  20,
-                       "Name":  null
+                       "Name":  "Train"
                    },
                    {
                        "Vector":  "-211.15405 -1203.9713 -350.96875",
@@ -187,7 +187,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  21,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "175.32149 10.643065 -215.96872",

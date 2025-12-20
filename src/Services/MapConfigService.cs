@@ -5,6 +5,7 @@ using SwiftlyS2.Shared;
 using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Logging;
 using SwiftlyS2_Retakes.Models;
 
 namespace SwiftlyS2_Retakes.Services;
@@ -48,7 +49,7 @@ public sealed class MapConfigService : IMapConfigService
     {
       if (!File.Exists(mapPath))
       {
-        _core.Logger.LogWarning("Retakes: Map config not found: {Path}", mapPath);
+        _core.Logger.LogPluginWarning("Retakes: Map config not found: {Path}", mapPath);
         return false;
       }
 
@@ -57,19 +58,19 @@ public sealed class MapConfigService : IMapConfigService
 
       if (config is null)
       {
-        _core.Logger.LogWarning("Retakes: Map config could not be parsed: {Path}", mapPath);
+        _core.Logger.LogPluginWarning("Retakes: Map config could not be parsed: {Path}", mapPath);
         return false;
       }
 
       LoadedMapName = mapName;
       _spawns = config.Spawns;
 
-      _core.Logger.LogInformation("Retakes: Loaded {Count} spawns for map {Map}", Spawns.Count, mapName);
+      _core.Logger.LogPluginInformation("Retakes: Loaded {Count} spawns for map {Map}", Spawns.Count, mapName);
       return true;
     }
     catch (Exception ex)
     {
-      _core.Logger.LogError(ex, "Retakes: Failed to load map config for {Map} from {Path}", mapName, mapPath);
+      _core.Logger.LogPluginError(ex, "Retakes: Failed to load map config for {Map} from {Path}", mapName, mapPath);
       return false;
     }
   }
@@ -78,7 +79,7 @@ public sealed class MapConfigService : IMapConfigService
   {
     if (string.IsNullOrWhiteSpace(LoadedMapName))
     {
-      _core.Logger.LogWarning("Retakes: Cannot save - no map loaded");
+      _core.Logger.LogPluginWarning("Retakes: Cannot save - no map loaded");
       return false;
     }
 
@@ -90,12 +91,12 @@ public sealed class MapConfigService : IMapConfigService
       var json = JsonSerializer.Serialize(config, _jsonOptions);
       File.WriteAllText(mapPath, json);
 
-      _core.Logger.LogInformation("Retakes: Saved {Count} spawns for map {Map}", _spawns.Count, LoadedMapName);
+      _core.Logger.LogPluginInformation("Retakes: Saved {Count} spawns for map {Map}", _spawns.Count, LoadedMapName);
       return true;
     }
     catch (Exception ex)
     {
-      _core.Logger.LogError(ex, "Retakes: Failed to save map config for {Map} to {Path}", LoadedMapName, mapPath);
+      _core.Logger.LogPluginError(ex, "Retakes: Failed to save map config for {Map} to {Path}", LoadedMapName, mapPath);
       return false;
     }
   }

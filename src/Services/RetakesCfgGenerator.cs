@@ -2,6 +2,7 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using SwiftlyS2.Shared;
 using SwiftlyS2_Retakes.Configuration;
+using SwiftlyS2_Retakes.Logging;
 
 namespace SwiftlyS2_Retakes.Services;
 
@@ -34,7 +35,7 @@ public sealed class RetakesCfgGenerator
       var cfgDir = Path.Combine(_core.CSGODirectory, "cfg", CfgFolderName);
       var cfgPath = Path.Combine(cfgDir, CfgFileName);
 
-      _logger.LogInformation("Retakes: applying freeze time. FreezeTimeSeconds={Freeze} CfgPath={CfgPath}", freezeTime, cfgPath);
+      _logger.LogPluginDebug("Retakes: applying freeze time. FreezeTimeSeconds={Freeze} CfgPath={CfgPath}", freezeTime, cfgPath);
 
       if (!Directory.Exists(cfgDir)) Directory.CreateDirectory(cfgDir);
 
@@ -43,27 +44,21 @@ public sealed class RetakesCfgGenerator
         GenerateCfgFile(cfgPath, freezeTime);
       }
 
-      // Apply immediately (for servers that don't override mp_freezetime later)
-      _core.Engine.ExecuteCommand($"mp_freezetime {freezeTime}");
-
-      void ExecAndReapply()
+      void ExecuteConfig()
       {
         _core.Engine.ExecuteCommand($"exec {CfgFolderName}/{CfgFileName}");
         _core.Engine.ExecuteCommand($"mp_freezetime {freezeTime}");
       }
 
-      // Apply after gamemode cfg (common source of mp_freezetime resets)
-      _core.Scheduler.DelayBySeconds(2.0f, ExecAndReapply);
-
-      // Some servers apply config even later; re-apply once more.
-      _core.Scheduler.DelayBySeconds(5.0f, ExecAndReapply);
+      // Execute immediately
+      ExecuteConfig();
 
       if (restartGame)
       {
         _core.Engine.ExecuteCommand("mp_restartgame 1");
 
-        _core.Scheduler.DelayBySeconds(1.2f, ExecAndReapply);
-        _core.Scheduler.DelayBySeconds(3.5f, ExecAndReapply);
+        _core.Scheduler.DelayBySeconds(1.2f, ExecuteConfig);
+        _core.Scheduler.DelayBySeconds(3.5f, ExecuteConfig);
       }
     }
     catch (Exception ex)

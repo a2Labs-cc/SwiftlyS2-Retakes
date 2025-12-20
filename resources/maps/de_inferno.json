@@ -79,7 +79,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  9,
-                       "Name":  null
+                       "Name":  "Fountain"
                    },
                    {
                        "Vector":  "530.32 2,937.17 161.53",
@@ -88,7 +88,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  10,
-                       "Name":  null
+                       "Name":  "Coffin"
                    },
                    {
                        "Vector":  "172.64 2,938.53 161.53",
@@ -97,7 +97,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  11,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "1.17 2,614.14 161.03",
@@ -232,7 +232,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  26,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "1,819.03 693.97 160.01",
@@ -241,7 +241,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  27,
-                       "Name":  null
+                       "Name":  "Dark"
                    },
                    {
                        "Vector":  "1,819.03 273.68 161.03",
@@ -250,7 +250,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  28,
-                       "Name":  null
+                       "Name":  "Coldzera"
                    },
                    {
                        "Vector":  "2,599.97 559.97 216.03",

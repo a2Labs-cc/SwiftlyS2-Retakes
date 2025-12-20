@@ -30,6 +30,9 @@ public sealed class AllocationService : IAllocationService
   private readonly IConVar<bool> _awpEnabled;
   private readonly IConVar<int> _awpPerTeam;
   private readonly IConVar<bool> _awpAllowEveryone;
+  private readonly IConVar<int> _awpLowPlayersThreshold;
+  private readonly IConVar<int> _awpLowPlayersChance;
+  private readonly IConVar<int> _awpLowPlayersVipChance;
 
   private readonly IConVar<bool> _ssg08Enabled;
   private readonly IConVar<int> _ssg08PerTeam;
@@ -60,6 +63,9 @@ public sealed class AllocationService : IAllocationService
     _awpEnabled = core.ConVar.CreateOrFind("retakes_allocation_awp_enabled", "Enable AWP preference allocation on FullBuy", true);
     _awpPerTeam = core.ConVar.CreateOrFind("retakes_allocation_awp_per_team", "Number of AWPs per team on FullBuy", 1, 0, 5);
     _awpAllowEveryone = core.ConVar.CreateOrFind("retakes_allocation_awp_allow_everyone", "Ignore player preference and allow everyone to receive AWP", false);
+    _awpLowPlayersThreshold = core.ConVar.CreateOrFind("retakes_allocation_awp_low_players_threshold", "Number of players on a team to consider 'low population'", 4, 0, 64);
+    _awpLowPlayersChance = core.ConVar.CreateOrFind("retakes_allocation_awp_low_players_chance", "Chance (0-100) to allocate AWP when player count is low", 50, 0, 100);
+    _awpLowPlayersVipChance = core.ConVar.CreateOrFind("retakes_allocation_awp_low_players_vip_chance", "Chance (0-100) to allocate AWP when player count is low and an eligible VIP is present", 60, 0, 100);
 
     _ssg08Enabled = core.ConVar.CreateOrFind("retakes_allocation_ssg08_enabled", "Enable SSG08 preference allocation on FullBuy", true);
     _ssg08PerTeam = core.ConVar.CreateOrFind("retakes_allocation_ssg08_per_team", "Number of SSG08s per team on FullBuy", 0, 0, 5);
@@ -310,6 +316,41 @@ public sealed class AllocationService : IAllocationService
   {
     var perTeam = Math.Clamp(_awpPerTeam.Value, 0, 10);
     if (perTeam <= 0) return Array.Empty<ulong>();
+
+    var lowThreshold = Math.Clamp(_awpLowPlayersThreshold.Value, 0, 64);
+    var lowChance = Math.Clamp(_awpLowPlayersChance.Value, 0, 100);
+    var lowVipChance = Math.Clamp(_awpLowPlayersVipChance.Value, 0, 100);
+
+    if (players.Count <= lowThreshold)
+    {
+      var vipRequiredFlag = (_awpPriorityFlag.Value ?? string.Empty).Trim();
+      var vipEligible = false;
+      if (!string.IsNullOrWhiteSpace(vipRequiredFlag))
+      {
+        foreach (var p in players)
+        {
+          if (!_prefs.WantsAwpPriority(p.SteamID)) continue;
+          try
+          {
+            if (_core.Permission.PlayerHasPermission(p.SteamID, vipRequiredFlag))
+            {
+              vipEligible = true;
+              break;
+            }
+          }
+          catch
+          {
+            // ignore
+          }
+        }
+      }
+
+      var chance = vipEligible ? lowVipChance : lowChance;
+      if (_random.Next(0, 100) >= chance)
+      {
+        return Array.Empty<ulong>();
+      }
+    }
 
     var candidates = _awpAllowEveryone.Value
       ? players

@@ -60,6 +60,17 @@ public sealed class AnnouncementService : IAnnouncementService
       ? _config.Config.Announcement.BombsiteAimg
       : _config.Config.Announcement.BombsiteBimg;
 
+    var htmlMessage =
+      $"<div style='text-align:center;'>" +
+      $"<img src='{img}' width='320' height='40' style='margin-bottom: 10px;'></img>" +
+      $"<br>" +
+      $"<font class='fontSize-m' color='white'>Mode: </font><b><font class='fontSize-m' color='#ff4d4d'>{roundModeText}</font></b><br>" +
+      $"<font class='fontSize-m' color='white'>" +
+      $"<font color='#4da3ff'>{ctAlive}</font> vs " +
+      $"<font color='#ff4d4d'>{tAlive}</font>" +
+      $"</font>" +
+      $"</div>";
+
     foreach (var player in _core.PlayerManager.GetAllPlayers())
     {
       if (player is null || !player.IsValid) continue;
@@ -96,21 +107,25 @@ public sealed class AnnouncementService : IAnnouncementService
         _messages.Chat(player, loc["round.defend", site, tAlive, ctAlive].Colored());
       }
 
-      var hint = buyMenuEnabled
-        ? "<br><font class='fontSize-m' color='white'>Press </font><font class='fontSize-m' color='#00ff00'>[B]</font><font class='fontSize-m' color='white'> to change weapons</font>"
-        : string.Empty;
+      player.SendCenterHTML(htmlMessage);
 
-      player.SendCenterHTML(
-        $"<img src='{img}' style='max-width:320px; max-height:40px;'></img><br><br>" +
-        $"<font class='fontSize-m' color='white'>Mode: </font><b><font class='fontSize-m' color='#ff4d4d'>{roundModeText}</font></b><br>" +
-        $"<font class='fontSize-m' color='white'>" +
-        $"<font color='#4da3ff'>{ctAlive}</font><font color='#4da3ff'></font> vs " +
-        $"<font color='#ff4d4d'>{tAlive}</font><font color='#ff4d4d'></font>" +
-        $"</font>" +
-        hint
-      );
+      if (buyMenuEnabled)
+      {
+        player.SendCenter("Press [B] to change weapons");
+      }
+    }
+  }
 
-      // hint only in center HTML; no separate SendCenter
+  public void AnnouncePlantSite(string siteName)
+  {
+    foreach (var player in _core.PlayerManager.GetAllPlayers())
+    {
+      if (player is null || !player.IsValid) continue;
+      if ((Team)player.Controller.TeamNum == Team.T)
+      {
+        var loc = _core.Translation.GetPlayerLocalizer(player);
+        _messages.Chat(player, loc["announcement.planting_at", siteName].Colored());
+      }
     }
   }
 }

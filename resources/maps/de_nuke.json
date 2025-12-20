@@ -142,7 +142,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  16,
-                       "Name":  null
+                       "Name":  "Main"
                    },
                    {
                        "Vector":  "700.41 -625.43 -399.97",
@@ -151,7 +151,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  17,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "888.60 -334.04 -413.97",
@@ -205,7 +205,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  23,
-                       "Name":  null
+                       "Name":  "Tetris"
                    },
                    {
                        "Vector":  "189.57 -91.70 -415.97",
@@ -286,7 +286,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  32,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "925.87 -1,330.99 -767.97",
@@ -304,7 +304,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  34,
-                       "Name":  null
+                       "Name":  "Toxic"
                    },
                    {
                        "Vector":  "866.35 -965.26 -765.97",
@@ -313,7 +313,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  35,
-                       "Name":  null
+                       "Name":  "Double Doors"
                    },
                    {
                        "Vector":  "896.28 -286.70 -767.97",

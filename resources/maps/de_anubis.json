@@ -88,7 +88,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  10,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "-1,047.91 599.87 -1.97",
@@ -106,7 +106,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  false,
                        "Id":  12,
-                       "Name":  null
+                       "Name":  "Connector"
                    },
                    {
                        "Vector":  "-583.09 496.94 38.16",
@@ -142,7 +142,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  16,
-                       "Name":  null
+                       "Name":  "Ninja"
                    },
                    {
                        "Vector":  "-1,383.69 635.28 0.03",
@@ -250,7 +250,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  28,
-                       "Name":  null
+                       "Name":  "Pots"
                    },
                    {
                        "Vector":  "1,131.88 1,978.87 -176.77",
@@ -259,7 +259,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  29,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "1,312.03 2,174.42 -185.02",
@@ -268,7 +268,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  30,
-                       "Name":  null
+                       "Name":  "Ninja"
                    },
                    {
                        "Vector":  "1,613.31 1,978.65 -70.47",

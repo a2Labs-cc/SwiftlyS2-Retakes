@@ -2,9 +2,12 @@
 
 # [SwiftlyS2] Retakes
 
-[![GitHub Stars](https://img.shields.io/github/stars/a2Labs-cc/SwiftlyS2-Retakes?style=social)](https://github.com/a2Labs-cc/SwiftlyS2-Retakes/stargazers)
-[![GitHub Issues](https://img.shields.io/github/issues/a2Labs-cc/SwiftlyS2-Retakes?style=flat-square)](https://github.com/a2Labs-cc/SwiftlyS2-Retakes/issues)
-[![GitHub License](https://img.shields.io/github/license/a2Labs-cc/SwiftlyS2-Retakes?style=flat-square)](https://github.com/a2Labs-cc/SwiftlyS2-Retakes/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/a2Labs-cc/SwiftlyS2-Retakes?color=FFFFFF&style=flat-square)](https://github.com/a2Labs-cc/SwiftlyS2-Retakes/releases/latest)
+[![GitHub Issues](https://img.shields.io/github/issues/a2Labs-cc/SwiftlyS2-Retakes?color=FF0000&style=flat-square)](https://github.com/a2Labs-cc/SwiftlyS2-Retakes/issues)
+[![GitHub Downloads](https://img.shields.io/github/downloads/a2Labs-cc/SwiftlyS2-Retakes/total?color=blue&style=flat-square)](https://github.com/a2Labs-cc/SwiftlyS2-Retakes/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/a2Labs-cc/SwiftlyS2-Retakes?style=social)](https://github.com/a2Labs-cc/SwiftlyS2-Retakes/stargazers)<br/>
+  <sub>Made by <a href="https://github.com/agasking1337" rel="noopener noreferrer" target="_blank">aga</a></sub>
+  <br/>
 
 </div>
 
@@ -24,10 +27,19 @@ It handles:
 - **Utility features** like instant bomb options, anti team-flash, clutch announce
 - **End-of-round damage report** (per opponent)
 
-## Requirements
-
-- SwiftlyS2 (CS2)
-- .NET runtime as required by SwiftlyS2 managed plugins
+## Download Shortcuts
+<ul>
+  <li>
+    <code>📦</code>
+    <strong>&nbspDownload Latest Plugin Version</strong> ⇢
+    <a href="https://github.com/agasking1337/PluginsAutoUpdate/releases/latest" target="_blank" rel="noopener noreferrer">Click Here</a>
+  </li>
+  <li>
+    <code>⚙️</code>
+    <strong>&nbspDownload Latest SwiftlyS2 Version</strong> ⇢
+    <a href="https://github.com/swiftly-solution/swiftlys2/releases/latest" target="_blank" rel="noopener noreferrer">Click Here</a>
+  </li>
+</ul>
 
 ## Installation
 
@@ -77,33 +89,42 @@ Each map file contains the spawns used by the retakes allocator.
 
 ### Admin / Root
 
-- `!forcesite <A/B>`
-- `!forcestop`
-- `!loadcfg <mapname>`
-- `!listcfg`
-- `!reloadcfg`
+| Command | Description | Permission |
+| :--- | :--- | :--- |
+| `!forcesite <A/B>` | Forces the game to be played on a specific bombsite. | Root |
+| `!forcestop` | Clears the forced bombsite. | Root |
+| `!loadcfg <mapname>` | Loads a specific map configuration. | Root |
+| `!listcfg` | Lists all available map configurations. | Root |
+| `!reloadcfg` | Reloads the main `config.json`. | Root |
+| `!scramble` | Scrambles the teams on the next round. | Admin |
 
-### Spawn editor (Root)
+### Spawn Editor (Root)
 
-- `!editspawns <A/B>`
-- `!addspawn <T/CT> [planter]`
-- `!remove <id>`
-- `!namespawn <id> <name>`
-- `!gotospawn <id>`
-- `!savespawns`
-- `!stopediting`
+| Command | Description |
+| :--- | :--- |
+| `!editspawns [A/B]` | Enters spawn editing mode. Defaults to showing **Both** sites if no argument is provided. |
+| `!addspawn <T/CT> [planter] [A/B]` | Adds a spawn at your current position. **Note:** If viewing both sites, you must specify `A` or `B`. |
+| `!remove <id>` | Removes the spawn with the specified ID. |
+| `!namespawn <id> <name>` | Sets a descriptive name for the spawn. |
+| `!gotospawn <id>` | Teleports you to the spawn's position. |
+| `!savespawns` | Saves all changes to the map config file. |
+| `!stopediting` | Exits spawn editing mode and reloads the map. |
 
 ### Player
 
-- `!guns` / `!gun`
-- `!retake`
-- `!spawns`
-- `!awp`
-- `!voices`
+| Command | Description |
+| :--- | :--- |
+| `!guns` / `!gun` | Opens the weapon preference menu. |
+| `!retake` | Opens the main Retakes menu (spawn preference, AWP, etc.). |
+| `!spawns` | Toggles the spawn selection menu. |
+| `!awp` | Toggles AWP preference. |
+| `!voices` | Toggles voice announcements. |
 
 ### Debug
 
-- `!debugqueues`
+| Command | Description |
+| :--- | :--- |
+| `!debugqueues` | Prints debug information about the queues. |
 
 ## Damage report
 
@@ -122,18 +143,7 @@ You can edit the message format/colors in:
 dotnet build
 ```
 
-Artifacts are emitted into `build/`.
-
-## Publishing
-
-```bash
-dotnet publish -c Release
-```
-
-This project is configured to package the published output.
-
 ## Credits
-- Developed by [aga](https://github.com/agasking1337)
 - Readme template by [criskkky](https://github.com/criskkky)
 - Release workflow based on [K4ryuu/K4-Guilds-SwiftlyS2 release workflow](https://github.com/K4ryuu/K4-Guilds-SwiftlyS2/blob/main/.github/workflows/release.yml)
 - All contributors listed in the [Contributors Section](https://github.com/agasking1337/PluginsAutoUpdate/graphs/contributors)

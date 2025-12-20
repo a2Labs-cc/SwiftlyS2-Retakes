@@ -6,6 +6,7 @@ using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2.Shared.SchemaDefinitions;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Logging;
 using SwiftlyS2_Retakes.Models;
 
 namespace SwiftlyS2_Retakes.Services;
@@ -47,14 +48,14 @@ public sealed class AutoPlantService : IAutoPlantService
   {
     if (!_autoPlant.Value)
     {
-      _logger.LogInformation("Retakes: auto-plant skipped (retakes_auto_plant=0)");
+      _logger.LogPluginInformation("Retakes: auto-plant skipped (retakes_auto_plant=0)");
       return;
     }
 
     var rules = _core.EntitySystem.GetGameRules();
     if (rules is not null && rules.WarmupPeriod)
     {
-      _logger.LogInformation("Retakes: auto-plant skipped (warmup)");
+      _logger.LogPluginInformation("Retakes: auto-plant skipped (warmup)");
       return;
     }
 
@@ -67,7 +68,7 @@ public sealed class AutoPlantService : IAutoPlantService
         var existing = _core.EntitySystem.GetAllEntitiesByDesignerName<CPlantedC4>("planted_c4");
         if (existing.Any(b => b is not null && b.IsValid))
         {
-          _logger.LogInformation("Retakes: auto-plant skipped (bomb already planted)");
+          _logger.LogPluginInformation("Retakes: auto-plant skipped (bomb already planted)");
           return;
         }
 
@@ -81,7 +82,7 @@ public sealed class AutoPlantService : IAutoPlantService
 
           if (bombCarrier is null || !bombCarrier.IsValid)
           {
-            _logger.LogWarning("Retakes: auto-plant failed (assigned planter not found). SteamId={SteamId}", assignedPlanterSteamId.Value);
+            _logger.LogPluginWarning("Retakes: auto-plant failed (assigned planter not found). SteamId={SteamId}", assignedPlanterSteamId.Value);
             return;
           }
 
@@ -93,7 +94,7 @@ public sealed class AutoPlantService : IAutoPlantService
               return;
             }
 
-            _logger.LogWarning(
+            _logger.LogPluginWarning(
               "Retakes: auto-plant failed (assigned planter pawn not ready after retries). SteamId={SteamId} Slot={Slot}",
               assignedPlanterSteamId.Value,
               bombCarrier.Slot);
@@ -109,13 +110,13 @@ public sealed class AutoPlantService : IAutoPlantService
 
           if (bombCarrier is null || !bombCarrier.IsValid)
           {
-            _logger.LogWarning("Retakes: auto-plant failed (no valid bomb carrier)");
+            _logger.LogPluginWarning("Retakes: auto-plant failed (no valid bomb carrier)");
             return;
           }
 
           if (bombCarrier.Pawn is null)
           {
-            _logger.LogWarning("Retakes: auto-plant failed (bomb carrier pawn not ready). Slot={Slot}", bombCarrier.Slot);
+            _logger.LogPluginWarning("Retakes: auto-plant failed (bomb carrier pawn not ready). Slot={Slot}", bombCarrier.Slot);
             return;
           }
         }
@@ -129,7 +130,7 @@ public sealed class AutoPlantService : IAutoPlantService
 
           if (planterSpawns.Count == 0)
           {
-            _logger.LogWarning(
+            _logger.LogPluginWarning(
               "Retakes: auto-plant failed (no T CanBePlanter spawns). Map={Map} Bombsite={Bombsite}",
               _mapConfig.LoadedMapName,
               bombsite);
@@ -145,7 +146,7 @@ public sealed class AutoPlantService : IAutoPlantService
         var planted = _core.EntitySystem.CreateEntityByDesignerName<CPlantedC4>("planted_c4");
         if (planted is null || !planted.IsValid)
         {
-          _logger.LogWarning("Retakes: auto-plant failed (CreateEntity planted_c4 returned null/invalid)");
+          _logger.LogPluginWarning("Retakes: auto-plant failed (CreateEntity planted_c4 returned null/invalid)");
           return;
         }
 
@@ -180,7 +181,7 @@ public sealed class AutoPlantService : IAutoPlantService
           e.UserId = bombCarrier.Slot;
         });
 
-        _logger.LogInformation(
+        _logger.LogPluginDebug(
           "Retakes: auto-planted bomb. Bombsite={Bombsite} Slot={Slot} AssignedPlanter={Assigned}",
           bombsite,
           bombCarrier.Slot,
@@ -188,12 +189,12 @@ public sealed class AutoPlantService : IAutoPlantService
 
         if (_autoPlantStripC4.Value)
         {
-          _logger.LogWarning("Retakes: retakes_auto_plant_strip_c4 is enabled, but stripping C4 is not supported (can crash server)");
+          _logger.LogPluginWarning("Retakes: retakes_auto_plant_strip_c4 is enabled, but stripping C4 is not supported (can crash server)");
         }
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, "Retakes: auto-plant exception");
+        _logger.LogPluginError(ex, "Retakes: auto-plant exception");
       }
     }
 
@@ -213,7 +214,7 @@ public sealed class AutoPlantService : IAutoPlantService
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Retakes: failed to remove C4 weapons");
+      _logger.LogPluginError(ex, "Retakes: failed to remove C4 weapons");
     }
   }
 }

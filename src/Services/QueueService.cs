@@ -4,6 +4,7 @@ using SwiftlyS2.Shared.Misc;
 using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Logging;
 
 namespace SwiftlyS2_Retakes.Services;
 
@@ -55,7 +56,7 @@ public sealed class QueueService : IQueueService
     var steamId = player.SteamID;
     var cfg = _config.Config.Queue;
 
-    _logger.LogDebug("QueueService: [{Name}] Team change: {From} -> {To}", player.Controller.PlayerName, fromTeam, toTeam);
+    _logger.LogPluginDebug("QueueService: [{Name}] Team change: {From} -> {To}", player.Controller.PlayerName, fromTeam, toTeam);
 
     // Allow initial connection to spectator
     if (fromTeam == Team.None && toTeam == Team.Spectator)
@@ -66,12 +67,12 @@ public sealed class QueueService : IQueueService
     // Player is already active
     if (_activePlayers.Contains(steamId))
     {
-      _logger.LogDebug("QueueService: [{Name}] Player is active", player.Controller.PlayerName);
+      _logger.LogPluginDebug("QueueService: [{Name}] Player is active", player.Controller.PlayerName);
 
       // Switching to spectator - remove from active
       if (toTeam == Team.Spectator)
       {
-        _logger.LogInformation("QueueService: [{Name}] Switched to spectator", player.Controller.PlayerName);
+        _logger.LogPluginInformation("QueueService: [{Name}] Switched to spectator", player.Controller.PlayerName);
         RemovePlayerFromQueues(steamId);
         return HookResult.Continue;
       }
@@ -91,7 +92,7 @@ public sealed class QueueService : IQueueService
 
         if (tryingToJoinCT || tryingToJoinT)
         {
-          _logger.LogInformation("QueueService: [{Name}] Prevented mid-round team change", player.Controller.PlayerName);
+          _logger.LogPluginInformation("QueueService: [{Name}] Prevented mid-round team change", player.Controller.PlayerName);
           _activePlayers.Remove(steamId);
           _queuePlayers.Add(steamId);
 
@@ -119,13 +120,13 @@ public sealed class QueueService : IQueueService
       // During warmup, add directly to active if there's room
       if (isWarmup && _activePlayers.Count < cfg.MaxPlayers)
       {
-        _logger.LogInformation("QueueService: [{Name}] Added to active players (warmup)", player.Controller.PlayerName);
+        _logger.LogPluginInformation("QueueService: [{Name}] Added to active players (warmup)", player.Controller.PlayerName);
         _activePlayers.Add(steamId);
         return HookResult.Continue;
       }
 
       // Add to queue
-      _logger.LogInformation("QueueService: [{Name}] Added to queue", player.Controller.PlayerName);
+      _logger.LogPluginInformation("QueueService: [{Name}] Added to queue", player.Controller.PlayerName);
       var loc = _core.Translation.GetPlayerLocalizer(player);
       _messages.Chat(player, loc["queue.added"]);
       _queuePlayers.Add(steamId);

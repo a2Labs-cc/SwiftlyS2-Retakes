@@ -6,10 +6,11 @@ using SwiftlyS2.Shared;
 using SwiftlyS2_Retakes.DependencyInjection;
 using SwiftlyS2_Retakes.Handlers;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Logging;
 
 namespace SwiftlyS2_Retakes;
 
-[PluginMetadata(Id = "Retakes", Version = "0.0.1-beta", Name = "Retakes", Author = "aga", Description = "No description.")]
+[PluginMetadata(Id = "Retakes", Version = "0.0.2-beta", Name = "Retakes", Author = "aga", Description = "No description.")]
 
 public partial class SwiftlyS2_Retakes : BasePlugin
 {
@@ -57,7 +58,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
   {
     if (_serviceProvider == null)
     {
-      Core.Logger.LogError("Retakes: services not initialized.");
+      Core.Logger.LogPluginError("Retakes: services not initialized.");
       return;
     }
 
@@ -104,7 +105,12 @@ public partial class SwiftlyS2_Retakes : BasePlugin
       _queue!.Reset();
       _mapConfig!.Load(mapName);
       _spawnManager!.SetSpawns(_mapConfig.Spawns);
-      _config!.ApplyToConvars(false);
+      
+      // Delay config application to ensure it overrides gamemode defaults
+      Core.Scheduler.DelayBySeconds(1.0f, () => 
+      {
+        _config!.ApplyToConvars(false);
+      });
     });
 
     // Register handlers
@@ -129,7 +135,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
       _config?.ApplyToConvars(false);
     });
 
-    Core.Logger.LogInformation("Retakes: plugin loaded successfully via DI.");
+    Core.Logger.LogPluginInformation("Retakes: plugin loaded successfully via DI.");
   }
 
   public override void Unload()
@@ -180,11 +186,11 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     try
     {
       _serviceProvider = ServiceProviderFactory.CreateServiceProvider(Core, Core.Logger);
-      Core.Logger.LogInformation("Retakes: services initialized successfully via DI.");
+      Core.Logger.LogPluginInformation("Retakes: services initialized successfully via DI.");
     }
     catch (Exception ex)
     {
-      Core.Logger.LogError(ex, "Retakes: failed to initialize services.");
+      Core.Logger.LogPluginError(ex, "Retakes: failed to initialize services.");
       throw;
     }
   }

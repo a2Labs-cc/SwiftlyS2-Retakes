@@ -8,6 +8,7 @@ using SwiftlyS2.Shared.Players;
 using SwiftlyS2.Shared.SchemaDefinitions;
 using SwiftlyS2_Retakes.Configuration;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Logging;
 using SwiftlyS2_Retakes.Models;
 using System.Globalization;
 
@@ -54,7 +55,7 @@ public sealed class BuyMenuService : IBuyMenuService
   {
     _itemPurchaseHook = _core.GameEvent.HookPre<EventItemPurchase>(OnItemPurchase);
 
-    _logger.LogInformation("Retakes: BuyMenuService initialized. retakes_buymenu_enabled={Enabled}", _enabled.Value);
+    _logger.LogPluginDebug("Retakes: BuyMenuService initialized. retakes_buymenu_enabled={Enabled}", _enabled.Value);
 
     _core.Scheduler.DelayBySeconds(2.0f, ApplyEnforcement);
     _core.Scheduler.DelayBySeconds(6.0f, ApplyEnforcement);
@@ -106,7 +107,7 @@ public sealed class BuyMenuService : IBuyMenuService
     _core.Engine.ExecuteCommand("mp_buy_anywhere 1");
     _core.Engine.ExecuteCommand("mp_buy_allow_grenades 0");
 
-    _logger.LogInformation("Retakes: Buy menu enabled - mp_buy_anywhere=1 buytime={BuyTimeSec}s", buyTimeSec);
+    _logger.LogPluginDebug("Retakes: Buy menu enabled - mp_buy_anywhere=1 buytime={BuyTimeSec}s", buyTimeSec);
   }
 
   public void OnRoundStart()
@@ -384,12 +385,12 @@ public sealed class BuyMenuService : IBuyMenuService
           _prefs.SetFullBuyPrimary(player.SteamID, isCt, weaponName);
       }
 
-      _logger.LogDebug("Retakes: Saved weapon preference {Weapon} for {RoundType} ({Slot}) steamId={SteamId}",
+      _logger.LogPluginDebug("Retakes: Saved weapon preference {Weapon} for {RoundType} ({Slot}) steamId={SteamId}",
         weaponName, roundType, isPistol ? "secondary" : "primary", player.SteamID);
     }
     catch (Exception ex)
     {
-      _logger.LogWarning(ex, "Retakes: Failed to save weapon preference for steamId={SteamId}", player.SteamID);
+      _logger.LogPluginWarning(ex, "Retakes: Failed to save weapon preference for steamId={SteamId}", player.SteamID);
     }
   }
 
@@ -432,7 +433,7 @@ public sealed class BuyMenuService : IBuyMenuService
           if (distSq < 150 * 150)
           {
             weapon.Despawn();
-            _logger.LogDebug("Retakes: Removed dropped weapon {Weapon} near player", designerName);
+            _logger.LogPluginDebug("Retakes: Removed dropped weapon {Weapon} near player", designerName);
             return; // Only remove one weapon per purchase
           }
         }
@@ -440,7 +441,7 @@ public sealed class BuyMenuService : IBuyMenuService
     }
     catch (Exception ex)
     {
-      _logger.LogDebug(ex, "Retakes: Failed to remove dropped weapons");
+      _logger.LogPluginDebug(ex, "Retakes: Failed to remove dropped weapons");
     }
   }
 }

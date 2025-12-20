@@ -70,7 +70,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  8,
-                       "Name":  null
+                       "Name":  "Double"
                    },
                    {
                        "Vector":  "-114.26 -708.79 11,776.03",
@@ -79,7 +79,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  9,
-                       "Name":  null
+                       "Name":  "Sandbags"
                    },
                    {
                        "Vector":  "-347.03 -682.82 11,774.13",
@@ -88,7 +88,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  10,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "-1,088.85 -605.93 11,776.03",
@@ -268,7 +268,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  30,
-                       "Name":  null
+                       "Name":  "Default Corner"
                    },
                    {
                        "Vector":  "-2,216.03 865.05 11,744.03",
@@ -277,7 +277,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  31,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "-2,353.50 927.36 11,744.03",
@@ -286,7 +286,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  32,
-                       "Name":  null
+                       "Name":  "Catwalk"
                    },
                    {
                        "Vector":  "-2,516.83 1,036.03 11,747.60",

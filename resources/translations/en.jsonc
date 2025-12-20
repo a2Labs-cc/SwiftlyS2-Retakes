@@ -1,9 +1,14 @@
 {
   "instadefuse.unsuccessful": "{0} tried to defuse with [darkred]{1}s[white] left (needs [darkred]{2}s[white]).",
   "instadefuse.successful": "{0} defused with [green]{1}s[white] left on the bomb.",
-  "instadefuse.not_possible": "Instant defuse not possible there is a grenade threat!",
+  "instadefuse.not_possible": "Instant defuse not possible: threat still present.",
+  "instadefuse.not_possible_enemy": "Instant defuse not possible: a terrorist is still alive.",
+  "instadefuse.not_possible_molly": "Instant defuse not possible: incendiary/molly near the bomb.",
+  "instadefuse.not_possible_enemy_molly": "Instant defuse not possible: terrorist alive and incendiary/molly near the bomb.",
+  
   "announcement.round_info": "Bombsite: {0} - Roundtype: {1}",
   "announcement.round_start": "A new round has begun. {0} T VS {1} CT. Good luck!",
+  "announcement.planting_at": " [green][Retakes] [white]Planting at: [green]{0}",
   "queue.added": "You have been added to the queue.",
   "queue.waiting": "Waiting in queue... ({0}/{1} players active)",
   "queue.moved_out": "You have been moved to queue (VIP {0} took your place).",
@@ -14,8 +19,71 @@
   "damage.report.header": "[grey]-- Damage report --[white]",
   "damage.report.line": "[grey]-->[white] ([green]{0} dmg[white] / [green]{1} hits[white]) to ([darkred]{2} dmg[white] / [darkred]{3} hits[white]) from [orange]{4}[white] ([blue]{5} HP[white])",
   "round.now": "Now: [orange]{0}[white]",
-  "round.retake": "Retake [green]{0}[white]: [blue]{1}[white] vs [red]{2}[white]",
+  "round.retake": "[green]Retake[white] [green]{0}[white]: [blue]{1}[white] vs [red]{2}[white]",
   "round.defend": "Defend [red]{0}[white]: [red]{1}[white] vs [blue]{2}[white]",
   "round.win_message": "The [green]{0}[white] team has won!",
-  "round.win_streak": "Won [green]{0}[white] rounds in a row."
+  "round.win_streak": "Won [green]{0}[white] rounds in a row.",
+
+  "command.forcesite.usage": "Usage: !forcesite <A/B>",
+  "command.forcesite.forced_a": "[green]Retakes:[white] forced bombsite A",
+  "command.forcesite.forced_b": "[green]Retakes:[white] forced bombsite B",
+  "command.forcestop.cleared": "[green]Retakes:[white] forced bombsite cleared",
+
+  "command.editspawns.usage": "Usage: !editspawns [A/B]",
+  "command.editspawns.start": "[green]Retakes:[white] editing spawns for {0}",
+  "command.editspawns.commands": "Commands: !addspawn <T/CT> [planter] [A/B], !remove <id>, !namespawn <id> <name>, !gotospawn <id>, !savespawns, !stopediting",
+  "command.stopediting.stopped": "[green]Retakes:[white] spawn editing stopped",
+
+  "command.addspawn.usage": "Usage: !addspawn <T/CT> [planter] [A/B]",
+  "command.addspawn.both_mode_needs_site": "[green]Retakes:[white] when viewing both sites, you must specify the site (A or B). Usage: !addspawn <T/CT> [planter] <A/B>",
+  "command.addspawn.site_mismatch": "[green]Retakes:[white] you are viewing site {0}, but tried to add a spawn for a different site.",
+  "command.addspawn.only_t_planter": "[green]Retakes:[white] only T spawns can be planter spawns",
+  "command.addspawn.must_have_pawn": "[green]Retakes:[white] you must have a player pawn",
+  "command.addspawn.read_pos_failed": "[green]Retakes:[white] failed to read player position",
+  "command.addspawn.added": "[green]Retakes:[white] added spawn #{0} for {1} at {2}{3}",
+
+  "command.remove.usage": "Usage: !remove <id>",
+  "command.remove.spawn_not_found": "[green]Retakes:[white] spawn #{0} not found",
+  "command.remove.failed": "[green]Retakes:[white] failed to remove spawn #{0}",
+  "command.remove.removed": "[green]Retakes:[white] removed spawn #{0}",
+
+  "command.namespawn.usage": "Usage: !namespawn <id> <name>",
+  "command.namespawn.failed_set": "[green]Retakes:[white] failed to set name for spawn #{0}",
+  "command.namespawn.named": "[green]Retakes:[white] spawn #{0} named '{1}'",
+
+  "command.savespawns.no_map_config": "[green]Retakes:[white] no map config loaded",
+  "command.savespawns.saved": "[green]Retakes:[white] saved {0} spawns to {1}.json",
+  "command.savespawns.failed": "[green]Retakes:[white] failed to save spawns",
+
+  "command.gotospawn.usage": "Usage: !gotospawn <id>",
+  "command.gotospawn.not_found": "[green]Retakes:[white] spawn id {0} not found",
+  "command.gotospawn.teleporting": "[green]Retakes:[white] teleporting to spawn {0}",
+
+  "command.loadcfg.usage": "Usage: !loadcfg <mapname>",
+  "command.loadcfg.failed": "[green]Retakes:[white] failed to load map config {0}",
+  "command.loadcfg.loaded": "[green]Retakes:[white] loaded {0} ({1} spawns)",
+
+  "command.listcfg.maps_dir_not_found": "[green]Retakes:[white] resources/maps directory not found",
+  "command.listcfg.none_found": "[green]Retakes:[white] no map configs found",
+  "command.listcfg.list": "[green]Retakes cfg:[white] {0}",
+  "command.listcfg.failed": "[green]Retakes:[white] failed to list configs",
+
+  "command.scramble.next_round": "[green]Retakes:[white] teams will scramble next round",
+
+  "command.voices.enabled": "[green]Retakes:[white] voice announcements enabled",
+  "command.voices.disabled": "[green]Retakes:[white] voice announcements disabled",
+
+  "command.spawns.enabled": "[green]Retakes:[white] Spawn Menu enabled",
+  "command.spawns.disabled": "[green]Retakes:[white] Spawn Menu disabled",
+
+  "command.awp.enabled": "[green]Retakes:[white] AWP preference enabled",
+  "command.awp.disabled": "[green]Retakes:[white] AWP preference disabled",
+
+  "command.reloadcfg.success": "[green]Retakes:[white] reloaded config.json",
+  "command.reloadcfg.failed": "[green]Retakes:[white] failed to reload config.json",
+
+  "error.plugin_not_ready": "[green]Retakes:[white] plugin not ready",
+  "error.must_be_player": "[green]Retakes:[white] this command must be run by a player",
+  "error.must_be_in_spawn_edit_mode": "[green]Retakes:[white] you must be in spawn editing mode (use !editspawns A/B)",
+  "spawns.save_hint": "Use !savespawns to save changes to file"
 }

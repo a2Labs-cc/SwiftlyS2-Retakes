@@ -5,9 +5,9 @@ using SwiftlyS2.Shared.GameEventDefinitions;
 using SwiftlyS2.Shared.Misc;
 using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
-using SwiftlyS2.Shared.ProtobufDefinitions;
 using SwiftlyS2.Shared.SchemaDefinitions;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Logging;
 using SwiftlyS2_Retakes.Models;
 
 namespace SwiftlyS2_Retakes.Services;
@@ -242,7 +242,7 @@ public sealed class InstantBombService : IInstantBombService
 
     if (_plantedBomb is null || !_plantedBomb.IsValid || _plantedBomb.CannotBeDefused)
     {
-      _logger.LogInformation("Retakes: instant defuse skipped (no valid planted bomb tracked)");
+      _logger.LogPluginInformation("Retakes: instant defuse skipped (no valid planted bomb tracked)");
       return HookResult.Continue;
     }
 
@@ -278,8 +278,17 @@ public sealed class InstantBombService : IInstantBombService
 
     if (terroristsAlive || mollyNear)
     {
-      _logger.LogInformation("Retakes: instant defuse blocked. TerroristsAlive={TAlive} MollyNear={MollyNear}", terroristsAlive, mollyNear);
-      BroadcastTranslation("instadefuse.not_possible");
+      _logger.LogPluginInformation("Retakes: instant defuse blocked. TerroristsAlive={TAlive} MollyNear={MollyNear}", terroristsAlive, mollyNear);
+
+      var key = (terroristsAlive, mollyNear) switch
+      {
+        (true, true) => "instadefuse.not_possible_enemy_molly",
+        (true, false) => "instadefuse.not_possible_enemy",
+        (false, true) => "instadefuse.not_possible_molly",
+        _ => "instadefuse.not_possible",
+      };
+
+      BroadcastTranslation(key);
       return HookResult.Continue;
     }
 

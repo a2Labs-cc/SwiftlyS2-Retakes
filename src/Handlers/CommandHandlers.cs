@@ -96,11 +96,33 @@ public sealed class CommandHandlers
     _core = null;
   }
 
+  private string Tr(ICommandContext context, string key, params object[] args)
+  {
+    var core = _core;
+    if (core is null) return key;
+
+    IPlayer? player = null;
+    if (context.IsSentByPlayer && context.Sender is not null)
+    {
+      player = context.Sender;
+    }
+    else
+    {
+      player = core.PlayerManager.GetAllPlayers().FirstOrDefault(p => p is not null && p.IsValid);
+    }
+
+    if (player is null) return key;
+
+    var loc = core.Translation.GetPlayerLocalizer(player);
+    var result = args.Length == 0 ? loc[key] : loc[key, args];
+    return result.Colored();
+  }
+
   private void ForceSite(ICommandContext context)
   {
     if (context.Args.Length < 1)
     {
-      context.Reply("Usage: !forcesite <A/B>");
+      context.Reply(Tr(context, "command.forcesite.usage"));
       return;
     }
 
@@ -108,24 +130,24 @@ public sealed class CommandHandlers
     if (arg.Equals("A", StringComparison.OrdinalIgnoreCase))
     {
       _state.ForceBombsite(Bombsite.A);
-      context.Reply("Retakes: forced bombsite A");
+      context.Reply(Tr(context, "command.forcesite.forced_a"));
       return;
     }
 
     if (arg.Equals("B", StringComparison.OrdinalIgnoreCase))
     {
       _state.ForceBombsite(Bombsite.B);
-      context.Reply("Retakes: forced bombsite B");
+      context.Reply(Tr(context, "command.forcesite.forced_b"));
       return;
     }
 
-    context.Reply("Usage: !forcesite <A/B>");
+    context.Reply(Tr(context, "command.forcesite.usage"));
   }
 
   private void ForceStop(ICommandContext context)
   {
     _state.ClearForcedBombsite();
-    context.Reply("Retakes: forced bombsite cleared");
+    context.Reply(Tr(context, "command.forcestop.cleared"));
   }
 
   private void EditSpawns(ICommandContext context)
@@ -133,24 +155,26 @@ public sealed class CommandHandlers
     var core = _core;
     if (core is null)
     {
-      context.Reply("Retakes: plugin not ready");
+      context.Reply(Tr(context, "error.plugin_not_ready"));
       return;
     }
 
-    if (context.Args.Length < 1)
-    {
-      context.Reply("Usage: !editspawns <A/B>");
-      return;
-    }
-
-    var arg = context.Args[0].Trim();
     Bombsite bombsite;
-    if (arg.Equals("A", StringComparison.OrdinalIgnoreCase)) bombsite = Bombsite.A;
-    else if (arg.Equals("B", StringComparison.OrdinalIgnoreCase)) bombsite = Bombsite.B;
+    if (context.Args.Length == 0)
+    {
+      bombsite = Bombsite.Both;
+    }
     else
     {
-      context.Reply("Usage: !editspawns <A/B>");
-      return;
+      var arg = context.Args[0].Trim();
+      if (arg.Equals("A", StringComparison.OrdinalIgnoreCase)) bombsite = Bombsite.A;
+      else if (arg.Equals("B", StringComparison.OrdinalIgnoreCase)) bombsite = Bombsite.B;
+      else if (arg.Equals("Both", StringComparison.OrdinalIgnoreCase)) bombsite = Bombsite.Both;
+      else
+      {
+        context.Reply(Tr(context, "command.editspawns.usage"));
+        return;
+      }
     }
 
     _state.SetShowingSpawnsForBombsite(bombsite);
@@ -165,8 +189,8 @@ public sealed class CommandHandlers
       _spawnViz.ShowSpawns(_mapConfig.Spawns, bombsite);
     });
 
-    context.Reply($"Retakes: editing spawns for {bombsite}");
-    context.Reply("Commands: !addspawn <T/CT> [planter], !remove <id>, !namespawn <id> <name>, !gotospawn <id>, !savespawns, !stopediting");
+    context.Reply(Tr(context, "command.editspawns.start", bombsite));
+    context.Reply(Tr(context, "command.editspawns.commands"));
   }
 
   private void StopEditing(ICommandContext context)
@@ -174,7 +198,7 @@ public sealed class CommandHandlers
     var core = _core;
     if (core is null)
     {
-      context.Reply("Retakes: plugin not ready");
+      context.Reply(Tr(context, "error.plugin_not_ready"));
       return;
     }
 
@@ -184,13 +208,19 @@ public sealed class CommandHandlers
     core.Engine.ExecuteCommand("mp_warmup_pausetimer 0");
     core.Engine.ExecuteCommand("mp_warmup_end");
 
+    // Ensure config is re-applied after leaving edit mode (warmup end)
+    core.Scheduler.DelayBySeconds(1.0f, () =>
+    {
+        _config.ApplyToConvars(false);
+    });
+
     // Reload from disk so external edits (e.g. spawn names) apply immediately without server restart.
     if (_mapConfig.LoadedMapName is not null && _mapConfig.Load(_mapConfig.LoadedMapName))
     {
       _spawnManager.SetSpawns(_mapConfig.Spawns);
     }
 
-    context.Reply("Retakes: spawn editing stopped");
+    context.Reply(Tr(context, "command.stopediting.stopped"));
   }
 
   private void AddSpawn(ICommandContext context)
@@ -198,26 +228,26 @@ public sealed class CommandHandlers
     var core = _core;
     if (core is null)
     {
-      context.Reply("Retakes: plugin not ready");
+      context.Reply(Tr(context, "error.plugin_not_ready"));
       return;
     }
 
     if (!context.IsSentByPlayer || context.Sender is null)
     {
-      context.Reply("Retakes: this command must be run by a player");
+      context.Reply(Tr(context, "error.must_be_player"));
       return;
     }
 
-    var bombsite = _state.ShowingSpawnsForBombsite;
-    if (bombsite is null)
+    var bombsiteState = _state.ShowingSpawnsForBombsite;
+    if (bombsiteState is null)
     {
-      context.Reply("Retakes: you must be in spawn editing mode (use !editspawns A/B)");
+      context.Reply(Tr(context, "error.must_be_in_spawn_edit_mode"));
       return;
     }
 
     if (context.Args.Length < 1)
     {
-      context.Reply("Usage: !addspawn <T/CT> [planter]");
+      context.Reply(Tr(context, "command.addspawn.usage"));
       return;
     }
 
@@ -227,23 +257,67 @@ public sealed class CommandHandlers
     else if (teamArg.Equals("CT", StringComparison.OrdinalIgnoreCase)) team = Team.CT;
     else
     {
-      context.Reply("Usage: !addspawn <T/CT> [planter]");
+      context.Reply(Tr(context, "command.addspawn.usage"));
       return;
     }
 
-    var canBePlanter = context.Args.Length > 1 && 
-      context.Args[1].Trim().Equals("planter", StringComparison.OrdinalIgnoreCase);
+    // Parse optional args
+    var canBePlanter = false;
+    Bombsite? specifiedSite = null;
+
+    for (var i = 1; i < context.Args.Length; i++)
+    {
+      var arg = context.Args[i].Trim();
+      if (arg.Equals("planter", StringComparison.OrdinalIgnoreCase))
+      {
+        canBePlanter = true;
+      }
+      else if (arg.Equals("A", StringComparison.OrdinalIgnoreCase))
+      {
+        specifiedSite = Bombsite.A;
+      }
+      else if (arg.Equals("B", StringComparison.OrdinalIgnoreCase))
+      {
+        specifiedSite = Bombsite.B;
+      }
+    }
+
+    Bombsite finalBombsite;
+    if (bombsiteState.Value == Bombsite.Both)
+    {
+      if (specifiedSite is null)
+      {
+        context.Reply(Tr(context, "command.addspawn.both_mode_needs_site"));
+        return;
+      }
+      finalBombsite = specifiedSite.Value;
+    }
+    else
+    {
+      finalBombsite = bombsiteState.Value;
+      // If user specified a site that contradicts the current view, maybe warn? 
+      // For now, let's just ignore it or assume they know what they are doing if it matches. 
+      // If they are in A and type B, we could error, but let's stick to the view mode restriction for safety/simplicity 
+      // or just allow the view mode to dictate.
+      // Actually, if they are in A and type B, it might be confusing if it adds to A.
+      // Let's enforce that if they specify a site, it must match the view (unless view is Both).
+      if (specifiedSite is not null && specifiedSite.Value != finalBombsite)
+      {
+        context.Reply(Tr(context, "command.addspawn.site_mismatch", finalBombsite));
+        return;
+      }
+    }
 
     if (canBePlanter && team != Team.T)
     {
-      context.Reply("Retakes: only T spawns can be planter spawns");
+      context.Reply(Tr(context, "command.addspawn.only_t_planter"));
       return;
     }
 
     var pawn = context.Sender.PlayerPawn;
     if (pawn is null)
     {
-      context.Reply("Retakes: you must have a player pawn");
+      context.Reply(Tr(context, "command.addspawn.must_have_pawn"));
       return;
     }
 
@@ -251,11 +325,11 @@ public sealed class CommandHandlers
     var angles = pawn.EyeAngles;
     if (position is null)
     {
-      context.Reply("Retakes: failed to read player position");
+      context.Reply(Tr(context, "command.addspawn.read_pos_failed"));
       return;
     }
 
-    var newId = _mapConfig.AddSpawn(position.Value, angles, team, bombsite.Value, canBePlanter);
+    var newId = _mapConfig.AddSpawn(position.Value, angles, team, finalBombsite, canBePlanter);
 
     // Refresh visualization
     _spawnViz.HideSpawns();
@@ -266,8 +340,8 @@ public sealed class CommandHandlers
     });
 
     var planterText = canBePlanter ? " (planter)" : "";
-    context.Reply($"Retakes: added spawn #{newId} for {team} at {bombsite}{planterText}");
-    context.Reply("Use !savespawns to save changes to file");
+    context.Reply(Tr(context, "command.addspawn.added", newId, team, finalBombsite, planterText));
+    context.Reply(Tr(context, "spawns.save_hint"));
   }
 
   private void RemoveSpawn(ICommandContext context)
@@ -275,39 +349,39 @@ public sealed class CommandHandlers
     var core = _core;
     if (core is null)
     {
-      context.Reply("Retakes: plugin not ready");
+      context.Reply(Tr(context, "error.plugin_not_ready"));
       return;
     }
 
     var bombsite = _state.ShowingSpawnsForBombsite;
     if (bombsite is null)
     {
-      context.Reply("Retakes: you must be in spawn editing mode (use !editspawns A/B)");
+      context.Reply(Tr(context, "error.must_be_in_spawn_edit_mode"));
       return;
     }
 
     if (context.Args.Length < 1)
     {
-      context.Reply("Usage: !remove <id>");
+      context.Reply(Tr(context, "command.remove.usage"));
       return;
     }
 
     if (!int.TryParse(context.Args[0], out var id))
     {
-      context.Reply("Usage: !remove <id>");
+      context.Reply(Tr(context, "command.remove.usage"));
       return;
     }
 
     var spawn = _mapConfig.GetSpawnById(id);
     if (spawn is null)
     {
-      context.Reply($"Retakes: spawn #{id} not found");
+      context.Reply(Tr(context, "command.remove.spawn_not_found", id));
       return;
     }
 
     if (!_mapConfig.RemoveSpawn(id))
     {
-      context.Reply($"Retakes: failed to remove spawn #{id}");
+      context.Reply(Tr(context, "command.remove.failed", id));
       return;
     }
 
@@ -319,8 +393,8 @@ public sealed class CommandHandlers
       _spawnViz.ShowSpawns(_mapConfig.Spawns, _state.ShowingSpawnsForBombsite.Value);
     });
 
-    context.Reply($"Retakes: removed spawn #{id}");
-    context.Reply("Use !savespawns to save changes to file");
+    context.Reply(Tr(context, "command.remove.removed", id));
+    context.Reply(Tr(context, "spawns.save_hint"));
   }
 
   private void NameSpawn(ICommandContext context)
@@ -328,62 +402,62 @@ public sealed class CommandHandlers
     var bombsite = _state.ShowingSpawnsForBombsite;
     if (bombsite is null)
     {
-      context.Reply("Retakes: you must be in spawn editing mode (use !editspawns A/B)");
+      context.Reply(Tr(context, "error.must_be_in_spawn_edit_mode"));
       return;
     }
 
     if (context.Args.Length < 2)
     {
-      context.Reply("Usage: !namespawn <id> <name>");
+      context.Reply(Tr(context, "command.namespawn.usage"));
       return;
     }
 
     if (!int.TryParse(context.Args[0], out var id))
     {
-      context.Reply("Usage: !namespawn <id> <name>");
+      context.Reply(Tr(context, "command.namespawn.usage"));
       return;
     }
 
     var name = string.Join(" ", context.Args.Skip(1));
     if (string.IsNullOrWhiteSpace(name))
     {
-      context.Reply("Usage: !namespawn <id> <name>");
+      context.Reply(Tr(context, "command.namespawn.usage"));
       return;
     }
 
     var spawn = _mapConfig.GetSpawnById(id);
     if (spawn is null)
     {
-      context.Reply($"Retakes: spawn #{id} not found");
+      context.Reply(Tr(context, "command.remove.spawn_not_found", id));
       return;
     }
 
     if (!_mapConfig.SetSpawnName(id, name))
     {
-      context.Reply($"Retakes: failed to set name for spawn #{id}");
+      context.Reply(Tr(context, "command.namespawn.failed_set", id));
       return;
     }
 
-    context.Reply($"Retakes: spawn #{id} named '{name}'");
-    context.Reply("Use !savespawns to save changes to file");
+    context.Reply(Tr(context, "command.namespawn.named", id, name));
+    context.Reply(Tr(context, "spawns.save_hint"));
   }
 
   private void SaveSpawns(ICommandContext context)
   {
     if (_mapConfig.LoadedMapName is null)
     {
-      context.Reply("Retakes: no map config loaded");
+      context.Reply(Tr(context, "command.savespawns.no_map_config"));
       return;
     }
 
     if (_mapConfig.Save())
     {
       _spawnManager.SetSpawns(_mapConfig.Spawns);
-      context.Reply($"Retakes: saved {_mapConfig.Spawns.Count} spawns to {_mapConfig.LoadedMapName}.json");
+      context.Reply(Tr(context, "command.savespawns.saved", _mapConfig.Spawns.Count, _mapConfig.LoadedMapName));
     }
     else
     {
-      context.Reply("Retakes: failed to save spawns");
+      context.Reply(Tr(context, "command.savespawns.failed"));
     }
   }
 
@@ -391,57 +465,57 @@ public sealed class CommandHandlers
   {
     if (!context.IsSentByPlayer || context.Sender is null)
     {
-      context.Reply("Retakes: this command must be run by a player");
+      context.Reply(Tr(context, "error.must_be_player"));
       return;
     }
 
     if (context.Args.Length < 1)
     {
-      context.Reply("Usage: !gotospawn <id>");
+      context.Reply(Tr(context, "command.gotospawn.usage"));
       return;
     }
 
     if (!int.TryParse(context.Args[0], out var id))
     {
-      context.Reply("Usage: !gotospawn <id>");
+      context.Reply(Tr(context, "command.gotospawn.usage"));
       return;
     }
 
     var spawn = _mapConfig.Spawns.FirstOrDefault(s => s.Id == id);
     if (spawn is null)
     {
-      context.Reply($"Retakes: spawn id {id} not found");
+      context.Reply(Tr(context, "command.gotospawn.not_found", id));
       return;
     }
 
     _pawnLifecycle.WhenPawnReady(context.Sender, p => p.Teleport(spawn.Position, spawn.Angle, Vector.Zero));
-    context.Reply($"Retakes: teleporting to spawn {id}");
+    context.Reply(Tr(context, "command.gotospawn.teleporting", id));
   }
 
   private void LoadCfg(ICommandContext context)
   {
     if (context.Args.Length < 1)
     {
-      context.Reply("Usage: !loadcfg <mapname>");
+      context.Reply(Tr(context, "command.loadcfg.usage"));
       return;
     }
 
     var mapName = context.Args[0].Trim();
     if (string.IsNullOrWhiteSpace(mapName))
     {
-      context.Reply("Usage: !loadcfg <mapname>");
+      context.Reply(Tr(context, "command.loadcfg.usage"));
       return;
     }
 
     var ok = _mapConfig.Load(mapName);
     if (!ok)
     {
-      context.Reply($"Retakes: failed to load map config {mapName}");
+      context.Reply(Tr(context, "command.loadcfg.failed", mapName));
       return;
     }
 
     _spawnManager.SetSpawns(_mapConfig.Spawns);
-    context.Reply($"Retakes: loaded {mapName} ({_mapConfig.Spawns.Count} spawns)");
+    context.Reply(Tr(context, "command.loadcfg.loaded", mapName, _mapConfig.Spawns.Count));
   }
 
   private void ListCfg(ICommandContext context)
@@ -451,14 +525,14 @@ public sealed class CommandHandlers
       var core = _core;
       if (core is null)
       {
-        context.Reply("Retakes: plugin not ready");
+        context.Reply(Tr(context, "error.plugin_not_ready"));
         return;
       }
 
       var mapsDir = Path.Combine(core.PluginPath, "resources", "maps");
       if (!Directory.Exists(mapsDir))
       {
-        context.Reply("Retakes: resources/maps directory not found");
+        context.Reply(Tr(context, "command.listcfg.maps_dir_not_found"));
         return;
       }
 
@@ -470,34 +544,34 @@ public sealed class CommandHandlers
 
       if (files.Count == 0)
       {
-        context.Reply("Retakes: no map configs found");
+        context.Reply(Tr(context, "command.listcfg.none_found"));
         return;
       }
 
-      context.Reply("Retakes cfg: " + string.Join(", ", files));
+      context.Reply(Tr(context, "command.listcfg.list", string.Join(", ", files)));
     }
     catch
     {
-      context.Reply("Retakes: failed to list configs");
+      context.Reply(Tr(context, "command.listcfg.failed"));
     }
   }
 
   private void Scramble(ICommandContext context)
   {
     _state.ScrambleNextRound = true;
-    context.Reply("Retakes: teams will scramble next round");
+    context.Reply(Tr(context, "command.scramble.next_round"));
   }
 
   private void Voices(ICommandContext context)
   {
     if (!context.IsSentByPlayer || context.Sender is null)
     {
-      context.Reply("Retakes: this command must be run by a player");
+      context.Reply(Tr(context, "error.must_be_player"));
       return;
     }
 
     var enabled = _state.ToggleVoices(context.Sender.SteamID);
-    context.Reply(enabled ? "Retakes: voice announcements enabled" : "Retakes: voice announcements disabled");
+    context.Reply(enabled ? Tr(context, "command.voices.enabled") : Tr(context, "command.voices.disabled"));
   }
 
   private void Guns(ICommandContext context)
@@ -505,13 +579,13 @@ public sealed class CommandHandlers
     var core = _core;
     if (core is null)
     {
-      context.Reply("Retakes: plugin not ready");
+      context.Reply(Tr(context, "error.plugin_not_ready"));
       return;
     }
 
     if (!context.IsSentByPlayer || context.Sender is null)
     {
-      context.Reply("Retakes: this command must be run by a player");
+      context.Reply(Tr(context, "error.must_be_player"));
       return;
     }
 
@@ -553,13 +627,13 @@ public sealed class CommandHandlers
     var core = _core;
     if (core is null)
     {
-      context.Reply("Retakes: plugin not ready");
+      context.Reply(Tr(context, "error.plugin_not_ready"));
       return;
     }
 
     if (!context.IsSentByPlayer || context.Sender is null)
     {
-      context.Reply("Retakes: this command must be run by a player");
+      context.Reply(Tr(context, "error.must_be_player"));
       return;
     }
 
@@ -570,12 +644,12 @@ public sealed class CommandHandlers
   {
     if (!context.IsSentByPlayer || context.Sender is null)
     {
-      context.Reply("Retakes: this command must be run by a player");
+      context.Reply(Tr(context, "error.must_be_player"));
       return;
     }
 
     var enabled = _prefs.ToggleSpawnMenu(context.Sender.SteamID);
-    context.Reply(enabled ? "Retakes: Spawn Menu enabled" : "Retakes: Spawn Menu disabled");
+    context.Reply(enabled ? Tr(context, "command.spawns.enabled") : Tr(context, "command.spawns.disabled"));
   }
 
   private void OpenRetakeMenu(ISwiftlyCore core, SwiftlyS2.Shared.Players.IPlayer player)
@@ -945,12 +1019,12 @@ public sealed class CommandHandlers
   {
     if (!context.IsSentByPlayer || context.Sender is null)
     {
-      context.Reply("Retakes: this command must be run by a player");
+      context.Reply(Tr(context, "error.must_be_player"));
       return;
     }
 
     var enabled = _prefs.ToggleAwp(context.Sender.SteamID);
-    context.Reply(enabled ? "Retakes: AWP preference enabled" : "Retakes: AWP preference disabled");
+    context.Reply(enabled ? Tr(context, "command.awp.enabled") : Tr(context, "command.awp.disabled"));
   }
 
   private void ReloadCfg(ICommandContext context)
@@ -959,11 +1033,11 @@ public sealed class CommandHandlers
     {
       _config.LoadOrCreate();
       _config.ApplyToConvars(restartGame: true);
-      context.Reply("Retakes: reloaded config.json");
+      context.Reply(Tr(context, "command.reloadcfg.success"));
     }
     catch
     {
-      context.Reply("Retakes: failed to reload config.json");
+      context.Reply(Tr(context, "command.reloadcfg.failed"));
     }
   }
 

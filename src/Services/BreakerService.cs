@@ -5,6 +5,7 @@ using SwiftlyS2.Shared;
 using SwiftlyS2.Shared.Convars;
 using SwiftlyS2.Shared.SchemaDefinitions;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Logging;
 
 namespace SwiftlyS2_Retakes.Services;
 
@@ -39,7 +40,7 @@ public sealed class BreakerService : IBreakerService
 
   public void HandleRoundStart()
   {
-    _logger.LogInformation("Retakes: Breaker HandleRoundStart called. BreakBreakables={Break}, OpenDoors={Doors}",
+    _logger.LogPluginDebug("Retakes: Breaker HandleRoundStart called. BreakBreakables={Break}, OpenDoors={Doors}",
       _breakBreakables.Value, _openDoors.Value);
 
     if (!_breakBreakables.Value && !_openDoors.Value)
@@ -48,7 +49,7 @@ public sealed class BreakerService : IBreakerService
     }
 
     var mapName = (_core.Engine.GlobalVars.MapName.Value ?? string.Empty).Trim();
-    _logger.LogInformation("Retakes: Breaker map name = '{MapName}'", mapName);
+    _logger.LogPluginDebug("Retakes: Breaker map name = '{MapName}'", mapName);
 
     var processed = 0;
 
@@ -75,7 +76,7 @@ public sealed class BreakerService : IBreakerService
       processed += InputByDesignerName("prop_door_rotating", "open");
     }
 
-    _logger.LogInformation("Retakes: Breaker processed {Count} entities total", processed);
+    _logger.LogPluginDebug("Retakes: Breaker processed {Count} entities total", processed);
   }
 
   private int BreakByDesignerName(string designerName)
@@ -94,7 +95,7 @@ public sealed class BreakerService : IBreakerService
       count++;
     }
 
-    _logger.LogInformation("Retakes: Breaker found {Count} entities with designerName '{DesignerName}' (input: {Input})",
+    _logger.LogPluginDebug("Retakes: Breaker found {Count} entities with designerName '{DesignerName}' (input: {Input})",
       count, designerName, input);
 
     return count;

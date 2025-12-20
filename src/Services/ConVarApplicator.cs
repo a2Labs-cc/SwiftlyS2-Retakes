@@ -31,6 +31,9 @@ public sealed class ConVarApplicator
     ApplyBool("retakes_allocation_awp_enabled", config.Allocation.AwpEnabled);
     ApplyInt("retakes_allocation_awp_per_team", config.Allocation.AwpPerTeam);
     ApplyBool("retakes_allocation_awp_allow_everyone", config.Allocation.AwpAllowEveryone);
+    ApplyInt("retakes_allocation_awp_low_players_threshold", config.Allocation.AwpLowPlayersThreshold);
+    ApplyInt("retakes_allocation_awp_low_players_chance", config.Allocation.AwpLowPlayersChance);
+    ApplyInt("retakes_allocation_awp_low_players_vip_chance", config.Allocation.AwpLowPlayersVipChance);
 
     // SSG08 settings
     ApplyBool("retakes_allocation_ssg08_enabled", config.Allocation.Ssg08Enabled);

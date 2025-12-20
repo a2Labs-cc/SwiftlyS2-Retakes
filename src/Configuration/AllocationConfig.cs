@@ -14,6 +14,9 @@ public sealed class AllocationConfig
   public bool AwpEnabled { get; set; } = true;
   public int AwpPerTeam { get; set; } = 1;
   public bool AwpAllowEveryone { get; set; } = false;
+  public int AwpLowPlayersThreshold { get; set; } = 4;
+  public int AwpLowPlayersChance { get; set; } = 50;
+  public int AwpLowPlayersVipChance { get; set; } = 60;
 
   public bool Ssg08Enabled { get; set; } = true;
   public int Ssg08PerTeam { get; set; } = 0;

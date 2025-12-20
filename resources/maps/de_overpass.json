@@ -97,7 +97,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  11,
-                       "Name":  null
+                       "Name":  "Toxic"
                    },
                    {
                        "Vector":  "-1,251.97 5.03 103.53",
@@ -115,7 +115,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  13,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "-970.96 -82.35 100.03",
@@ -124,7 +124,7 @@
                        "Bombsite":  1,
                        "CanBePlanter":  true,
                        "Id":  14,
-                       "Name":  null
+                       "Name":  "Pillar"
                    },
                    {
                        "Vector":  "-822.62 461.98 100.03",
@@ -223,7 +223,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  25,
-                       "Name":  null
+                       "Name":  "Back of Truck"
                    },
                    {
                        "Vector":  "-2,145.47 558.12 585.84",
@@ -232,7 +232,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  26,
-                       "Name":  null
+                       "Name":  "Truck"
                    },
                    {
                        "Vector":  "-2,518.97 657.72 484.03",
@@ -241,7 +241,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  27,
-                       "Name":  null
+                       "Name":  "Default"
                    },
                    {
                        "Vector":  "-2,471.04 781.19 476.53",
@@ -250,7 +250,7 @@
                        "Bombsite":  0,
                        "CanBePlanter":  true,
                        "Id":  28,
-                       "Name":  null
+                       "Name":  "Default Opposite"
                    },
                    {
                        "Vector":  "-2,746.53 243.08 441.22",
