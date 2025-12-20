@@ -125,20 +125,26 @@ public sealed class SpawnManager : ISpawnManager
       return true;
     }
 
-    if (tSpawns.Count < tPlayers.Count || ctSpawns.Count < ctPlayers.Count)
+    var autoPlantEnabled = _core.ConVar.Find<bool>("retakes_auto_plant")?.Value ?? false;
+
+    var availableTSpawns = autoPlantEnabled 
+      ? tSpawns.Where(s => !s.CanBePlanter).ToList()
+      : tSpawns;
+
+    if (availableTSpawns.Count < tPlayers.Count || ctSpawns.Count < ctPlayers.Count)
     {
       _core.Logger.LogWarning(
         "Retakes: Not enough spawns for {Bombsite}. T: {TPlayers}/{TSpawns}, CT: {CTPlayers}/{CTSpawns}",
         bombsite,
         tPlayers.Count,
-        tSpawns.Count,
+        availableTSpawns.Count,
         ctPlayers.Count,
         ctSpawns.Count
       );
       return false;
     }
 
-    var tSpawnPool = tSpawns.ToList();
+    var tSpawnPool = availableTSpawns.ToList();
     var ctSpawnPool = ctSpawns.ToList();
 
     Shuffle(tPlayers);
@@ -148,7 +154,16 @@ public sealed class SpawnManager : ISpawnManager
 
     ApplyPreferredSpawns(bombsite, isCt: false, tPlayers, tSpawnPool);
 
-    if (tPlayers.Count > 0 && tSpawnPool.Count > 0)
+    if (autoPlantEnabled && tPlayers.Count > 0)
+    {
+      var planterSpawns = tSpawns.Where(s => s.CanBePlanter).ToList();
+      if (planterSpawns.Count > 0)
+      {
+        _assignedPlanterSteamId = tPlayers[0].SteamID;
+        _assignedPlanterSpawn = planterSpawns[_random.Next(planterSpawns.Count)];
+      }
+    }
+    else if (!autoPlantEnabled && tPlayers.Count > 0 && tSpawnPool.Count > 0)
     {
       var planterIndex = tSpawnPool.FindIndex(s => s.CanBePlanter);
       if (planterIndex >= 0)
@@ -165,7 +180,7 @@ public sealed class SpawnManager : ISpawnManager
       var spawn = tSpawnPool[i];
 
       _lastAssignments[player.SteamID] = spawn;
-      if (_assignedPlanterSteamId is null && spawn.CanBePlanter)
+      if (!autoPlantEnabled && _assignedPlanterSteamId is null && spawn.CanBePlanter)
       {
         _assignedPlanterSteamId = player.SteamID;
         _assignedPlanterSpawn = spawn;
@@ -298,6 +313,8 @@ public sealed class SpawnManager : ISpawnManager
   {
     if (players.Count == 0 || spawnPool.Count == 0) return;
 
+    var autoPlantEnabled = _core.ConVar.Find<bool>("retakes_auto_plant")?.Value ?? false;
+
     for (var i = players.Count - 1; i >= 0; i--)
     {
       var player = players[i];
@@ -312,7 +329,7 @@ public sealed class SpawnManager : ISpawnManager
       players.RemoveAt(i);
 
       _lastAssignments[player.SteamID] = spawn;
-      if (_assignedPlanterSteamId is null && !isCt && spawn.CanBePlanter)
+      if (!autoPlantEnabled && _assignedPlanterSteamId is null && !isCt && spawn.CanBePlanter)
       {
         _assignedPlanterSteamId = player.SteamID;
         _assignedPlanterSpawn = spawn;
