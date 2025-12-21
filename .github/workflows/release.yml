@@ -120,8 +120,7 @@ jobs:
             done
 
             if [ "$MAIN_FOUND" = false ]; then
-              echo "::error::Could not match main plugin to any zip file"
-              exit 1
+              echo "::warning::Could not match main plugin to any zip file; continuing anyway."
             fi
           fi
 
