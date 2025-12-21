@@ -5,6 +5,7 @@ using SwiftlyS2.Shared.Players;
 using SwiftlyS2.Shared.Convars;
 using SwiftlyS2_Retakes.Interfaces;
 using SwiftlyS2_Retakes.Models;
+using SwiftlyS2_Retakes.Utils;
 using System;
 using System.Linq;
 
@@ -17,6 +18,7 @@ public sealed class RoundEventHandlers
   private readonly ISpawnManager _spawnManager;
   private readonly IRetakesStateService _state;
   private readonly IRetakesConfigService _config;
+  private readonly ISoloBotService _soloBot;
   private readonly IAnnouncementService _announcement;
   private readonly IMessageService _messages;
   private readonly IAllocationService _allocation;
@@ -52,6 +54,7 @@ public sealed class RoundEventHandlers
     ISpawnManager spawnManager,
     IRetakesStateService state,
     IRetakesConfigService config,
+    ISoloBotService soloBot,
     IAnnouncementService announcement,
     IMessageService messages,
     IAllocationService allocation,
@@ -68,6 +71,7 @@ public sealed class RoundEventHandlers
     _spawnManager = spawnManager;
     _state = state;
     _config = config;
+    _soloBot = soloBot;
     _announcement = announcement;
     _messages = messages;
     _allocation = allocation;
@@ -179,6 +183,7 @@ public sealed class RoundEventHandlers
     
     TryScrambleTeams();
     TryBalanceTeams();
+    _soloBot.UpdateSoloBot();
     _pawnLifecycle.OnRoundPrestart();
     return HookResult.Continue;
   }
@@ -223,6 +228,7 @@ public sealed class RoundEventHandlers
 
     var players = core.PlayerManager.GetAllPlayers()
       .Where(p => p.IsValid)
+      .Where(PlayerUtil.IsHuman)
       .Where(p => (Team)p.Controller.TeamNum == Team.T || (Team)p.Controller.TeamNum == Team.CT)
       .OrderBy(_ => _random.Next())
       .ToList();
@@ -296,6 +302,7 @@ public sealed class RoundEventHandlers
 
     var players = core.PlayerManager.GetAllPlayers()
       .Where(p => p.IsValid)
+      .Where(PlayerUtil.IsHuman)
       .Where(p => (Team)p.Controller.TeamNum == Team.T || (Team)p.Controller.TeamNum == Team.CT)
       .ToList();
 
@@ -392,6 +399,7 @@ public sealed class RoundEventHandlers
     {
       var participants = core.PlayerManager.GetAllPlayers()
         .Where(p => p.IsValid)
+        .Where(PlayerUtil.IsHuman)
         .Where(p => (Team)p.Controller.TeamNum == Team.T || (Team)p.Controller.TeamNum == Team.CT)
         .Select(p => (p.SteamID, (Team)p.Controller.TeamNum))
         .ToList();

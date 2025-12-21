@@ -36,6 +36,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
   private IDamageReportService? _damageReport;
   private ISmokeScenarioService? _smokeScenario;
   private IMessageService? _messages;
+  private ISoloBotService? _soloBot;
 
   // Handlers
   private MapEventHandlers? _mapEventHandlers;
@@ -84,6 +85,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _damageReport = _serviceProvider.GetRequiredService<IDamageReportService>();
     _smokeScenario = _serviceProvider.GetRequiredService<ISmokeScenarioService>();
     _messages = _serviceProvider.GetRequiredService<IMessageService>();
+    _soloBot = _serviceProvider.GetRequiredService<ISoloBotService>();
 
     // Initialize services that need explicit initialization
     _config.LoadOrCreate();
@@ -93,11 +95,11 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     var random = _serviceProvider.GetRequiredService<Random>();
 
     _roundEventHandlers = new RoundEventHandlers(
-      _pawnLifecycle, _spawnManager, _state, _config, _announcement,
+      _pawnLifecycle, _spawnManager, _state, _config, _soloBot, _announcement,
       _messages, _allocation, _autoPlant, _clutch, _damageReport, _breaker, random, _queue, _buyMenu, _smokeScenario);
 
     _playerEventHandlers = new PlayerEventHandlers(
-      _pawnLifecycle, _clutch, _prefs, _state, _config, _queue, _damageReport);
+      _pawnLifecycle, _clutch, _prefs, _state, _config, _queue, _damageReport, _soloBot);
 
     _commandHandlers = new CommandHandlers(
       _mapConfig, _spawnManager, _pawnLifecycle, _spawnViz, _state, _prefs, _config, _smokeScenario);
@@ -178,6 +180,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _damageReport = null;
     _smokeScenario = null;
     _messages = null;
+    _soloBot = null;
 
     // Dispose service provider and all registered services
     ServiceProviderFactory.DisposeServiceProvider(_serviceProvider);

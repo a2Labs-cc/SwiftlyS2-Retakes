@@ -106,6 +106,7 @@ public sealed class RetakesConfigService : IRetakesConfigService
 
       EnsureTeamBalanceConfigPresent();
       EnsureSmokeScenariosConfigPresent();
+      EnsureSoloBotConfigPresent();
       ApplyLoggingToggles(Config.Server);
     }
     catch (Exception ex)
@@ -225,6 +226,60 @@ public sealed class RetakesConfigService : IRetakesConfigService
     catch (Exception ex)
     {
       _logger.LogPluginWarning(ex, "Retakes: failed to ensure SmokeScenarios exists in config.json");
+    }
+  }
+
+  private void EnsureSoloBotConfigPresent()
+  {
+    try
+    {
+      if (!File.Exists(_path))
+      {
+        return;
+      }
+
+      var text = File.ReadAllText(_path);
+      if (string.IsNullOrWhiteSpace(text))
+      {
+        return;
+      }
+
+      var rootNode = JsonNode.Parse(text);
+      if (rootNode is not JsonObject rootObj)
+      {
+        return;
+      }
+
+      ConfigSanitizer.SanitizeColonDelimitedKeys(rootObj);
+      ConfigSanitizer.SanitizeCaseInsensitiveDuplicateKeys(rootObj);
+
+      if (rootObj[SectionName] is not JsonObject sectionObj)
+      {
+        sectionObj = new JsonObject();
+        rootObj[SectionName] = sectionObj;
+      }
+
+      var soloBotKey = sectionObj.ContainsKey("SoloBot") ? "SoloBot"
+        : sectionObj.ContainsKey("soloBot") ? "soloBot"
+        : "SoloBot";
+
+      if (sectionObj[soloBotKey] is not JsonObject soloBotObj)
+      {
+        soloBotObj = new JsonObject();
+        sectionObj[soloBotKey] = soloBotObj;
+      }
+
+      string Key(string pascal, string camel) => soloBotObj.ContainsKey(pascal) ? pascal : soloBotObj.ContainsKey(camel) ? camel : pascal;
+
+      if (soloBotObj[Key("Enabled", "enabled")] is null) soloBotObj[Key("Enabled", "enabled")] = Config.SoloBot.Enabled;
+      if (soloBotObj[Key("Difficulty", "difficulty")] is null) soloBotObj[Key("Difficulty", "difficulty")] = Config.SoloBot.Difficulty;
+
+      var updated = rootObj.ToJsonString(JsonOptions);
+      File.WriteAllText(_path, updated);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogPluginWarning(ex, "Retakes: failed to ensure SoloBot exists in config.json");
     }
   }
 

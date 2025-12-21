@@ -49,6 +49,7 @@ public static class ServiceCollectionExtensions
     services.AddSingleton<IInstantBombService, InstantBombService>();
     services.AddSingleton<IAntiTeamFlashService, AntiTeamFlashService>();
     services.AddSingleton<ISmokeScenarioService, SmokeScenarioService>();
+    services.AddSingleton<ISoloBotService, SoloBotService>();
 
     return services;
   }

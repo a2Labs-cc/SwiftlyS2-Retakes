@@ -39,10 +39,7 @@ public sealed class RetakesCfgGenerator
 
       if (!Directory.Exists(cfgDir)) Directory.CreateDirectory(cfgDir);
 
-      if (!File.Exists(cfgPath))
-      {
-        GenerateCfgFile(cfgPath, freezeTime);
-      }
+      GenerateCfgFile(cfgPath, freezeTime);
 
       void ExecuteConfig()
       {
@@ -81,8 +78,6 @@ public sealed class RetakesCfgGenerator
 
     var contents = $"""
       // Things you shouldn't change:
-      bot_kick
-      bot_quota 0
       mp_autoteambalance 0
       mp_forcecamera 1
       mp_give_player_c4 0

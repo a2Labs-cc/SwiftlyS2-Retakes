@@ -3,6 +3,7 @@ using SwiftlyS2.Shared;
 using SwiftlyS2.Shared.Misc;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2_Retakes.Interfaces;
+using SwiftlyS2_Retakes.Utils;
 using System.Linq;
 
 namespace SwiftlyS2_Retakes.Handlers;
@@ -17,6 +18,7 @@ public sealed class PlayerEventHandlers
   private readonly IRetakesConfigService _config;
   private readonly IQueueService _queue;
   private readonly IDamageReportService _damageReport;
+  private readonly ISoloBotService _soloBot;
 
   private Guid _playerSpawnPreHook;
   private Guid _playerSpawnPostHook;
@@ -26,7 +28,7 @@ public sealed class PlayerEventHandlers
   private Guid _clientCommandHook;
   private Guid _playerHurtHook;
 
-  public PlayerEventHandlers(IPawnLifecycleService pawnLifecycle, IClutchAnnounceService clutch, IPlayerPreferencesService prefs, IRetakesStateService state, IRetakesConfigService config, IQueueService queue, IDamageReportService damageReport)
+  public PlayerEventHandlers(IPawnLifecycleService pawnLifecycle, IClutchAnnounceService clutch, IPlayerPreferencesService prefs, IRetakesStateService state, IRetakesConfigService config, IQueueService queue, IDamageReportService damageReport, ISoloBotService soloBot)
   {
     _pawnLifecycle = pawnLifecycle;
     _clutch = clutch;
@@ -35,6 +37,7 @@ public sealed class PlayerEventHandlers
     _config = config;
     _queue = queue;
     _damageReport = damageReport;
+    _soloBot = soloBot;
   }
 
   public void Register(ISwiftlyCore core)
@@ -119,6 +122,7 @@ public sealed class PlayerEventHandlers
   {
     var player = @event.UserIdPlayer;
     if (player is null || !player.IsValid) return HookResult.Continue;
+    var isHuman = PlayerUtil.IsHuman(player);
 
     var core = _core;
     if (core is not null)
@@ -134,6 +138,11 @@ public sealed class PlayerEventHandlers
     // keep them as spectator until next round to avoid default map spawns.
     if (_state.RoundLive && !_state.IsRoundParticipant(player.SteamID))
     {
+      if (!isHuman)
+      {
+        return HookResult.Continue;
+      }
+
       var team = (Team)player.Controller.TeamNum;
       if (team == Team.T || team == Team.CT)
       {
@@ -166,7 +175,7 @@ public sealed class PlayerEventHandlers
     }
 
     // Prevent manual team switching mid-round: keep participants on their locked team.
-    if (_state.RoundLive && _state.TryGetLockedTeam(player.SteamID, out var lockedTeam))
+    if (isHuman && _state.RoundLive && _state.TryGetLockedTeam(player.SteamID, out var lockedTeam))
     {
       var currentTeam = (Team)player.Controller.TeamNum;
       if (lockedTeam == Team.T || lockedTeam == Team.CT)
@@ -193,6 +202,12 @@ public sealed class PlayerEventHandlers
   {
     var player = @event.UserIdPlayer;
     _pawnLifecycle.OnPlayerSpawn(player);
+
+    if (player is not null && player.IsValid && PlayerUtil.IsHuman(player))
+    {
+      _soloBot.UpdateSoloBot();
+    }
+
     return HookResult.Continue;
   }
 
@@ -229,9 +244,16 @@ public sealed class PlayerEventHandlers
     var player = @event.UserIdPlayer;
     if (player is not null && player.IsValid)
     {
+      if (!PlayerUtil.IsHuman(player))
+      {
+        _soloBot.UpdateSoloBot();
+        return HookResult.Continue;
+      }
+
       _state.OnPlayerLeft(player.SteamID);
       _prefs.Clear(player.SteamID);
       _queue.RemovePlayerFromQueues(player.SteamID);
+      _soloBot.UpdateSoloBot();
     }
 
     return HookResult.Continue;

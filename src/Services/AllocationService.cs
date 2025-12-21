@@ -6,6 +6,7 @@ using SwiftlyS2.Shared.SchemaDefinitions;
 using SwiftlyS2_Retakes.Configuration;
 using SwiftlyS2_Retakes.Interfaces;
 using SwiftlyS2_Retakes.Models;
+using SwiftlyS2_Retakes.Utils;
 
 namespace SwiftlyS2_Retakes.Services;
 
@@ -117,20 +118,24 @@ public sealed class AllocationService : IAllocationService
     var ssg08Receivers = new HashSet<ulong>();
     if (roundType == RoundType.FullBuy && _awpEnabled.Value)
     {
-      foreach (var steamId in PickAwpReceivers(ct)) awpReceivers.Add(steamId);
-      foreach (var steamId in PickAwpReceivers(t)) awpReceivers.Add(steamId);
+      foreach (var steamId in PickAwpReceivers(ct.Where(PlayerUtil.IsHuman).ToList())) awpReceivers.Add(steamId);
+      foreach (var steamId in PickAwpReceivers(t.Where(PlayerUtil.IsHuman).ToList())) awpReceivers.Add(steamId);
     }
 
     if (roundType == RoundType.FullBuy && _ssg08Enabled.Value)
     {
-      foreach (var steamId in PickSsg08Receivers(ct, awpReceivers)) ssg08Receivers.Add(steamId);
-      foreach (var steamId in PickSsg08Receivers(t, awpReceivers)) ssg08Receivers.Add(steamId);
+      foreach (var steamId in PickSsg08Receivers(ct.Where(PlayerUtil.IsHuman).ToList(), awpReceivers)) ssg08Receivers.Add(steamId);
+      foreach (var steamId in PickSsg08Receivers(t.Where(PlayerUtil.IsHuman).ToList(), awpReceivers)) ssg08Receivers.Add(steamId);
     }
 
     var pistolDefuserSlot = -1;
-    if (roundType == RoundType.Pistol && ct.Count > 0)
+    if (roundType == RoundType.Pistol)
     {
-      pistolDefuserSlot = ct[_random.Next(ct.Count)].Slot;
+      var humanCt = ct.Where(PlayerUtil.IsHuman).ToList();
+      if (humanCt.Count > 0)
+      {
+        pistolDefuserSlot = humanCt[_random.Next(humanCt.Count)].Slot;
+      }
     }
 
     foreach (var p in players)
@@ -193,9 +198,14 @@ public sealed class AllocationService : IAllocationService
     {
       primary = "weapon_ssg08";
     }
-    else
+    else if (PlayerUtil.IsHuman(player))
     {
       primary = SelectPrimary(team, roundType, player.SteamID);
+    }
+    else
+    {
+      var allowed = GetAllowedPrimaryWeapons(roundType, team);
+      primary = allowed.Count == 0 ? null : allowed[_random.Next(allowed.Count)];
     }
     if (primary is not null)
     {
@@ -204,7 +214,17 @@ public sealed class AllocationService : IAllocationService
 
     if (roundType != RoundType.Pistol && _givePistolOnRifleRounds.Value)
     {
-      var secondary = SelectSecondary(team, roundType, player.SteamID);
+      string? secondary;
+      if (PlayerUtil.IsHuman(player))
+      {
+        secondary = SelectSecondary(team, roundType, player.SteamID);
+      }
+      else
+      {
+        var allowed = _config.Config.Weapons.Pistols;
+        secondary = allowed.Count == 0 ? null : allowed[_random.Next(allowed.Count)];
+      }
+
       if (secondary is not null)
       {
         itemServices.GiveItem(secondary);

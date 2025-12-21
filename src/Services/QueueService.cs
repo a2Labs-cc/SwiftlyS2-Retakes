@@ -5,6 +5,7 @@ using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2_Retakes.Interfaces;
 using SwiftlyS2_Retakes.Logging;
+using SwiftlyS2_Retakes.Utils;
 
 namespace SwiftlyS2_Retakes.Services;
 
@@ -53,6 +54,11 @@ public sealed class QueueService : IQueueService
 
   public HookResult OnPlayerJoinedTeam(IPlayer player, Team fromTeam, Team toTeam)
   {
+    if (!PlayerUtil.IsHuman(player))
+    {
+      return HookResult.Continue;
+    }
+
     var steamId = player.SteamID;
     var cfg = _config.Config.Queue;
 

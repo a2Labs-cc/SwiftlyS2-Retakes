@@ -244,6 +244,7 @@ public sealed class SpawnManager : ISpawnManager
     var ctPlayers = _core.PlayerManager.GetAllPlayers()
       .Where(p => p.IsValid)
       .Where(p => (Team)p.Controller.TeamNum == Team.CT)
+      .Where(PlayerUtil.IsHuman)
       .Where(p => _prefs.WantsSpawnMenu(p.SteamID))
       .ToList();
 
