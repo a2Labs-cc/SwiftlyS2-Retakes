@@ -18,6 +18,7 @@ public sealed class RoundEventHandlers
   private readonly IRetakesStateService _state;
   private readonly IRetakesConfigService _config;
   private readonly IAnnouncementService _announcement;
+  private readonly IMessageService _messages;
   private readonly IAllocationService _allocation;
   private readonly IAutoPlantService _autoPlant;
   private readonly IClutchAnnounceService _clutch;
@@ -26,12 +27,16 @@ public sealed class RoundEventHandlers
   private readonly Random _random;
   private readonly IQueueService _queue;
   private readonly IBuyMenuService _buyMenu;
+  private readonly ISmokeScenarioService _smokeScenario;
 
   private Bombsite? _currentBombsite;
 
   private IConVar<bool>? _teamBalanceEnabled;
   private IConVar<float>? _teamBalanceTerroristRatio;
   private IConVar<bool>? _teamBalanceForceEvenOn10;
+
+  private IConVar<bool>? _smokeScenarioRandomRoundsEnabled;
+  private IConVar<float>? _smokeScenarioRandomRoundChance;
 
   private int _consecutiveTWins;
 
@@ -48,6 +53,7 @@ public sealed class RoundEventHandlers
     IRetakesStateService state,
     IRetakesConfigService config,
     IAnnouncementService announcement,
+    IMessageService messages,
     IAllocationService allocation,
     IAutoPlantService autoPlant,
     IClutchAnnounceService clutch,
@@ -55,13 +61,15 @@ public sealed class RoundEventHandlers
     IBreakerService? breaker,
     Random random,
     IQueueService queue,
-    IBuyMenuService buyMenu)
+    IBuyMenuService buyMenu,
+    ISmokeScenarioService smokeScenario)
   {
     _pawnLifecycle = pawnLifecycle;
     _spawnManager = spawnManager;
     _state = state;
     _config = config;
     _announcement = announcement;
+    _messages = messages;
     _allocation = allocation;
     _autoPlant = autoPlant;
     _clutch = clutch;
@@ -70,6 +78,7 @@ public sealed class RoundEventHandlers
     _random = random;
     _queue = queue;
     _buyMenu = buyMenu;
+    _smokeScenario = smokeScenario;
   }
 
   public void Register(ISwiftlyCore core)
@@ -79,6 +88,17 @@ public sealed class RoundEventHandlers
     _teamBalanceEnabled = core.ConVar.CreateOrFind("retakes_team_balance_enabled", "Enable team balance", true);
     _teamBalanceTerroristRatio = core.ConVar.CreateOrFind("retakes_team_balance_terrorist_ratio", "Team balance terrorist ratio", 0.45f, 0f, 1f);
     _teamBalanceForceEvenOn10 = core.ConVar.CreateOrFind("retakes_team_balance_force_even_when_players_mod_10", "Force even teams when player count is multiple of 10", true);
+
+    _smokeScenarioRandomRoundsEnabled = core.ConVar.CreateOrFind(
+      "retakes_smoke_scenarios_random_rounds_enabled",
+      "Only spawn smoke scenarios on random rounds",
+      false);
+    _smokeScenarioRandomRoundChance = core.ConVar.CreateOrFind(
+      "retakes_smoke_scenarios_random_round_chance",
+      "Chance [0-1] to spawn smoke scenarios when random rounds are enabled",
+      0.25f,
+      0f,
+      1f);
 
     _roundPrestartHook = core.GameEvent.HookPre<EventRoundPrestart>(OnRoundPrestart);
     _roundStartHook = core.GameEvent.HookPre<EventRoundStart>(OnRoundStart);
@@ -119,6 +139,32 @@ public sealed class RoundEventHandlers
     });
 
     return HookResult.Continue;
+  }
+
+  private void AnnounceSmokeScenario(Bombsite bombsite, bool shouldSpawnSmokes, SmokeScenario? chosenScenario)
+  {
+    var core = _core;
+    if (core is null) return;
+
+    var players = core.PlayerManager.GetAllPlayers()
+      .Where(p => p is not null && p.IsValid)
+      .Where(p => (Team)p.Controller.TeamNum == Team.T)
+      .ToList();
+
+    if (players.Count == 0) return;
+
+    foreach (var player in players)
+    {
+      var loc = core.Translation.GetPlayerLocalizer(player);
+      if (!shouldSpawnSmokes || chosenScenario is null)
+      {
+        _messages.Chat(player, loc["smokes.scenario.none"].Colored());
+        continue;
+      }
+
+      var scenarioName = string.IsNullOrWhiteSpace(chosenScenario.Name) ? "Unnamed" : chosenScenario.Name.Trim();
+      _messages.Chat(player, loc["smokes.scenario.active", scenarioName].Colored());
+    }
   }
 
   private HookResult OnRoundPrestart(EventRoundPrestart @event)
@@ -357,6 +403,25 @@ public sealed class RoundEventHandlers
     _spawnManager.HandleRoundSpawns(bombsite);
     _spawnManager.OpenCtSpawnSelectionMenu(bombsite);
     _allocation.AllocateForCurrentPlayers(_pawnLifecycle);
+
+    var shouldSpawnSmokes = true;
+    if (_state.SmokesForced)
+    {
+      shouldSpawnSmokes = true;
+    }
+    else if (_smokeScenarioRandomRoundsEnabled?.Value == true)
+    {
+      var chance = Math.Clamp(_smokeScenarioRandomRoundChance?.Value ?? 0f, 0f, 1f);
+      shouldSpawnSmokes = _random.NextDouble() < chance;
+    }
+
+    SmokeScenario? chosenScenario = null;
+    if (shouldSpawnSmokes)
+    {
+      chosenScenario = _smokeScenario.SpawnSmokesForBombsite(bombsite);
+    }
+
+    AnnounceSmokeScenario(bombsite, shouldSpawnSmokes, chosenScenario);
 
     var roundType = _allocation.CurrentRoundType ?? RoundType.FullBuy;
     _announcement.AnnounceBombsite(bombsite, roundType, _state.LastWinner);

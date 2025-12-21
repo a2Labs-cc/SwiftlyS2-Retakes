@@ -93,6 +93,8 @@ Each map file contains the spawns used by the retakes allocator.
 | :--- | :--- | :--- |
 | `!forcesite <A/B>` | Forces the game to be played on a specific bombsite. | Root |
 | `!forcestop` | Clears the forced bombsite. | Root |
+| `!forcesmokes` | Forces smoke scenarios to spawn every round until stopped. | Root |
+| `!stopsmokes` | Disables forced smokes (returns to normal/random smoke behavior). | Root |
 | `!loadcfg <mapname>` | Loads a specific map configuration. | Root |
 | `!listcfg` | Lists all available map configurations. | Root |
 | `!reloadcfg` | Reloads the main `config.json`. | Root |
@@ -107,6 +109,7 @@ Each map file contains the spawns used by the retakes allocator.
 | `!remove <id>` | Removes the spawn with the specified ID. |
 | `!namespawn <id> <name>` | Sets a descriptive name for the spawn. |
 | `!gotospawn <id>` | Teleports you to the spawn's position. |
+| `!replysmoke <smoke id>` | Instantly deploys/replays the smoke scenario with the specified ID (for testing). Requires spawn edit mode. |
 | `!savespawns` | Saves all changes to the map config file. |
 | `!stopediting` | Exits spawn editing mode and reloads the map. |
 

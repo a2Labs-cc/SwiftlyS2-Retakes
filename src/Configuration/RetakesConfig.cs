@@ -9,6 +9,7 @@ public sealed class RetakesConfig
   public PreferencesConfig Preferences { get; set; } = new();
   public WeaponsConfig Weapons { get; set; } = new();
   public BombConfig Bomb { get; set; } = new();
+  public SmokeScenarioConfig SmokeScenarios { get; set; } = new();
   public TeamBalanceConfig TeamBalance { get; set; } = new();
   public InstantBombConfig InstantBomb { get; set; } = new();
   public AntiTeamFlashConfig AntiTeamFlash { get; set; } = new();

@@ -20,6 +20,11 @@ public interface IMapConfigService
   IReadOnlyList<Spawn> Spawns { get; }
 
   /// <summary>
+  /// Gets the list of smoke scenarios for the current map.
+  /// </summary>
+  IReadOnlyList<SmokeScenario> SmokeScenarios { get; }
+
+  /// <summary>
   /// Resets the map configuration.
   /// </summary>
   void Reset();
@@ -69,4 +74,19 @@ public interface IMapConfigService
   /// <param name="name">The new name (null to clear)</param>
   /// <returns>True if set successfully</returns>
   bool SetSpawnName(int id, string? name);
+
+  /// <summary>
+  /// Adds a new smoke scenario to the configuration.
+  /// </summary>
+  /// <param name="position">The smoke position</param>
+  /// <param name="bombsite">The bombsite for this smoke</param>
+  /// <param name="name">Optional name for the smoke</param>
+  int AddSmokeScenario(Vector position, Bombsite bombsite, string? name = null);
+
+  /// <summary>
+  /// Removes a smoke scenario by its index.
+  /// </summary>
+  /// <param name="index">The smoke scenario index</param>
+  /// <returns>True if removed successfully</returns>
+  bool RemoveSmokeScenario(int smokeId);
 }

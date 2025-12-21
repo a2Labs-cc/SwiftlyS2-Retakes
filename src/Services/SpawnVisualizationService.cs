@@ -100,6 +100,56 @@ public sealed class SpawnVisualizationService : ISpawnVisualizationService
     _logger.LogInformation("Retakes: Showing {Count} spawns for {Bombsite}", spawnList.Count, bombsite);
   }
 
+  public void ShowSpawnsAndSmokes(IEnumerable<Spawn> spawns, IEnumerable<SmokeScenario> smokes, Bombsite bombsite)
+  {
+    HideSpawns();
+
+    var spawnList = spawns
+      .Where(s => (bombsite == Bombsite.Both || s.Bombsite == bombsite) && (s.Team == Team.T || s.Team == Team.CT))
+      .ToList();
+
+    var smokeList = smokes
+      .Where(s => bombsite == Bombsite.Both || s.Bombsite == bombsite)
+      .ToList();
+
+    if (spawnList.Count == 0 && smokeList.Count == 0)
+    {
+      return;
+    }
+
+    foreach (var spawn in spawnList)
+    {
+      CreateBeam(spawn);
+    }
+
+    for (var i = 0; i < smokeList.Count; i++)
+    {
+      CreateSmokeBeam(smokeList[i]);
+    }
+
+    var viewers = _core.PlayerManager.GetAllPlayers().Where(p => p.IsValid).ToList();
+    foreach (var viewer in viewers)
+    {
+      EnsureViewerInitialized(viewer);
+
+      foreach (var spawn in spawnList)
+      {
+        CreateLabelForViewer(viewer, spawn, viewers);
+      }
+
+      for (var i = 0; i < smokeList.Count; i++)
+      {
+        CreateSmokeLabelForViewer(viewer, smokeList[i], viewers);
+      }
+    }
+
+    _logger.LogInformation(
+      "Retakes: Showing {SpawnCount} spawns and {SmokeCount} smokes for {Bombsite}",
+      spawnList.Count,
+      smokeList.Count,
+      bombsite);
+  }
+
   public void HideSpawns()
   {
     foreach (var idx in _beamEntityIndices)
@@ -206,6 +256,66 @@ public sealed class SpawnVisualizationService : ISpawnVisualizationService
     return $"[{teamLabel}] {spawn.Bombsite} | ID {spawn.Id}{nameLabel}";
   }
 
+  private void CreateSmokeLabelForViewer(IPlayer viewer, SmokeScenario smoke, List<IPlayer> allViewers)
+  {
+    try
+    {
+      var text = _core.EntitySystem.CreateEntityByDesignerName<CPointWorldText>("point_worldtext");
+      if (text is null)
+      {
+        return;
+      }
+
+      text.DispatchSpawn();
+
+      text.MessageText = BuildSmokeLabel(smoke);
+      text.Enabled = true;
+      text.Color = new Color(255, 255, 255, 255);
+      text.FontSize = 48f;
+      text.Fullbright = true;
+      text.WorldUnitsPerPx = 0.1f;
+      text.JustifyHorizontal = PointWorldTextJustifyHorizontal_t.POINT_WORLD_TEXT_JUSTIFY_HORIZONTAL_CENTER;
+      text.JustifyVertical = PointWorldTextJustifyVertical_t.POINT_WORLD_TEXT_JUSTIFY_VERTICAL_CENTER;
+
+      var pos = new Vector(smoke.Position.X, smoke.Position.Y, smoke.Position.Z + 50f);
+
+      var viewerPos = viewer.PlayerPawn?.AbsOrigin;
+      var yaw = 0f;
+      if (viewerPos is not null)
+      {
+        var dx = viewerPos.Value.X - pos.X;
+        var dy = viewerPos.Value.Y - pos.Y;
+        yaw = MathF.Atan2(dy, dx) * (180f / MathF.PI) + 90f;
+      }
+
+      var angles = new QAngle(0f, yaw, 90f);
+      text.Teleport(pos, angles, Vector.Zero);
+
+      if (_textEntityIndicesByViewer.TryGetValue(viewer.Slot, out var list))
+      {
+        list.Add(text.Index);
+      }
+
+      _textPositions[text.Index] = pos;
+
+      foreach (var other in allViewers)
+      {
+        if (other.Slot == viewer.Slot) continue;
+        other.ShouldBlockTransmitEntity((int)text.Index, true);
+      }
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Retakes: Failed to create smoke label for smoke id {SmokeId}", smoke.Id);
+    }
+  }
+
+  private static string BuildSmokeLabel(SmokeScenario smoke)
+  {
+    var nameLabel = string.IsNullOrWhiteSpace(smoke.Name) ? "" : $" \"{smoke.Name}\"";
+    return $"[SMOKE] {smoke.Bombsite} | ID {smoke.Id}{nameLabel}";
+  }
+
   private void CreateBeam(Spawn spawn)
   {
     var start = spawn.Position;
@@ -261,6 +371,61 @@ public sealed class SpawnVisualizationService : ISpawnVisualizationService
     catch (Exception ex)
     {
       _logger.LogError(ex, "Retakes: Failed to create beam for spawn {Id}", spawn.Id);
+    }
+  }
+
+  private void CreateSmokeBeam(SmokeScenario smoke)
+  {
+    var start = smoke.Position;
+    var color = new Color(180, 0, 255, 255);
+
+    try
+    {
+      var beam = _core.EntitySystem.CreateEntityByDesignerName<CBeam>("beam");
+      if (beam is null)
+      {
+        return;
+      }
+
+      beam.StartFrame = 0;
+      beam.FrameRate = 0;
+      beam.LifeState = 1;
+      beam.Width = 5.0f;
+      beam.EndWidth = 5.0f;
+      beam.Amplitude = 0;
+      beam.Speed = 50;
+      beam.BeamFlags = 0;
+      beam.BeamType = BeamType_t.BEAM_HOSE;
+      beam.FadeLength = 10.0f;
+      beam.Render = color;
+      beam.TurnedOff = false;
+
+      beam.EndPos.X = start.X;
+      beam.EndPos.Y = start.Y;
+      beam.EndPos.Z = start.Z + 100.0f;
+
+      beam.Teleport(start, new QAngle(0, 0, 0), Vector.Zero);
+      beam.DispatchSpawn();
+
+      beam.LifeStateUpdated();
+      beam.StartFrameUpdated();
+      beam.FrameRateUpdated();
+      beam.WidthUpdated();
+      beam.EndWidthUpdated();
+      beam.AmplitudeUpdated();
+      beam.SpeedUpdated();
+      beam.BeamFlagsUpdated();
+      beam.BeamTypeUpdated();
+      beam.FadeLengthUpdated();
+      beam.TurnedOffUpdated();
+      beam.EndPosUpdated();
+      beam.RenderUpdated();
+
+      _beamEntityIndices.Add(beam.Index);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Retakes: Failed to create beam for smoke scenario");
     }
   }
 }

@@ -13,12 +13,14 @@ public sealed class RetakesStateService : IRetakesStateService
   private readonly HashSet<ulong> _pendingJoiners = new();
   private readonly Dictionary<ulong, Team> _lockedTeamByParticipant = new();
   private int _teamChangeBypassDepth;
+  private bool _smokesForced;
 
   public bool RoundLive { get; private set; }
   public bool RestartQueuedThisRound { get; private set; }
 
   public Bombsite? ForcedBombsite { get; private set; }
   public Bombsite? ShowingSpawnsForBombsite { get; private set; }
+  public bool SmokesForced => _smokesForced;
   public bool ScrambleNextRound { get; set; }
 
   public bool TeamChangeBypassEnabled => _teamChangeBypassDepth > 0;
@@ -41,6 +43,8 @@ public sealed class RetakesStateService : IRetakesStateService
     TWins = 0;
     ConsecutiveWins = 0;
     ScrambleNextRound = false;
+
+    _smokesForced = false;
 
     RoundLive = false;
     RestartQueuedThisRound = false;
@@ -179,6 +183,16 @@ public sealed class RetakesStateService : IRetakesStateService
   public void ClearForcedBombsite()
   {
     ForcedBombsite = null;
+  }
+
+  public void ForceSmokes()
+  {
+    _smokesForced = true;
+  }
+
+  public void ClearForcedSmokes()
+  {
+    _smokesForced = false;
   }
 
   public void SetShowingSpawnsForBombsite(Bombsite? bombsite)

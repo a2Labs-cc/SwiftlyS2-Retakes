@@ -27,6 +27,7 @@ public sealed class CommandHandlers
   private readonly IRetakesStateService _state;
   private readonly IPlayerPreferencesService _prefs;
   private readonly IRetakesConfigService _config;
+  private readonly ISmokeScenarioService _smokeScenario;
 
   private readonly List<Guid> _commandGuids = new();
 
@@ -37,7 +38,8 @@ public sealed class CommandHandlers
     ISpawnVisualizationService spawnViz,
     IRetakesStateService state,
     IPlayerPreferencesService prefs,
-    IRetakesConfigService config
+    IRetakesConfigService config,
+    ISmokeScenarioService smokeScenario
   )
   {
     _mapConfig = mapConfig;
@@ -47,6 +49,7 @@ public sealed class CommandHandlers
     _state = state;
     _prefs = prefs;
     _config = config;
+    _smokeScenario = smokeScenario;
   }
 
   public void Register(ISwiftlyCore core)
@@ -58,12 +61,17 @@ public sealed class CommandHandlers
 
     _commandGuids.Add(core.Command.RegisterCommand("forcesite", ForceSite, registerRaw: true, permission: RetakesPermissions.Root));
     _commandGuids.Add(core.Command.RegisterCommand("forcestop", ForceStop, registerRaw: true, permission: RetakesPermissions.Root));
+    _commandGuids.Add(core.Command.RegisterCommand("forcesmokes", ForceSmokes, registerRaw: true, permission: RetakesPermissions.Root));
+    _commandGuids.Add(core.Command.RegisterCommand("stopsmokes", StopSmokes, registerRaw: true, permission: RetakesPermissions.Root));
 
     _commandGuids.Add(core.Command.RegisterCommand("editspawns", EditSpawns, registerRaw: true, permission: RetakesPermissions.Root));
     _commandGuids.Add(core.Command.RegisterCommand("addspawn", AddSpawn, registerRaw: true, permission: RetakesPermissions.Root));
     _commandGuids.Add(core.Command.RegisterCommand("remove", RemoveSpawn, registerRaw: true, permission: RetakesPermissions.Root));
     _commandGuids.Add(core.Command.RegisterCommand("gotospawn", GoToSpawn, registerRaw: true, permission: RetakesPermissions.Root));
     _commandGuids.Add(core.Command.RegisterCommand("namespawn", NameSpawn, registerRaw: true, permission: RetakesPermissions.Root));
+    _commandGuids.Add(core.Command.RegisterCommand("addsmoke", AddSmoke, registerRaw: true, permission: RetakesPermissions.Root));
+    _commandGuids.Add(core.Command.RegisterCommand("removesmoke", RemoveSmoke, registerRaw: true, permission: RetakesPermissions.Root));
+    _commandGuids.Add(core.Command.RegisterCommand("replysmoke", ReplySmoke, registerRaw: true, permission: RetakesPermissions.Root));
     _commandGuids.Add(core.Command.RegisterCommand("savespawns", SaveSpawns, registerRaw: true, permission: RetakesPermissions.Root));
     _commandGuids.Add(core.Command.RegisterCommand("stopediting", StopEditing, registerRaw: true, permission: RetakesPermissions.Root));
 
@@ -150,6 +158,18 @@ public sealed class CommandHandlers
     context.Reply(Tr(context, "command.forcestop.cleared"));
   }
 
+  private void ForceSmokes(ICommandContext context)
+  {
+    _state.ForceSmokes();
+    context.Reply(Tr(context, "command.forcesmokes.enabled"));
+  }
+
+  private void StopSmokes(ICommandContext context)
+  {
+    _state.ClearForcedSmokes();
+    context.Reply(Tr(context, "command.forcesmokes.disabled"));
+  }
+
   private void EditSpawns(ICommandContext context)
   {
     var core = _core;
@@ -186,7 +206,7 @@ public sealed class CommandHandlers
     core.Scheduler.DelayBySeconds(1.0f, () =>
     {
       if (_state.ShowingSpawnsForBombsite is null) return;
-      _spawnViz.ShowSpawns(_mapConfig.Spawns, bombsite);
+      _spawnViz.ShowSpawnsAndSmokes(_mapConfig.Spawns, _mapConfig.SmokeScenarios, bombsite);
     });
 
     context.Reply(Tr(context, "command.editspawns.start", bombsite));
@@ -336,7 +356,7 @@ public sealed class CommandHandlers
     core.Scheduler.DelayBySeconds(0.5f, () =>
     {
       if (_state.ShowingSpawnsForBombsite is null) return;
-      _spawnViz.ShowSpawns(_mapConfig.Spawns, _state.ShowingSpawnsForBombsite.Value);
+      _spawnViz.ShowSpawnsAndSmokes(_mapConfig.Spawns, _mapConfig.SmokeScenarios, _state.ShowingSpawnsForBombsite.Value);
     });
 
     var planterText = canBePlanter ? " (planter)" : "";
@@ -390,7 +410,7 @@ public sealed class CommandHandlers
     core.Scheduler.DelayBySeconds(0.5f, () =>
     {
       if (_state.ShowingSpawnsForBombsite is null) return;
-      _spawnViz.ShowSpawns(_mapConfig.Spawns, _state.ShowingSpawnsForBombsite.Value);
+      _spawnViz.ShowSpawnsAndSmokes(_mapConfig.Spawns, _mapConfig.SmokeScenarios, _state.ShowingSpawnsForBombsite.Value);
     });
 
     context.Reply(Tr(context, "command.remove.removed", id));
@@ -459,6 +479,163 @@ public sealed class CommandHandlers
     {
       context.Reply(Tr(context, "command.savespawns.failed"));
     }
+  }
+
+  private void AddSmoke(ICommandContext context)
+  {
+    var core = _core;
+    if (core is null)
+    {
+      context.Reply(Tr(context, "error.plugin_not_ready"));
+      return;
+    }
+
+    if (!context.IsSentByPlayer || context.Sender is null)
+    {
+      context.Reply("Must be a player");
+      return;
+    }
+
+    var bombsite = _state.ShowingSpawnsForBombsite;
+    if (bombsite is null)
+    {
+      context.Reply("You must be in spawn edit mode. Use !editspawns first.");
+      return;
+    }
+
+    if (context.Args.Length < 1)
+    {
+      context.Reply("Usage: !addsmoke <A|B> [name]");
+      return;
+    }
+
+    var siteArg = context.Args[0];
+    Bombsite targetSite;
+    if (siteArg.Equals("A", StringComparison.OrdinalIgnoreCase)) targetSite = Bombsite.A;
+    else if (siteArg.Equals("B", StringComparison.OrdinalIgnoreCase)) targetSite = Bombsite.B;
+    else
+    {
+      context.Reply("Usage: !addsmoke <A|B> [name]");
+      return;
+    }
+
+    var pawn = context.Sender.PlayerPawn;
+    if (pawn is null)
+    {
+      context.Reply("Could not get player pawn");
+      return;
+    }
+
+    var position = pawn.CBodyComponent?.SceneNode?.AbsOrigin;
+    if (position is null)
+    {
+      context.Reply("Could not read position");
+      return;
+    }
+
+    var name = context.Args.Length > 1 ? string.Join(" ", context.Args.Skip(1)) : null;
+    var newSmokeId = _mapConfig.AddSmokeScenario(position.Value, targetSite, name);
+
+    _spawnViz.HideSpawns();
+    core.Scheduler.DelayBySeconds(0.5f, () =>
+    {
+      if (_state.ShowingSpawnsForBombsite is null) return;
+      _spawnViz.ShowSpawnsAndSmokes(_mapConfig.Spawns, _mapConfig.SmokeScenarios, _state.ShowingSpawnsForBombsite.Value);
+    });
+
+    var nameText = string.IsNullOrWhiteSpace(name) ? "" : $" ({name})";
+    context.Reply($"Added smoke scenario ID {newSmokeId} for bombsite {targetSite}{nameText}");
+    context.Reply("Remember to use !savespawns to save your changes!");
+  }
+
+  private void RemoveSmoke(ICommandContext context)
+  {
+    var core = _core;
+    if (core is null)
+    {
+      context.Reply(Tr(context, "error.plugin_not_ready"));
+      return;
+    }
+
+    var bombsite = _state.ShowingSpawnsForBombsite;
+    if (bombsite is null)
+    {
+      context.Reply("You must be in spawn edit mode. Use !editspawns first.");
+      return;
+    }
+
+    if (context.Args.Length < 1)
+    {
+      context.Reply("Usage: !removesmoke <id>");
+      return;
+    }
+
+    if (!int.TryParse(context.Args[0], out var smokeId))
+    {
+      context.Reply("Usage: !removesmoke <id>");
+      return;
+    }
+
+    if (!_mapConfig.RemoveSmokeScenario(smokeId))
+    {
+      context.Reply($"Failed to remove smoke scenario with ID {smokeId}");
+      return;
+    }
+
+    _spawnViz.HideSpawns();
+    core.Scheduler.DelayBySeconds(0.5f, () =>
+    {
+      if (_state.ShowingSpawnsForBombsite is null) return;
+      _spawnViz.ShowSpawnsAndSmokes(_mapConfig.Spawns, _mapConfig.SmokeScenarios, _state.ShowingSpawnsForBombsite.Value);
+    });
+
+    context.Reply($"Removed smoke scenario with ID {smokeId}");
+    context.Reply("Remember to use !savespawns to save your changes!");
+  }
+
+  private void ReplySmoke(ICommandContext context)
+  {
+    var core = _core;
+    if (core is null)
+    {
+      context.Reply(Tr(context, "error.plugin_not_ready"));
+      return;
+    }
+
+    if (!context.IsSentByPlayer || context.Sender is null)
+    {
+      context.Reply(Tr(context, "error.must_be_player"));
+      return;
+    }
+
+    var bombsite = _state.ShowingSpawnsForBombsite;
+    if (bombsite is null)
+    {
+      context.Reply(Tr(context, "error.must_be_in_spawn_edit_mode"));
+      return;
+    }
+
+    if (context.Args.Length < 1)
+    {
+      context.Reply(Tr(context, "command.replysmoke.usage"));
+      return;
+    }
+
+    if (!int.TryParse(context.Args[0], out var smokeId))
+    {
+      context.Reply(Tr(context, "command.replysmoke.usage"));
+      return;
+    }
+
+    var scenario = _smokeScenario.SpawnSmokeById(smokeId);
+    if (scenario is null)
+    {
+      context.Reply(Tr(context, "command.replysmoke.not_found", smokeId));
+      return;
+    }
+
+    var nameSuffix = string.IsNullOrWhiteSpace(scenario.Name) ? string.Empty : $" ({scenario.Name.Trim()})";
+    context.Reply(Tr(context, "command.replysmoke.spawned", scenario.Id, scenario.Bombsite, nameSuffix));
   }
 
   private void GoToSpawn(ICommandContext context)

@@ -14,6 +14,8 @@ public interface ISpawnVisualizationService
   /// <param name="bombsite">The bombsite to filter by</param>
   void ShowSpawns(IEnumerable<Spawn> spawns, Bombsite bombsite);
 
+  void ShowSpawnsAndSmokes(IEnumerable<Spawn> spawns, IEnumerable<SmokeScenario> smokes, Bombsite bombsite);
+
   /// <summary>
   /// Hides all spawn visualizations.
   /// </summary>

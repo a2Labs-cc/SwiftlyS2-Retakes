@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using SwiftlyS2.Shared;
 using SwiftlyS2.Shared.Natives;
@@ -19,9 +20,11 @@ public sealed class MapConfigService : IMapConfigService
   };
 
   private List<Spawn> _spawns = new();
+  private List<SmokeScenario> _smokeScenarios = new();
 
   public string? LoadedMapName { get; private set; }
   public IReadOnlyList<Spawn> Spawns => _spawns;
+  public IReadOnlyList<SmokeScenario> SmokeScenarios => _smokeScenarios;
 
   public MapConfigService(ISwiftlyCore core)
   {
@@ -32,6 +35,7 @@ public sealed class MapConfigService : IMapConfigService
   {
     LoadedMapName = null;
     _spawns = new();
+    _smokeScenarios = new();
   }
 
   public bool Load(string mapName)
@@ -64,8 +68,11 @@ public sealed class MapConfigService : IMapConfigService
 
       LoadedMapName = mapName;
       _spawns = config.Spawns;
+      _smokeScenarios = config.SmokeScenarios ?? new();
 
-      _core.Logger.LogPluginInformation("Retakes: Loaded {Count} spawns for map {Map}", Spawns.Count, mapName);
+      EnsureSmokeScenarioIds();
+
+      _core.Logger.LogPluginInformation("Retakes: Loaded {Count} spawns and {SmokeCount} smoke scenarios for map {Map}", Spawns.Count, _smokeScenarios.Count, mapName);
       return true;
     }
     catch (Exception ex)
@@ -87,7 +94,7 @@ public sealed class MapConfigService : IMapConfigService
 
     try
     {
-      var config = new MapConfig { Spawns = _spawns };
+      var config = new MapConfig { Spawns = _spawns, SmokeScenarios = _smokeScenarios };
       var json = JsonSerializer.Serialize(config, _jsonOptions);
       File.WriteAllText(mapPath, json);
 
@@ -141,5 +148,48 @@ public sealed class MapConfigService : IMapConfigService
 
     spawn.Name = string.IsNullOrWhiteSpace(name) ? null : name;
     return true;
+  }
+
+  public int AddSmokeScenario(Vector position, Bombsite bombsite, string? name = null)
+  {
+    EnsureSmokeScenarioIds();
+    var maxId = _smokeScenarios.Count > 0 ? _smokeScenarios.Max(s => s.Id) : 0;
+    var newId = maxId + 1;
+
+    var smoke = new SmokeScenario
+    {
+      Id = newId,
+      Vector = $"{position.X} {position.Y} {position.Z}",
+      Bombsite = bombsite,
+      Name = string.IsNullOrWhiteSpace(name) ? null : name
+    };
+
+    _smokeScenarios.Add(smoke);
+    return newId;
+  }
+
+  public bool RemoveSmokeScenario(int smokeId)
+  {
+    var smoke = _smokeScenarios.FirstOrDefault(s => s.Id == smokeId);
+    if (smoke is null) return false;
+
+    _smokeScenarios.Remove(smoke);
+    return true;
+  }
+
+  private void EnsureSmokeScenarioIds()
+  {
+    var maxId = 0;
+    for (var i = 0; i < _smokeScenarios.Count; i++)
+    {
+      if (_smokeScenarios[i].Id > maxId) maxId = _smokeScenarios[i].Id;
+    }
+
+    for (var i = 0; i < _smokeScenarios.Count; i++)
+    {
+      if (_smokeScenarios[i].Id > 0) continue;
+      maxId++;
+      _smokeScenarios[i].Id = maxId;
+    }
   }
 }

@@ -1,328 +1,366 @@
-﻿{
-    "Spawns":  [
-                   {
-                       "Vector":  "-1,538.83 -471.80 11,488.03",
-                       "QAngle":  "0.00 53.54 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  1,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,359.65 -459.51 11,488.03",
-                       "QAngle":  "0.00 80.63 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  2,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,470.26 -174.25 11,488.03",
-                       "QAngle":  "0.00 12.38 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  3,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,688.27 212.41 11,776.03",
-                       "QAngle":  "0.00 -10.99 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  4,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,616.42 412.66 11,776.03",
-                       "QAngle":  "0.00 -28.74 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  5,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-850.09 772.83 11,776.03",
-                       "QAngle":  "0.00 -68.73 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  6,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-721.03 593.25 11,776.03",
-                       "QAngle":  "0.00 -80.79 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  7,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-114.03 -540.03 11,776.03",
-                       "QAngle":  "0.00 -114.19 0.00",
-                       "Team":  2,
-                       "Bombsite":  0,
-                       "CanBePlanter":  true,
-                       "Id":  8,
-                       "Name":  "Double"
-                   },
-                   {
-                       "Vector":  "-114.26 -708.79 11,776.03",
-                       "QAngle":  "0.00 -174.81 0.00",
-                       "Team":  2,
-                       "Bombsite":  0,
-                       "CanBePlanter":  true,
-                       "Id":  9,
-                       "Name":  "Sandbags"
-                   },
-                   {
-                       "Vector":  "-347.03 -682.82 11,774.13",
-                       "QAngle":  "0.00 -89.35 0.00",
-                       "Team":  2,
-                       "Bombsite":  0,
-                       "CanBePlanter":  true,
-                       "Id":  10,
-                       "Name":  "Default"
-                   },
-                   {
-                       "Vector":  "-1,088.85 -605.93 11,776.03",
-                       "QAngle":  "0.00 -90.96 0.00",
-                       "Team":  2,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  11,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-132.62 -922.37 11,776.03",
-                       "QAngle":  "0.00 -146.10 0.00",
-                       "Team":  2,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  12,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-94.62 -1,454.97 11,776.03",
-                       "QAngle":  "0.00 141.09 0.00",
-                       "Team":  2,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  13,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-306.82 -1,245.42 11,764.43",
-                       "QAngle":  "0.00 161.18 0.00",
-                       "Team":  2,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  14,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-949.32 303.59 11,776.03",
-                       "QAngle":  "0.00 -87.52 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  15,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,712.84 -557.14 11,552.03",
-                       "QAngle":  "0.00 159.76 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  16,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,716.41 -358.35 11,521.61",
-                       "QAngle":  "0.00 60.74 0.00",
-                       "Team":  3,
-                       "Bombsite":  0,
-                       "CanBePlanter":  false,
-                       "Id":  17,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-2,250.37 -494.91 11,488.03",
-                       "QAngle":  "0.00 9.88 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  18,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-2,127.21 -568.09 11,512.43",
-                       "QAngle":  "0.00 48.91 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  19,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,975.13 -536.34 11,552.03",
-                       "QAngle":  "0.00 88.17 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  20,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-725.01 600.79 11,776.03",
-                       "QAngle":  "0.00 152.23 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  21,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,006.14 490.74 11,776.03",
-                       "QAngle":  "0.00 119.92 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  22,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-985.64 178.04 11,776.03",
-                       "QAngle":  "0.00 154.84 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  23,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-980.33 14.97 11,776.03",
-                       "QAngle":  "0.00 136.64 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  24,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,232.30 120.59 11,776.03",
-                       "QAngle":  "0.00 122.42 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  25,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,885.15 216.14 11,776.03",
-                       "QAngle":  "0.00 30.73 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  26,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-1,914.40 82.53 11,776.03",
-                       "QAngle":  "0.00 42.34 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  27,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-2,341.19 -718.18 11,488.03",
-                       "QAngle":  "0.00 41.27 0.00",
-                       "Team":  3,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  28,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-2,610.02 509.38 11,752.14",
-                       "QAngle":  "0.00 -64.29 0.00",
-                       "Team":  2,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  29,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-2,146.03 669.57 11,744.03",
-                       "QAngle":  "0.00 -13.23 0.00",
-                       "Team":  2,
-                       "Bombsite":  1,
-                       "CanBePlanter":  true,
-                       "Id":  30,
-                       "Name":  "Default Corner"
-                   },
-                   {
-                       "Vector":  "-2,216.03 865.05 11,744.03",
-                       "QAngle":  "0.00 -4.80 0.00",
-                       "Team":  2,
-                       "Bombsite":  1,
-                       "CanBePlanter":  true,
-                       "Id":  31,
-                       "Name":  "Default"
-                   },
-                   {
-                       "Vector":  "-2,353.50 927.36 11,744.03",
-                       "QAngle":  "0.00 -95.54 0.00",
-                       "Team":  2,
-                       "Bombsite":  1,
-                       "CanBePlanter":  true,
-                       "Id":  32,
-                       "Name":  "Catwalk"
-                   },
-                   {
-                       "Vector":  "-2,516.83 1,036.03 11,747.60",
-                       "QAngle":  "0.00 -1.15 0.00",
-                       "Team":  2,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  33,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-2,506.29 814.71 11,744.03",
-                       "QAngle":  "0.00 -77.92 0.00",
-                       "Team":  2,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  34,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-2,153.03 407.41 11,776.03",
-                       "QAngle":  "0.00 -128.05 0.00",
-                       "Team":  2,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  35,
-                       "Name":  null
-                   },
-                   {
-                       "Vector":  "-2,608.66 891.99 11,751.97",
-                       "QAngle":  "0.00 -11.97 0.00",
-                       "Team":  2,
-                       "Bombsite":  1,
-                       "CanBePlanter":  false,
-                       "Id":  36,
-                       "Name":  null
-                   }
-               ]
+{
+  "spawns": [
+    {
+      "vector": "-1,538.83 -471.80 11,488.03",
+      "qAngle": "0.00 53.54 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 1,
+      "name": null
+    },
+    {
+      "vector": "-1,359.65 -459.51 11,488.03",
+      "qAngle": "0.00 80.63 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 2,
+      "name": null
+    },
+    {
+      "vector": "-1,470.26 -174.25 11,488.03",
+      "qAngle": "0.00 12.38 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 3,
+      "name": null
+    },
+    {
+      "vector": "-1,688.27 212.41 11,776.03",
+      "qAngle": "0.00 -10.99 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 4,
+      "name": null
+    },
+    {
+      "vector": "-1,616.42 412.66 11,776.03",
+      "qAngle": "0.00 -28.74 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 5,
+      "name": null
+    },
+    {
+      "vector": "-850.09 772.83 11,776.03",
+      "qAngle": "0.00 -68.73 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 6,
+      "name": null
+    },
+    {
+      "vector": "-721.03 593.25 11,776.03",
+      "qAngle": "0.00 -80.79 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 7,
+      "name": null
+    },
+    {
+      "vector": "-114.03 -540.03 11,776.03",
+      "qAngle": "0.00 -114.19 0.00",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 8,
+      "name": "Double"
+    },
+    {
+      "vector": "-114.26 -708.79 11,776.03",
+      "qAngle": "0.00 -174.81 0.00",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 9,
+      "name": "Sandbags"
+    },
+    {
+      "vector": "-347.03 -682.82 11,774.13",
+      "qAngle": "0.00 -89.35 0.00",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 10,
+      "name": "Default"
+    },
+    {
+      "vector": "-1,088.85 -605.93 11,776.03",
+      "qAngle": "0.00 -90.96 0.00",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 11,
+      "name": null
+    },
+    {
+      "vector": "-132.62 -922.37 11,776.03",
+      "qAngle": "0.00 -146.10 0.00",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 12,
+      "name": null
+    },
+    {
+      "vector": "-94.62 -1,454.97 11,776.03",
+      "qAngle": "0.00 141.09 0.00",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 13,
+      "name": null
+    },
+    {
+      "vector": "-306.82 -1,245.42 11,764.43",
+      "qAngle": "0.00 161.18 0.00",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 14,
+      "name": null
+    },
+    {
+      "vector": "-949.32 303.59 11,776.03",
+      "qAngle": "0.00 -87.52 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 15,
+      "name": null
+    },
+    {
+      "vector": "-1,712.84 -557.14 11,552.03",
+      "qAngle": "0.00 159.76 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 16,
+      "name": null
+    },
+    {
+      "vector": "-1,716.41 -358.35 11,521.61",
+      "qAngle": "0.00 60.74 0.00",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 17,
+      "name": null
+    },
+    {
+      "vector": "-2,250.37 -494.91 11,488.03",
+      "qAngle": "0.00 9.88 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 18,
+      "name": null
+    },
+    {
+      "vector": "-2,127.21 -568.09 11,512.43",
+      "qAngle": "0.00 48.91 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 19,
+      "name": null
+    },
+    {
+      "vector": "-1,975.13 -536.34 11,552.03",
+      "qAngle": "0.00 88.17 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 20,
+      "name": null
+    },
+    {
+      "vector": "-725.01 600.79 11,776.03",
+      "qAngle": "0.00 152.23 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 21,
+      "name": null
+    },
+    {
+      "vector": "-1,006.14 490.74 11,776.03",
+      "qAngle": "0.00 119.92 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 22,
+      "name": null
+    },
+    {
+      "vector": "-985.64 178.04 11,776.03",
+      "qAngle": "0.00 154.84 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 23,
+      "name": null
+    },
+    {
+      "vector": "-980.33 14.97 11,776.03",
+      "qAngle": "0.00 136.64 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 24,
+      "name": null
+    },
+    {
+      "vector": "-1,232.30 120.59 11,776.03",
+      "qAngle": "0.00 122.42 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 25,
+      "name": null
+    },
+    {
+      "vector": "-1,885.15 216.14 11,776.03",
+      "qAngle": "0.00 30.73 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 26,
+      "name": null
+    },
+    {
+      "vector": "-1,914.40 82.53 11,776.03",
+      "qAngle": "0.00 42.34 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 27,
+      "name": null
+    },
+    {
+      "vector": "-2,341.19 -718.18 11,488.03",
+      "qAngle": "0.00 41.27 0.00",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 28,
+      "name": null
+    },
+    {
+      "vector": "-2,610.02 509.38 11,752.14",
+      "qAngle": "0.00 -64.29 0.00",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 29,
+      "name": null
+    },
+    {
+      "vector": "-2,146.03 669.57 11,744.03",
+      "qAngle": "0.00 -13.23 0.00",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 30,
+      "name": "Default Corner"
+    },
+    {
+      "vector": "-2,216.03 865.05 11,744.03",
+      "qAngle": "0.00 -4.80 0.00",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 31,
+      "name": "Default"
+    },
+    {
+      "vector": "-2,353.50 927.36 11,744.03",
+      "qAngle": "0.00 -95.54 0.00",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 32,
+      "name": "Catwalk"
+    },
+    {
+      "vector": "-2,516.83 1,036.03 11,747.60",
+      "qAngle": "0.00 -1.15 0.00",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 33,
+      "name": null
+    },
+    {
+      "vector": "-2,506.29 814.71 11,744.03",
+      "qAngle": "0.00 -77.92 0.00",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 34,
+      "name": null
+    },
+    {
+      "vector": "-2,153.03 407.41 11,776.03",
+      "qAngle": "0.00 -128.05 0.00",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 35,
+      "name": null
+    },
+    {
+      "vector": "-2,608.66 891.99 11,751.97",
+      "qAngle": "0.00 -11.97 0.00",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 36,
+      "name": null
+    }
+  ],
+  "smokeScenarios": [
+    {
+      "id": 1,
+      "vector": "-1447.7963 563.5116 11874.031",
+      "bombsite": 1,
+      "name": "Platform"
+    },
+    {
+      "id": 2,
+      "vector": "-2432.464 213.2376 11744.031",
+      "bombsite": 1,
+      "name": "Ramp"
+    },
+    {
+      "id": 3,
+      "vector": "-1313.8014 923.28613 11776.031",
+      "bombsite": 1,
+      "name": "CT Spawn"
+    },
+    {
+      "id": 4,
+      "vector": "-559.6408 -227.41199 11776.031",
+      "bombsite": 0,
+      "name": "Elevator"
+    },
+    {
+      "id": 5,
+      "vector": "-870.8759 -523.3519 11776.031",
+      "bombsite": 0,
+      "name": "Side"
+    },
+    {
+      "id": 6,
+      "vector": "-595.6119 -1247.8436 11668.162",
+      "bombsite": 0,
+      "name": "Ramp"
+    }
+  ]
 }

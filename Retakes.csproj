@@ -41,6 +41,26 @@
     </ItemGroup>
     
     <ZipDirectory SourceDirectory="$(PublishDir)../" DestinationFile="$(OutputPath)../$(AssemblyName).zip" Overwrite="true" />
+
+    <PropertyGroup>
+      <NoMapsPublishDir>$(OutputPath)publish-no-maps/</NoMapsPublishDir>
+    </PropertyGroup>
+
+    <RemoveDir Directories="$(NoMapsPublishDir)" />
+    <MakeDir Directories="$(NoMapsPublishDir)" />
+
+    <ItemGroup>
+      <NoMapsPublishFiles Include="$(PublishDir)../**/*" Exclude="$(PublishDir)../**/resources/maps/**" />
+    </ItemGroup>
+
+    <Copy
+      SourceFiles="@(NoMapsPublishFiles)"
+      DestinationFiles="@(NoMapsPublishFiles->'$(NoMapsPublishDir)%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true" />
+
+    <ZipDirectory SourceDirectory="$(NoMapsPublishDir)" DestinationFile="$(OutputPath)../$(AssemblyName)-no-maps.zip" Overwrite="true" />
+
+    <RemoveDir Directories="$(NoMapsPublishDir)" />
   </Target>
 
 </Project> 

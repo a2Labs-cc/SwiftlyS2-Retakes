@@ -1,242 +1,279 @@
-﻿{
-  "Spawns": [
+{
+  "spawns": [
     {
-      "Vector": "339.15 2111.32 -125.04",
-      "QAngle": "0 178.21 0",
-      "Team": 3,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 1,
-      "Name": "CT Start 1"
+      "vector": "339.15 2111.32 -125.04",
+      "qAngle": "0 178.21 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 1,
+      "name": "CT Start 1"
     },
     {
-      "Vector": "335.92 2291.59 -118.97",
-      "QAngle": "0 -167.78 0",
-      "Team": 3,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 2,
-      "Name": "CT Start 2"
+      "vector": "335.92 2291.59 -118.97",
+      "qAngle": "0 -167.78 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 2,
+      "name": "CT Start 2"
     },
     {
-      "Vector": "-505.7 1753.06 -119.35",
-      "QAngle": "0 98.39 0",
-      "Team": 3,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 3,
-      "Name": "Mid Doors 2"
+      "vector": "-505.7 1753.06 -119.35",
+      "qAngle": "0 98.39 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 3,
+      "name": "Mid Doors 2"
     },
     {
-      "Vector": "-349.74 1792.41 -121.33",
-      "QAngle": "0 120.25 0",
-      "Team": 3,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 4,
-      "Name": "Mid Doors 1"
+      "vector": "-349.74 1792.41 -121.33",
+      "qAngle": "0 120.25 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 4,
+      "name": "Mid Doors 1"
     },
     {
-      "Vector": "-384.31 1426.28 -126.24",
-      "QAngle": "0 -179.82 0",
-      "Team": 3,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 5,
-      "Name": "Middle"
+      "vector": "-384.31 1426.28 -126.24",
+      "qAngle": "0 -179.82 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 5,
+      "name": "Middle"
     },
     {
-      "Vector": "-676.93 1472.06 -112.09",
-      "QAngle": "0 -163.95 0",
-      "Team": 3,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 6,
-      "Name": "Lower Tunnel"
+      "vector": "-676.93 1472.06 -112.09",
+      "qAngle": "0 -163.95 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 6,
+      "name": "Lower Tunnel"
     },
     {
-      "Vector": "-1925.2 176.37 4.68",
-      "QAngle": "0 64.86 0",
-      "Team": 3,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 7,
-      "Name": "Outside Tunnel 2"
+      "vector": "-1925.2 176.37 4.68",
+      "qAngle": "0 64.86 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 7,
+      "name": "Outside Tunnel 2"
     },
     {
-      "Vector": "-1511.12 171.17 2.02",
-      "QAngle": "0 103.5 0",
-      "Team": 3,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 8,
-      "Name": "Outside Tunnel 1"
+      "vector": "-1511.12 171.17 2.02",
+      "qAngle": "0 103.5 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 8,
+      "name": "Outside Tunnel 1"
     },
     {
-      "Vector": "-2093.97 3117.97 35.71",
-      "QAngle": "0 -85.79 0",
-      "Team": 2,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 9
+      "vector": "-2093.97 3117.97 35.71",
+      "qAngle": "0 -85.79 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 9,
+      "name": null
     },
     {
-      "Vector": "-2100.94 2637.79 39.31",
-      "QAngle": "0 -8.22 0",
-      "Team": 2,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 10
+      "vector": "-2100.94 2637.79 39.31",
+      "qAngle": "0 -8.22 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 10,
+      "name": null
     },
     {
-      "Vector": "-1366.03 2565.97 4.63",
-      "QAngle": "0 -137.57 0",
-      "Team": 2,
-      "Bombsite": 1,
-      "CanBePlanter": true,
-      "Id": 11,
-      "Name": "Default"
+      "vector": "-1366.03 2565.97 4.63",
+      "qAngle": "0 -137.57 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 11,
+      "name": "Default"
     },
     {
-      "Vector": "-1684.03 2546.56 7.28",
-      "QAngle": "0 89.41 0",
-      "Team": 2,
-      "Bombsite": 1,
-      "CanBePlanter": true,
-      "Id": 12,
-      "Name": "Double Stack"
+      "vector": "-1684.03 2546.56 7.28",
+      "qAngle": "0 89.41 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 12,
+      "name": "Double Stack"
     },
     {
-      "Vector": "-1589.59 2758.31 65.03",
-      "QAngle": "0 -68.12 0",
-      "Team": 2,
-      "Bombsite": 1,
-      "CanBePlanter": true,
-      "Id": 13,
-      "Name": "Top Box"
+      "vector": "-1589.59 2758.31 65.03",
+      "qAngle": "0 -68.12 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 13,
+      "name": "Top Box"
     },
     {
-      "Vector": "-1364.03 2755.03 17.68",
-      "QAngle": "0 -173.45 0",
-      "Team": 2,
-      "Bombsite": 1,
-      "CanBePlanter": true,
-      "Id": 14,
-      "Name": "Back Site"
+      "vector": "-1364.03 2755.03 17.68",
+      "qAngle": "0 -173.45 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 14,
+      "name": "Back Site"
     },
     {
-      "Vector": "-1672.21 1620.03 2.53",
-      "QAngle": "0 59.01 0",
-      "Team": 2,
-      "Bombsite": 1,
-      "CanBePlanter": false,
-      "Id": 15
+      "vector": "-1672.21 1620.03 2.53",
+      "qAngle": "0 59.01 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 15,
+      "name": null
     },
     {
-      "Vector": "1235.97 2348.03 99.72",
-      "QAngle": "0 -85.47 0",
-      "Team": 2,
-      "Bombsite": 0,
-      "CanBePlanter": true,
-      "Id": 16,
-      "Name": "Long"
+      "vector": "1235.97 2348.03 99.72",
+      "qAngle": "0 -85.47 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 16,
+      "name": "Long"
     },
     {
-      "Vector": "1235.97 2460.97 97.9",
-      "QAngle": "0 -88.72 0",
-      "Team": 2,
-      "Bombsite": 0,
-      "CanBePlanter": true,
-      "Id": 17,
-      "Name": "Safe"
+      "vector": "1235.97 2460.97 97.9",
+      "qAngle": "0 -88.72 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 17,
+      "name": "Safe"
     },
     {
-      "Vector": "1069.03 2348.03 99.2",
-      "QAngle": "0 -154.03 0",
-      "Team": 2,
-      "Bombsite": 0,
-      "CanBePlanter": true,
-      "Id": 18,
-      "Name": "Default"
+      "vector": "1069.03 2348.03 99.2",
+      "qAngle": "0 -154.03 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 18,
+      "name": "Default"
     },
     {
-      "Vector": "987.97 2444.03 96.53",
-      "QAngle": "0 -140.64 0",
-      "Team": 2,
-      "Bombsite": 0,
-      "CanBePlanter": true,
-      "Id": 19,
-      "Name": "Short"
+      "vector": "987.97 2444.03 96.53",
+      "qAngle": "0 -140.64 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 19,
+      "name": "Short"
     },
     {
-      "Vector": "1091.15 3052.68 130.77",
-      "QAngle": "0 -99.8 0",
-      "Team": 2,
-      "Bombsite": 0,
-      "CanBePlanter": false,
-      "Id": 20
+      "vector": "1091.15 3052.68 130.77",
+      "qAngle": "0 -99.8 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 20,
+      "name": null
     },
     {
-      "Vector": "1491.1 2909.15 121.87",
-      "QAngle": "0 -138.43 0",
-      "Team": 2,
-      "Bombsite": 0,
-      "CanBePlanter": false,
-      "Id": 21
+      "vector": "1491.1 2909.15 121.87",
+      "qAngle": "0 -138.43 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 21,
+      "name": null
     },
     {
-      "Vector": "499.64 66.23 -4.87",
-      "QAngle": "0 59.27 0",
-      "Team": 3,
-      "Bombsite": 0,
-      "CanBePlanter": false,
-      "Id": 22,
-      "Name": "Outside Long 1"
+      "vector": "499.64 66.23 -4.87",
+      "qAngle": "0 59.27 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 22,
+      "name": "Outside Long 1"
     },
     {
-      "Vector": "296.67 166.38 -0.73",
-      "QAngle": "0 16.27 0",
-      "Team": 3,
-      "Bombsite": 0,
-      "CanBePlanter": false,
-      "Id": 23,
-      "Name": "Outside Long 1"
+      "vector": "296.67 166.38 -0.73",
+      "qAngle": "0 16.27 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 23,
+      "name": "Outside Long 1"
     },
     {
-      "Vector": "-178.91 764.76 1.98",
-      "QAngle": "0 88.59 0",
-      "Team": 3,
-      "Bombsite": 0,
-      "CanBePlanter": false,
-      "Id": 24,
-      "Name": "Catwalk"
+      "vector": "-178.91 764.76 1.98",
+      "qAngle": "0 88.59 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 24,
+      "name": "Catwalk"
     },
     {
-      "Vector": "-754.6 1426.94 -112.29",
-      "QAngle": "0 -0.34 0",
-      "Team": 3,
-      "Bombsite": 0,
-      "CanBePlanter": false,
-      "Id": 25,
-      "Name": "Lower Tunnel"
+      "vector": "-754.6 1426.94 -112.29",
+      "qAngle": "0 -0.34 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 25,
+      "name": "Lower Tunnel"
     },
     {
-      "Vector": "-523.51 1823.55 -120.31",
-      "QAngle": "0 42.92 0",
-      "Team": 3,
-      "Bombsite": 0,
-      "CanBePlanter": false,
-      "Id": 26,
-      "Name": "Mid Doors 1"
+      "vector": "-523.51 1823.55 -120.31",
+      "qAngle": "0 42.92 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 26,
+      "name": "Mid Doors 1"
     },
     {
-      "Vector": "-549.88 2344.89 -108.92",
-      "QAngle": "0 -25.31 0",
-      "Team": 3,
-      "Bombsite": 0,
-      "CanBePlanter": false,
-      "Id": 27,
-      "Name": "Mid Doors 2"
+      "vector": "-549.88 2344.89 -108.92",
+      "qAngle": "0 -25.31 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 27,
+      "name": "Mid Doors 2"
+    }
+  ],
+  "smokeScenarios": [
+    {
+      "id": 1,
+      "vector": "1179.4937 2147.5774 1.860784",
+      "bombsite": 0,
+      "name": "CT Spawn"
+    },
+    {
+      "id": 2,
+      "vector": "532.5278 2180.5542 127.03125",
+      "bombsite": 0,
+      "name": "Short"
+    },
+    {
+      "id": 3,
+      "vector": "-1988.372 1503.4907 31.358212",
+      "bombsite": 1,
+      "name": "Tunnel"
+    },
+    {
+      "id": 4,
+      "vector": "-1237.7119 2271.5 5.325207",
+      "bombsite": 1,
+      "name": "Doors"
+    },
+    {
+      "id": 5,
+      "vector": "-1285.9796 2671.3618 130.03125",
+      "bombsite": 1,
+      "name": "Window"
     }
   ]
 }

@@ -105,6 +105,7 @@ public sealed class RetakesConfigService : IRetakesConfigService
       }
 
       EnsureTeamBalanceConfigPresent();
+      EnsureSmokeScenariosConfigPresent();
       ApplyLoggingToggles(Config.Server);
     }
     catch (Exception ex)
@@ -170,6 +171,60 @@ public sealed class RetakesConfigService : IRetakesConfigService
     catch (Exception ex)
     {
       _logger.LogPluginWarning(ex, "Retakes: failed to ensure TeamBalance exists in config.json");
+    }
+  }
+
+  private void EnsureSmokeScenariosConfigPresent()
+  {
+    try
+    {
+      if (!File.Exists(_path))
+      {
+        return;
+      }
+
+      var text = File.ReadAllText(_path);
+      if (string.IsNullOrWhiteSpace(text))
+      {
+        return;
+      }
+
+      var rootNode = JsonNode.Parse(text);
+      if (rootNode is not JsonObject rootObj)
+      {
+        return;
+      }
+
+      ConfigSanitizer.SanitizeColonDelimitedKeys(rootObj);
+      ConfigSanitizer.SanitizeCaseInsensitiveDuplicateKeys(rootObj);
+
+      if (rootObj[SectionName] is not JsonObject sectionObj)
+      {
+        sectionObj = new JsonObject();
+        rootObj[SectionName] = sectionObj;
+      }
+
+      var smokeScenariosKey = sectionObj.ContainsKey("SmokeScenarios") ? "SmokeScenarios"
+        : sectionObj.ContainsKey("smokeScenarios") ? "smokeScenarios"
+        : "SmokeScenarios";
+
+      if (sectionObj[smokeScenariosKey] is not JsonObject smokeScenariosObj)
+      {
+        smokeScenariosObj = new JsonObject();
+        sectionObj[smokeScenariosKey] = smokeScenariosObj;
+      }
+
+      string Key(string pascal, string camel) => smokeScenariosObj.ContainsKey(pascal) ? pascal : smokeScenariosObj.ContainsKey(camel) ? camel : pascal;
+
+      if (smokeScenariosObj[Key("RandomRoundsEnabled", "randomRoundsEnabled")] is null) smokeScenariosObj[Key("RandomRoundsEnabled", "randomRoundsEnabled")] = Config.SmokeScenarios.RandomRoundsEnabled;
+      if (smokeScenariosObj[Key("RandomRoundChance", "randomRoundChance")] is null) smokeScenariosObj[Key("RandomRoundChance", "randomRoundChance")] = Config.SmokeScenarios.RandomRoundChance;
+
+      var updated = rootObj.ToJsonString(JsonOptions);
+      File.WriteAllText(_path, updated);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogPluginWarning(ex, "Retakes: failed to ensure SmokeScenarios exists in config.json");
     }
   }
 

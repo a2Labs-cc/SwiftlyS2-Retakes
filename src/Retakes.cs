@@ -10,7 +10,7 @@ using SwiftlyS2_Retakes.Logging;
 
 namespace SwiftlyS2_Retakes;
 
-[PluginMetadata(Id = "Retakes", Version = "0.0.2-beta", Name = "Retakes", Author = "aga", Description = "No description.")]
+[PluginMetadata(Id = "Retakes", Version = "0.0.3-beta", Name = "Retakes", Author = "aga", Description = "No description.")]
 
 public partial class SwiftlyS2_Retakes : BasePlugin
 {
@@ -34,6 +34,8 @@ public partial class SwiftlyS2_Retakes : BasePlugin
   private IInstantBombService? _instantBomb;
   private IAntiTeamFlashService? _antiTeamFlash;
   private IDamageReportService? _damageReport;
+  private ISmokeScenarioService? _smokeScenario;
+  private IMessageService? _messages;
 
   // Handlers
   private MapEventHandlers? _mapEventHandlers;
@@ -80,6 +82,8 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _instantBomb = _serviceProvider.GetRequiredService<IInstantBombService>();
     _antiTeamFlash = _serviceProvider.GetRequiredService<IAntiTeamFlashService>();
     _damageReport = _serviceProvider.GetRequiredService<IDamageReportService>();
+    _smokeScenario = _serviceProvider.GetRequiredService<ISmokeScenarioService>();
+    _messages = _serviceProvider.GetRequiredService<IMessageService>();
 
     // Initialize services that need explicit initialization
     _config.LoadOrCreate();
@@ -90,13 +94,13 @@ public partial class SwiftlyS2_Retakes : BasePlugin
 
     _roundEventHandlers = new RoundEventHandlers(
       _pawnLifecycle, _spawnManager, _state, _config, _announcement,
-      _allocation, _autoPlant, _clutch, _damageReport, _breaker, random, _queue, _buyMenu);
+      _messages, _allocation, _autoPlant, _clutch, _damageReport, _breaker, random, _queue, _buyMenu, _smokeScenario);
 
     _playerEventHandlers = new PlayerEventHandlers(
       _pawnLifecycle, _clutch, _prefs, _state, _config, _queue, _damageReport);
 
     _commandHandlers = new CommandHandlers(
-      _mapConfig, _spawnManager, _pawnLifecycle, _spawnViz, _state, _prefs, _config);
+      _mapConfig, _spawnManager, _pawnLifecycle, _spawnViz, _state, _prefs, _config, _smokeScenario);
 
     _mapEventHandlers = new MapEventHandlers(mapName =>
     {
@@ -172,6 +176,8 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _instantBomb = null;
     _antiTeamFlash = null;
     _damageReport = null;
+    _smokeScenario = null;
+    _messages = null;
 
     // Dispose service provider and all registered services
     ServiceProviderFactory.DisposeServiceProvider(_serviceProvider);

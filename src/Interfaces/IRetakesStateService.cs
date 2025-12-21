@@ -12,6 +12,7 @@ public interface IRetakesStateService
   bool RestartQueuedThisRound { get; }
   Bombsite? ForcedBombsite { get; }
   Bombsite? ShowingSpawnsForBombsite { get; }
+  bool SmokesForced { get; }
   bool ScrambleNextRound { get; set; }
   bool TeamChangeBypassEnabled { get; }
   int RoundNumber { get; }
@@ -37,6 +38,8 @@ public interface IRetakesStateService
   void EndTeamChangeBypass();
   void ForceBombsite(Bombsite bombsite);
   void ClearForcedBombsite();
+  void ForceSmokes();
+  void ClearForcedSmokes();
   void SetShowingSpawnsForBombsite(Bombsite? bombsite);
   bool ToggleVoices(ulong steamId);
   bool VoicesEnabled(ulong steamId);
