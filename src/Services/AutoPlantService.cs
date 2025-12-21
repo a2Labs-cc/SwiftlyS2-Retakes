@@ -72,21 +72,21 @@ public sealed class AutoPlantService : IAutoPlantService
           return;
         }
 
-        IPlayer? bombCarrier = null;
+        IPlayer? eventPlanter = null;
         if (assignedPlanterSteamId is not null)
         {
-          bombCarrier = _core.PlayerManager.GetAllPlayers().FirstOrDefault(p =>
+          eventPlanter = _core.PlayerManager.GetAllPlayers().FirstOrDefault(p =>
             p.IsValid
-            && p.SteamID == assignedPlanterSteamId.Value
-            && (Team)p.Controller.TeamNum == Team.T);
+            && p.SteamID == assignedPlanterSteamId.Value);
 
-          if (bombCarrier is null || !bombCarrier.IsValid)
+          if (eventPlanter is null || !eventPlanter.IsValid)
           {
-            _logger.LogPluginWarning("Retakes: auto-plant failed (assigned planter not found). SteamId={SteamId}", assignedPlanterSteamId.Value);
-            return;
+            _logger.LogPluginWarning(
+              "Retakes: auto-plant: assigned planter not found, falling back to any alive player. SteamId={SteamId}",
+              assignedPlanterSteamId.Value);
+            eventPlanter = null;
           }
-
-          if (!bombCarrier.Controller.PawnIsAlive || bombCarrier.Pawn is null)
+          else if (!eventPlanter.Controller.PawnIsAlive || eventPlanter.Pawn is null)
           {
             if (attempt < maxAttempts)
             {
@@ -95,29 +95,28 @@ public sealed class AutoPlantService : IAutoPlantService
             }
 
             _logger.LogPluginWarning(
-              "Retakes: auto-plant failed (assigned planter pawn not ready after retries). SteamId={SteamId} Slot={Slot}",
+              "Retakes: auto-plant: assigned planter pawn not ready after retries, planting without assigned planter. SteamId={SteamId} Slot={Slot}",
               assignedPlanterSteamId.Value,
-              bombCarrier.Slot);
-            return;
+              eventPlanter.Slot);
+            eventPlanter = null;
           }
         }
-        else
+
+        if (eventPlanter is null)
         {
-          bombCarrier = _core.PlayerManager.GetAllPlayers().FirstOrDefault(p =>
+          var players = _core.PlayerManager.GetAllPlayers();
+          eventPlanter = players.FirstOrDefault(p =>
             p.IsValid
             && p.Controller.PawnIsAlive
-            && (Team)p.Controller.TeamNum == Team.T);
+            && (Team)p.Controller.TeamNum == Team.T)
+            ?? players.FirstOrDefault(p =>
+              p.IsValid
+              && p.Controller.PawnIsAlive);
 
-          if (bombCarrier is null || !bombCarrier.IsValid)
+          if (eventPlanter is not null && eventPlanter.IsValid && eventPlanter.Pawn is null)
           {
-            _logger.LogPluginWarning("Retakes: auto-plant failed (no valid bomb carrier)");
-            return;
-          }
-
-          if (bombCarrier.Pawn is null)
-          {
-            _logger.LogPluginWarning("Retakes: auto-plant failed (bomb carrier pawn not ready). Slot={Slot}", bombCarrier.Slot);
-            return;
+            _logger.LogPluginWarning("Retakes: auto-plant: fallback planter pawn not ready. Slot={Slot}", eventPlanter.Slot);
+            eventPlanter = null;
           }
         }
 
@@ -130,8 +129,15 @@ public sealed class AutoPlantService : IAutoPlantService
 
           if (planterSpawns.Count == 0)
           {
+            planterSpawns = _mapConfig.Spawns
+              .Where(s => s.Bombsite == bombsite && s.CanBePlanter)
+              .ToList();
+          }
+
+          if (planterSpawns.Count == 0)
+          {
             _logger.LogPluginWarning(
-              "Retakes: auto-plant failed (no T CanBePlanter spawns). Map={Map} Bombsite={Bombsite}",
+              "Retakes: auto-plant failed (no CanBePlanter spawns). Map={Map} Bombsite={Bombsite}",
               _mapConfig.LoadedMapName,
               bombsite);
             return;
@@ -175,16 +181,23 @@ public sealed class AutoPlantService : IAutoPlantService
         }
 
         var site = (short)(bombsite == Bombsite.A ? 0 : 1);
-        _core.GameEvent.Fire<EventBombPlanted>(e =>
+        if (eventPlanter is not null && eventPlanter.IsValid)
         {
-          e.Site = site;
-          e.UserId = bombCarrier.Slot;
-        });
+          _core.GameEvent.Fire<EventBombPlanted>(e =>
+          {
+            e.Site = site;
+            e.UserId = eventPlanter.Slot;
+          });
+        }
+        else
+        {
+          _logger.LogPluginInformation("Retakes: auto-planted bomb without a planter (no alive players)");
+        }
 
         _logger.LogPluginDebug(
           "Retakes: auto-planted bomb. Bombsite={Bombsite} Slot={Slot} AssignedPlanter={Assigned}",
           bombsite,
-          bombCarrier.Slot,
+          eventPlanter?.Slot ?? -1,
           assignedPlanterSteamId is not null);
 
         if (_autoPlantStripC4.Value)
