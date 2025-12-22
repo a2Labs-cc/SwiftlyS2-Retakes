@@ -50,6 +50,7 @@ public static class ServiceCollectionExtensions
     services.AddSingleton<IAntiTeamFlashService, AntiTeamFlashService>();
     services.AddSingleton<ISmokeScenarioService, SmokeScenarioService>();
     services.AddSingleton<ISoloBotService, SoloBotService>();
+    services.AddSingleton<IAfkManagerService, AfkManagerService>();
 
     return services;
   }

@@ -37,6 +37,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
   private ISmokeScenarioService? _smokeScenario;
   private IMessageService? _messages;
   private ISoloBotService? _soloBot;
+  private IAfkManagerService? _afkManager;
 
   // Handlers
   private MapEventHandlers? _mapEventHandlers;
@@ -86,6 +87,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _smokeScenario = _serviceProvider.GetRequiredService<ISmokeScenarioService>();
     _messages = _serviceProvider.GetRequiredService<IMessageService>();
     _soloBot = _serviceProvider.GetRequiredService<ISoloBotService>();
+    _afkManager = _serviceProvider.GetRequiredService<IAfkManagerService>();
 
     // Initialize services that need explicit initialization
     _config.LoadOrCreate();
@@ -123,6 +125,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _mapEventHandlers.Register(Core);
     _instantBomb.Register();
     _antiTeamFlash.Register();
+    _afkManager.Register();
     _roundEventHandlers.Register(Core);
     _playerEventHandlers.Register(Core);
     _commandHandlers.Register(Core);
@@ -153,6 +156,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     if (_playerEventHandlers is not null) _playerEventHandlers.Unregister(Core);
     if (_commandHandlers is not null) _commandHandlers.Unregister(Core);
     if (_buyMenu is not null) _buyMenu.Unregister();
+    if (_afkManager is not null) _afkManager.Unregister();
 
     // Clear handler references
     _mapEventHandlers = null;
@@ -181,6 +185,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _smokeScenario = null;
     _messages = null;
     _soloBot = null;
+    _afkManager = null;
 
     // Dispose service provider and all registered services
     ServiceProviderFactory.DisposeServiceProvider(_serviceProvider);

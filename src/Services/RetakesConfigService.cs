@@ -107,6 +107,7 @@ public sealed class RetakesConfigService : IRetakesConfigService
       EnsureTeamBalanceConfigPresent();
       EnsureSmokeScenariosConfigPresent();
       EnsureSoloBotConfigPresent();
+      EnsureAfkManagerConfigPresent();
       ApplyLoggingToggles(Config.Server);
     }
     catch (Exception ex)
@@ -280,6 +281,64 @@ public sealed class RetakesConfigService : IRetakesConfigService
     catch (Exception ex)
     {
       _logger.LogPluginWarning(ex, "Retakes: failed to ensure SoloBot exists in config.json");
+    }
+  }
+
+  private void EnsureAfkManagerConfigPresent()
+  {
+    try
+    {
+      if (!File.Exists(_path))
+      {
+        return;
+      }
+
+      var text = File.ReadAllText(_path);
+      if (string.IsNullOrWhiteSpace(text))
+      {
+        return;
+      }
+
+      var rootNode = JsonNode.Parse(text);
+      if (rootNode is not JsonObject rootObj)
+      {
+        return;
+      }
+
+      ConfigSanitizer.SanitizeColonDelimitedKeys(rootObj);
+      ConfigSanitizer.SanitizeCaseInsensitiveDuplicateKeys(rootObj);
+
+      if (rootObj[SectionName] is not JsonObject sectionObj)
+      {
+        sectionObj = new JsonObject();
+        rootObj[SectionName] = sectionObj;
+      }
+
+      var afkManagerKey = sectionObj.ContainsKey("AfkManager") ? "AfkManager"
+        : sectionObj.ContainsKey("afkManager") ? "afkManager"
+        : "AfkManager";
+
+      if (sectionObj[afkManagerKey] is not JsonObject afkManagerObj)
+      {
+        afkManagerObj = new JsonObject();
+        sectionObj[afkManagerKey] = afkManagerObj;
+      }
+
+      string Key(string pascal, string camel) => afkManagerObj.ContainsKey(pascal) ? pascal : afkManagerObj.ContainsKey(camel) ? camel : pascal;
+
+      if (afkManagerObj[Key("Enabled", "enabled")] is null) afkManagerObj[Key("Enabled", "enabled")] = Config.AfkManager.Enabled;
+      if (afkManagerObj[Key("IdleSecondsBeforeSpectator", "idleSecondsBeforeSpectator")] is null) afkManagerObj[Key("IdleSecondsBeforeSpectator", "idleSecondsBeforeSpectator")] = Config.AfkManager.IdleSecondsBeforeSpectator;
+      if (afkManagerObj[Key("SpectatorSecondsBeforeKick", "spectatorSecondsBeforeKick")] is null) afkManagerObj[Key("SpectatorSecondsBeforeKick", "spectatorSecondsBeforeKick")] = Config.AfkManager.SpectatorSecondsBeforeKick;
+      if (afkManagerObj[Key("MovementDistanceThreshold", "movementDistanceThreshold")] is null) afkManagerObj[Key("MovementDistanceThreshold", "movementDistanceThreshold")] = Config.AfkManager.MovementDistanceThreshold;
+      if (afkManagerObj[Key("CheckIntervalSeconds", "checkIntervalSeconds")] is null) afkManagerObj[Key("CheckIntervalSeconds", "checkIntervalSeconds")] = Config.AfkManager.CheckIntervalSeconds;
+      if (afkManagerObj[Key("KickReason", "kickReason")] is null) afkManagerObj[Key("KickReason", "kickReason")] = Config.AfkManager.KickReason;
+
+      var updated = rootObj.ToJsonString(JsonOptions);
+      File.WriteAllText(_path, updated);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogPluginWarning(ex, "Retakes: failed to ensure AfkManager exists in config.json");
     }
   }
 
