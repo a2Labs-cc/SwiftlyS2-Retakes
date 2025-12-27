@@ -116,8 +116,9 @@ public partial class SwiftlyS2_Retakes : BasePlugin
       _mapConfig!.Load(mapName);
       _spawnManager!.SetSpawns(_mapConfig.Spawns);
       
-      // Delay config application to ensure it overrides gamemode defaults
-      Core.Scheduler.DelayBySeconds(1.0f, () => 
+      // Apply immediately and then with a short delay for reliability
+      _config!.ApplyToConvars(false);
+      Core.Scheduler.DelayBySeconds(0.5f, () => 
       {
         _config!.ApplyToConvars(false);
       });
@@ -135,15 +136,8 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _config.ApplyToConvars(false);
     _buyMenu.Initialize();
 
-    Core.Scheduler.DelayBySeconds(2.0f, () =>
+    Core.Scheduler.DelayBySeconds(1.0f, () =>
     {
-      _config?.LoadOrCreate();
-      _config?.ApplyToConvars(false);
-    });
-
-    Core.Scheduler.DelayBySeconds(6.0f, () =>
-    {
-      _config?.LoadOrCreate();
       _config?.ApplyToConvars(false);
     });
 

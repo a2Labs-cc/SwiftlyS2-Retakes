@@ -42,6 +42,7 @@ public sealed class RoundEventHandlers
 
   private int _consecutiveTWins;
 
+  private Guid _roundAnnounceMatchStartHook;
   private Guid _roundPrestartHook;
   private Guid _roundStartHook;
   private Guid _roundPoststartHook;
@@ -105,6 +106,7 @@ public sealed class RoundEventHandlers
       1f);
 
     _roundPrestartHook = core.GameEvent.HookPre<EventRoundPrestart>(OnRoundPrestart);
+    _roundAnnounceMatchStartHook = core.GameEvent.HookPre<EventRoundAnnounceMatchStart>(OnRoundAnnounceMatchStart);
     _roundStartHook = core.GameEvent.HookPre<EventRoundStart>(OnRoundStart);
     _roundPoststartHook = core.GameEvent.HookPre<EventRoundPoststart>(OnRoundPoststart);
     _roundFreezeEndHook = core.GameEvent.HookPost<EventRoundFreezeEnd>(OnRoundFreezeEnd);
@@ -169,6 +171,12 @@ public sealed class RoundEventHandlers
       var scenarioName = string.IsNullOrWhiteSpace(chosenScenario.Name) ? "Unnamed" : chosenScenario.Name.Trim();
       _messages.Chat(player, loc["smokes.scenario.active", scenarioName].Colored());
     }
+  }
+
+  private HookResult OnRoundAnnounceMatchStart(EventRoundAnnounceMatchStart @event)
+  {
+    _buyMenu.OnRoundStart();
+    return HookResult.Continue;
   }
 
   private HookResult OnRoundPrestart(EventRoundPrestart @event)

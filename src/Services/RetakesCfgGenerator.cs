@@ -72,9 +72,10 @@ public sealed class RetakesCfgGenerator
     var full = _core.ConVar.Find<int>("retakes_buymenu_money_full")?.Value ?? 5000;
     var maxMoney = Math.Max(Math.Clamp(pistol, 0, 16000), Math.Max(Math.Clamp(half, 0, 16000), Math.Clamp(full, 0, 16000)));
 
-    var maxMoneyLine = buyMenuEnabled ? $"mp_maxmoney {maxMoney}\n" : "mp_maxmoney 0\n";
-    var playerAwardsLine = buyMenuEnabled ? "mp_playercashawards 1\n" : "mp_playercashawards 0\n";
-    var teamAwardsLine = buyMenuEnabled ? "mp_teamcashawards 1\n" : "mp_teamcashawards 0\n";
+    var maxMoneyLine = buyMenuEnabled ? "mp_maxmoney 16000\n" : "mp_maxmoney 0\n";
+    var startMoneyLine = "mp_startmoney 0\n";
+    var playerAwardsLine = "mp_playercashawards 0\n";
+    var teamAwardsLine = "mp_teamcashawards 0\n";
 
     var contents = $"""
       // Things you shouldn't change:
@@ -86,11 +87,41 @@ public sealed class RetakesCfgGenerator
       mp_join_grace_time 0
       mp_match_can_clinch 0
       {maxMoneyLine.TrimEnd()}
+      {startMoneyLine.TrimEnd()}
+      mp_afterroundmoney 0
+      mp_playercashawards 0
+      mp_teamcashawards 0
+      cash_player_respawn_amount 0
+      cash_player_get_killed 0
+      cash_player_bomb_planted 0
+      cash_player_bomb_defused 0
+      cash_player_damage_hostage 0
+      cash_player_interact_with_hostage 0
+      cash_player_killed_enemy_default 0
+      cash_player_killed_enemy_factor 0
+      cash_player_killed_hostage 1
+      cash_player_rescued_hostage 0
+      cash_team_elimination_bomb_map 0
+      cash_team_elimination_hostage_map_ct 0
+      cash_team_elimination_hostage_map_t 0
+      cash_team_hostage_alive 0
+      cash_team_hostage_interaction 0
+      cash_team_loser_bonus 0
+      cash_team_loser_bonus_consecutive_rounds 0
+      cash_team_planted_bomb_but_defused 0
+      cash_team_rescued_hostage 0
+      cash_team_survive_guardian_wave 0
+      cash_team_t_no_p_bomb_planted_ct_win 0
+      cash_team_terrorist_win_bomb 0
+      cash_team_win_by_defusing_bomb 0
+      cash_team_win_by_hostage_rescue 0
+      cash_team_win_by_time_limit 0
       {playerAwardsLine.TrimEnd()}
       mp_respawn_on_death_ct 0
       mp_respawn_on_death_t 0
       mp_solid_teammates 1
       {teamAwardsLine.TrimEnd()}
+      mp_buytime 0
       mp_warmup_pausetimer 0
       sv_skirmish_id 0
 

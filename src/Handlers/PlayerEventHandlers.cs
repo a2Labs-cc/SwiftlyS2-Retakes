@@ -203,6 +203,21 @@ public sealed class PlayerEventHandlers
     var player = @event.UserIdPlayer;
     _pawnLifecycle.OnPlayerSpawn(player);
 
+    if (!_config.Config.Weapons.BuyMenuEnabled)
+    {
+      _core?.Scheduler.NextTick(() => {
+        if (player is null || !player.IsValid) return;
+        var money = player.Controller.InGameMoneyServices;
+        if (money is not null)
+        {
+          money.Account = 0;
+          money.AccountUpdated();
+          money.StartAccount = 0;
+          money.StartAccountUpdated();
+        }
+      });
+    }
+
     if (player is not null && player.IsValid && PlayerUtil.IsHuman(player))
     {
       _soloBot.UpdateSoloBot();

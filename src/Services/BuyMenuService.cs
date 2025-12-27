@@ -57,8 +57,8 @@ public sealed class BuyMenuService : IBuyMenuService
 
     _logger.LogPluginDebug("Retakes: BuyMenuService initialized. retakes_buymenu_enabled={Enabled}", _enabled.Value);
 
-    _core.Scheduler.DelayBySeconds(2.0f, ApplyEnforcement);
-    _core.Scheduler.DelayBySeconds(6.0f, ApplyEnforcement);
+    _core.Scheduler.NextTick(ApplyEnforcement);
+    _core.Scheduler.DelayBySeconds(1.0f, ApplyEnforcement);
   }
 
   private void ApplyEnforcement()
@@ -84,6 +84,12 @@ public sealed class BuyMenuService : IBuyMenuService
   {
     if (!_enabled.Value)
     {
+      _core.Engine.ExecuteCommand("mp_maxmoney 0");
+      _core.Engine.ExecuteCommand("mp_startmoney 0");
+      _core.Engine.ExecuteCommand("mp_afterroundmoney 0");
+      _core.Engine.ExecuteCommand("mp_playercashawards 0");
+      _core.Engine.ExecuteCommand("mp_teamcashawards 0");
+      _core.Engine.ExecuteCommand("mp_buytime 0");
       return;
     }
 
@@ -97,7 +103,8 @@ public sealed class BuyMenuService : IBuyMenuService
     var buyTimeMinutes = buyTimeSec / 60f;
 
     // Retakes default cfg may clamp money to 0; ensure economy allows purchases.
-    _core.Engine.ExecuteCommand($"mp_maxmoney {maxMoney}");
+    _core.Engine.ExecuteCommand("mp_maxmoney 16000");
+    _core.Engine.ExecuteCommand("mp_startmoney 0");
     _core.Engine.ExecuteCommand("mp_afterroundmoney 0");
     _core.Engine.ExecuteCommand("mp_playercashawards 0");
     _core.Engine.ExecuteCommand("mp_teamcashawards 0");
@@ -111,12 +118,13 @@ public sealed class BuyMenuService : IBuyMenuService
 
   public void OnRoundStart()
   {
+    ApplyBuyMenuConvars();
+
     if (!_enabled.Value)
     {
+      EnsurePlayersHaveMoney();
       return;
     }
-
-    ApplyBuyMenuConvars();
 
     _core.Scheduler.DelayBySeconds(1.0f, ApplyEnforcement);
   }
@@ -136,13 +144,7 @@ public sealed class BuyMenuService : IBuyMenuService
   {
     try
     {
-      var roundType = _allocation.CurrentRoundType ?? RoundType.FullBuy;
-      var desired = roundType switch
-      {
-        RoundType.Pistol => Math.Clamp(_pistolMoney.Value, 0, 16000),
-        RoundType.HalfBuy => Math.Clamp(_halfBuyMoney.Value, 0, 16000),
-        _ => Math.Clamp(_fullBuyMoney.Value, 0, 16000),
-      };
+      var desired = _enabled.Value ? 16000 : 0;
 
       foreach (var player in _core.PlayerManager.GetAllPlayers())
       {
@@ -186,13 +188,14 @@ public sealed class BuyMenuService : IBuyMenuService
       _ => BuildAllowedSet(weapons.Pistols, weapons.FullBuy),
     };
 
-    var money = roundType switch
+    if (_enabled.Value)
     {
-      RoundType.Pistol => Math.Clamp(_pistolMoney.Value, 0, 16000),
-      RoundType.HalfBuy => Math.Clamp(_halfBuyMoney.Value, 0, 16000),
-      _ => Math.Clamp(_fullBuyMoney.Value, 0, 16000),
-    };
-    _core.Engine.ExecuteCommand($"mp_startmoney {money}");
+      _core.Engine.ExecuteCommand("mp_startmoney 0");
+    }
+    else
+    {
+      _core.Engine.ExecuteCommand("mp_startmoney 0");
+    }
 
     // Prohibit weapons not in allowed list to hide them from buy menu
     var prohibited = AllPurchasableWeapons
