@@ -38,6 +38,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
   private IMessageService? _messages;
   private ISoloBotService? _soloBot;
   private IAfkManagerService? _afkManager;
+  private IGameMessageSuppressionService? _gameMsgSuppression;
 
   // Handlers
   private MapEventHandlers? _mapEventHandlers;
@@ -88,6 +89,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _messages = _serviceProvider.GetRequiredService<IMessageService>();
     _soloBot = _serviceProvider.GetRequiredService<ISoloBotService>();
     _afkManager = _serviceProvider.GetRequiredService<IAfkManagerService>();
+    _gameMsgSuppression = _serviceProvider.GetRequiredService<IGameMessageSuppressionService>();
 
     // Initialize services that need explicit initialization
     _config.LoadOrCreate();
@@ -126,6 +128,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _instantBomb.Register();
     _antiTeamFlash.Register();
     _afkManager.Register();
+    _gameMsgSuppression.Register();
     _roundEventHandlers.Register(Core);
     _playerEventHandlers.Register(Core);
     _commandHandlers.Register(Core);
@@ -152,6 +155,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     if (_mapEventHandlers is not null) _mapEventHandlers.Unregister(Core);
     if (_instantBomb is not null) _instantBomb.Unregister();
     if (_antiTeamFlash is not null) _antiTeamFlash.Unregister();
+    if (_gameMsgSuppression is not null) _gameMsgSuppression.Unregister();
     if (_roundEventHandlers is not null) _roundEventHandlers.Unregister(Core);
     if (_playerEventHandlers is not null) _playerEventHandlers.Unregister(Core);
     if (_commandHandlers is not null) _commandHandlers.Unregister(Core);
@@ -186,6 +190,7 @@ public partial class SwiftlyS2_Retakes : BasePlugin
     _messages = null;
     _soloBot = null;
     _afkManager = null;
+    _gameMsgSuppression = null;
 
     // Dispose service provider and all registered services
     ServiceProviderFactory.DisposeServiceProvider(_serviceProvider);

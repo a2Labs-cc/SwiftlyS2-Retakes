@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
     services.AddSingleton<ISmokeScenarioService, SmokeScenarioService>();
     services.AddSingleton<ISoloBotService, SoloBotService>();
     services.AddSingleton<IAfkManagerService, AfkManagerService>();
+    services.AddSingleton<IGameMessageSuppressionService, GameMessageSuppressionService>();
 
     return services;
   }
