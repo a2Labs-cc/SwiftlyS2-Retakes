@@ -86,7 +86,7 @@ public sealed class AnnouncementService : IAnnouncementService
         _messages.Chat(player, loc["round.win_message", "Terrorists"].Colored());
       }
 
-      if (_state.ConsecutiveWins > 0 && _state.LastWinner == lastWinner)
+      if (_state.ConsecutiveWins > 1 && _state.LastWinner == lastWinner)
       {
         _messages.Chat(player, loc["round.win_streak", _state.ConsecutiveWins].Colored());
       }
