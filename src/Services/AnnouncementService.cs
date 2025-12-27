@@ -76,24 +76,6 @@ public sealed class AnnouncementService : IAnnouncementService
       if (player is null || !player.IsValid) continue;
       var loc = _core.Translation.GetPlayerLocalizer(player);
 
-      // Winner + streak: send as separate chat lines to avoid collapsing
-      if (lastWinner == Team.CT)
-      {
-        _messages.Chat(player, loc["round.win_message", "Counter-Terrorists"].Colored());
-      }
-      else if (lastWinner == Team.T)
-      {
-        _messages.Chat(player, loc["round.win_message", "Terrorists"].Colored());
-      }
-
-      if (_state.ConsecutiveWins > 1 && _state.LastWinner == lastWinner)
-      {
-        _messages.Chat(player, loc["round.win_streak", _state.ConsecutiveWins].Colored());
-      }
-
-      // Spacer between win block and round info (no prefix)
-      player.SendMessage(MessageType.Chat, "\n");
-
       // Round info: send "Now" and retake/defend as separate chat messages
       _messages.Chat(player, loc["round.now", roundTypeText].Colored());
 
@@ -125,6 +107,29 @@ public sealed class AnnouncementService : IAnnouncementService
       {
         var loc = _core.Translation.GetPlayerLocalizer(player);
         _messages.Chat(player, loc["announcement.planting_at", siteName].Colored());
+      }
+    }
+  }
+
+  public void AnnounceTeamWin(Team winner, int consecutiveWins)
+  {
+    foreach (var player in _core.PlayerManager.GetAllPlayers())
+    {
+      if (player is null || !player.IsValid) continue;
+      var loc = _core.Translation.GetPlayerLocalizer(player);
+
+      if (winner == Team.CT)
+      {
+        _messages.Chat(player, loc["round.win_message", "Counter-Terrorists"].Colored());
+      }
+      else if (winner == Team.T)
+      {
+        _messages.Chat(player, loc["round.win_message", "Terrorists"].Colored());
+      }
+
+      if (consecutiveWins > 1)
+      {
+        _messages.Chat(player, loc["round.win_streak", consecutiveWins].Colored());
       }
     }
   }

@@ -429,8 +429,6 @@ public sealed class RoundEventHandlers
       chosenScenario = _smokeScenario.SpawnSmokesForBombsite(bombsite);
     }
 
-    AnnounceSmokeScenario(bombsite, shouldSpawnSmokes, chosenScenario);
-
     var roundType = _allocation.CurrentRoundType ?? RoundType.FullBuy;
     _announcement.AnnounceBombsite(bombsite, roundType, _state.LastWinner);
 
@@ -440,6 +438,9 @@ public sealed class RoundEventHandlers
     }
 
     _buyMenu.OnRoundTypeSelected();
+
+    // Announce smoke scenario last
+    AnnounceSmokeScenario(bombsite, shouldSpawnSmokes, chosenScenario);
 
     return HookResult.Continue;
   }
@@ -478,6 +479,12 @@ public sealed class RoundEventHandlers
     else
     {
       _state.OnRoundEnd(Team.None, @event.Reason, @event.Message);
+    }
+
+    // Announce team win and streak
+    if (winner == Team.T || winner == Team.CT)
+    {
+      _announcement.AnnounceTeamWin(winner, _state.ConsecutiveWins);
     }
 
     // Clear round team locks

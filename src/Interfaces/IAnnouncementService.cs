@@ -22,5 +22,12 @@ public interface IAnnouncementService
   /// <param name="siteName">The name of the spawn point where the bomb is being planted</param>
   void AnnouncePlantSite(string siteName);
 
+  /// <summary>
+  /// Announces team win and streak information to all players.
+  /// </summary>
+  /// <param name="winner">The winning team</param>
+  /// <param name="consecutiveWins">Number of consecutive wins</param>
+  void AnnounceTeamWin(Team winner, int consecutiveWins);
+
   void ClearAnnouncement();
 }
