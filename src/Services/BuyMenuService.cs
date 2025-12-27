@@ -98,8 +98,7 @@ public sealed class BuyMenuService : IBuyMenuService
 
     // Retakes default cfg may clamp money to 0; ensure economy allows purchases.
     _core.Engine.ExecuteCommand($"mp_maxmoney {maxMoney}");
-    _core.Engine.ExecuteCommand($"mp_startmoney {maxMoney}");
-    _core.Engine.ExecuteCommand($"mp_afterroundmoney {maxMoney}");
+    _core.Engine.ExecuteCommand("mp_afterroundmoney 0");
     _core.Engine.ExecuteCommand("mp_playercashawards 0");
     _core.Engine.ExecuteCommand("mp_teamcashawards 0");
 
@@ -155,13 +154,13 @@ public sealed class BuyMenuService : IBuyMenuService
         var money = player.Controller.InGameMoneyServices;
         if (money is null) continue;
 
-        if (money.Account < desired)
+        if (money.Account != desired)
         {
           money.Account = desired;
           money.AccountUpdated();
         }
 
-        if (money.StartAccount < desired)
+        if (money.StartAccount != desired)
         {
           money.StartAccount = desired;
           money.StartAccountUpdated();
@@ -187,19 +186,77 @@ public sealed class BuyMenuService : IBuyMenuService
       _ => BuildAllowedSet(weapons.Pistols, weapons.FullBuy),
     };
 
+    var money = roundType switch
+    {
+      RoundType.Pistol => Math.Clamp(_pistolMoney.Value, 0, 16000),
+      RoundType.HalfBuy => Math.Clamp(_halfBuyMoney.Value, 0, 16000),
+      _ => Math.Clamp(_fullBuyMoney.Value, 0, 16000),
+    };
+    _core.Engine.ExecuteCommand($"mp_startmoney {money}");
+
+    // Prohibit weapons not in allowed list to hide them from buy menu
+    var prohibited = AllPurchasableWeapons
+      .Where(w => !_allowedWeapons.Contains(w))
+      .Select(w => w.Replace("weapon_", ""));
+    _core.Engine.ExecuteCommand($"mp_items_prohibited {string.Join(",", prohibited)}");
+
     // Apply mp_buy_allow_guns to restrict buy menu categories
     // Bitmask: 1=pistols, 2=SMGs, 4=rifles, 8=shotguns, 16=snipers, 32=machine guns
-    var allowGuns = roundType switch
-    {
-      RoundType.Pistol => 1,           // Pistols only
-      RoundType.HalfBuy => 1 + 2 + 4,  // Pistols + SMGs + Rifles (for famas/galil)
-      RoundType.FullBuy => 1 + 4,      // Pistols + Rifles
-      _ => 1 + 4,
-    };
+    var allowGuns = CalculateAllowGunsBitmask(_allowedWeapons);
     _core.Engine.ExecuteCommand($"mp_buy_allow_guns {allowGuns}");
 
     _logger.LogDebug("Retakes: Buy menu updated for {RoundType} round - {Count} weapons allowed, mp_buy_allow_guns={AllowGuns}", roundType, _allowedWeapons.Count, allowGuns);
   }
+
+  private static readonly string[] AllPurchasableWeapons =
+  {
+    "weapon_ak47", "weapon_m4a1", "weapon_m4a1_silencer", "weapon_aug", "weapon_sg556", "weapon_famas", "weapon_galilar",
+    "weapon_awp", "weapon_ssg08", "weapon_scar20", "weapon_g3sg1",
+    "weapon_mac10", "weapon_mp9", "weapon_mp7", "weapon_mp5sd", "weapon_ump45", "weapon_p90", "weapon_bizon",
+    "weapon_nova", "weapon_xm1014", "weapon_sawedoff", "weapon_mag7",
+    "weapon_negev", "weapon_m249",
+    "weapon_glock", "weapon_usp_silencer", "weapon_hkp2000", "weapon_p250", "weapon_fiveseven", "weapon_tec9", "weapon_cz75a", "weapon_deagle", "weapon_revolver", "weapon_elite"
+  };
+
+  private int CalculateAllowGunsBitmask(HashSet<string> allowed)
+  {
+    int mask = 0;
+    foreach (var weapon in allowed)
+    {
+      if (ContainsAny(weapon, PistolKeywords)) mask |= 1;
+      else if (ContainsAny(weapon, SmgKeywords)) mask |= 2;
+      else if (ContainsAny(weapon, RifleKeywords)) mask |= 4;
+      else if (ContainsAny(weapon, ShotgunKeywords)) mask |= 8;
+      else if (ContainsAny(weapon, SniperKeywords)) mask |= 16;
+      else if (ContainsAny(weapon, MachineGunKeywords)) mask |= 32;
+    }
+    return mask == 0 ? 1 : mask;
+  }
+
+  private static readonly HashSet<string> SmgKeywords = new(StringComparer.OrdinalIgnoreCase)
+  {
+    "mac10", "mp9", "mp7", "mp5sd", "ump45", "p90", "bizon"
+  };
+
+  private static readonly HashSet<string> RifleKeywords = new(StringComparer.OrdinalIgnoreCase)
+  {
+    "ak47", "m4a1", "famas", "galilar", "aug", "sg556"
+  };
+
+  private static readonly HashSet<string> ShotgunKeywords = new(StringComparer.OrdinalIgnoreCase)
+  {
+    "nova", "xm1014", "sawedoff", "mag7"
+  };
+
+  private static readonly HashSet<string> SniperKeywords = new(StringComparer.OrdinalIgnoreCase)
+  {
+    "awp", "ssg08", "scar20", "g3sg1"
+  };
+
+  private static readonly HashSet<string> MachineGunKeywords = new(StringComparer.OrdinalIgnoreCase)
+  {
+    "negev", "m249"
+  };
 
   private static HashSet<string> BuildAllowedSet(List<string> pistols, RoundWeaponsConfig round)
   {
@@ -255,7 +312,7 @@ public sealed class BuyMenuService : IBuyMenuService
       return HookResult.Continue;
     }
 
-    // Weapon not allowed - schedule removal after purchase completes
+    // Weapon not allowed - block and remove
     var slot = GetWeaponSlot(normalizedName);
     var roundType = _allocation.CurrentRoundType ?? RoundType.FullBuy;
 
@@ -285,7 +342,7 @@ public sealed class BuyMenuService : IBuyMenuService
       _messages.Chat(player, loc["buy.restricted", GetWeaponDisplayName(normalizedName), roundType]);
     });
 
-    return HookResult.Continue;
+    return HookResult.Handled;
   }
 
   private static readonly HashSet<string> PistolKeywords = new(StringComparer.OrdinalIgnoreCase)
