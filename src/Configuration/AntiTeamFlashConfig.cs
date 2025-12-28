@@ -6,6 +6,10 @@ namespace SwiftlyS2_Retakes.Configuration;
 public sealed class AntiTeamFlashConfig
 {
   public bool Enabled { get; set; } = true;
-  public bool FlashOwner { get; set; } = true;
+  /// <summary>
+  /// Allow the flash owner to be flashed by their own flash.
+  /// false = protect owner from self-flash, true = allow owner to be flashed by their own flash
+  /// </summary>
+  public bool FlashOwner { get; set; } = false;
   public string AccessFlag { get; set; } = "";
 }

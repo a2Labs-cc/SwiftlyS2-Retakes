@@ -27,7 +27,7 @@ public sealed class AntiTeamFlashService : IAntiTeamFlashService
     _logger = logger;
 
     _enabled = core.ConVar.CreateOrFind("retakes_antiteamflash_enabled", "Anti team flash enabled", true);
-    _flashOwner = core.ConVar.CreateOrFind("retakes_antiteamflash_flash_owner", "Also block the flash owner from their own team flashes", true);
+    _flashOwner = core.ConVar.CreateOrFind("retakes_antiteamflash_flash_owner", "Allow the flash owner to be flashed by their own flash (false = protect owner, true = flash owner)", false);
     _accessFlag = core.ConVar.CreateOrFind("retakes_antiteamflash_access_flag", "Permission flag required to receive anti team flash protection (empty = everyone)", "");
   }
 
@@ -50,11 +50,23 @@ public sealed class AntiTeamFlashService : IAntiTeamFlashService
     if (victim is null || !victim.IsValid) return HookResult.Continue;
     if (victim.Controller is null || !victim.Controller.PawnIsAlive) return HookResult.Continue;
 
-    var attackerUserId = @event.Attacker;
-    if (attackerUserId <= 0) return HookResult.Continue;
-
-    var attacker = _core.PlayerManager.GetAllPlayers().FirstOrDefault(p => p is not null && p.IsValid && p.Slot == attackerUserId);
-    if (attacker is null || !attacker.IsValid || attacker.Controller is null) return HookResult.Continue;
+    var attackerId = @event.Attacker;
+    
+    IPlayer? attacker = null;
+    
+    if (attackerId > 0)
+    {
+      // Note: for game events, attacker is typically a userid (not a slot). Some APIs also surface slot/playerid.
+      // Matching both makes this reliable.
+      attacker = _core.PlayerManager.GetAllPlayers()
+        .FirstOrDefault(p => p is not null && p.IsValid && (p.PlayerID == attackerId || p.Slot == attackerId));
+    }
+    
+    // If attacker is 0 or not found, it's likely a self-flash (CS2 bug where self-flash attacker is 0)
+    if (attacker is null || !attacker.IsValid || attacker.Controller is null)
+    {
+      attacker = victim;
+    }
 
     var requiredFlag = (_accessFlag.Value ?? string.Empty).Trim();
     if (!string.IsNullOrEmpty(requiredFlag))
@@ -81,7 +93,10 @@ public sealed class AntiTeamFlashService : IAntiTeamFlashService
 
     if (victimTeam != attackerTeam) return HookResult.Continue;
 
-    if (!_flashOwner.Value && attacker.SteamID == victim.SteamID)
+    var isSelfFlash = attacker.SteamID == victim.SteamID;
+
+    // FlashOwner semantics: true = allow owner to be flashed, false = protect owner
+    if (isSelfFlash && _flashOwner.Value)
     {
       return HookResult.Continue;
     }
@@ -89,8 +104,26 @@ public sealed class AntiTeamFlashService : IAntiTeamFlashService
     var pawn = victim.PlayerPawn;
     if (pawn is null || !pawn.IsValid) return HookResult.Continue;
 
-    var now = _core.Engine.GlobalVars.CurrentTime;
-    pawn.BlindUntilTime.Value = now;
+    // Apply on next tick so we override the engine-applied blind values.
+    _core.Scheduler.NextTick(() =>
+    {
+      if (victim is null || !victim.IsValid) return;
+      if (victim.Controller is null || !victim.Controller.PawnIsAlive) return;
+
+      var p = victim.PlayerPawn;
+      if (p is null || !p.IsValid) return;
+
+      var now = _core.Engine.GlobalVars.CurrentTime;
+
+      // Clear flash effect
+      p.BlindStartTime.Value = now;
+      p.BlindUntilTime.Value = now;
+
+      p.FlashDuration = 0.0f;
+      p.FlashMaxAlpha = 0.0f;
+      p.FlashDurationUpdated();
+      p.FlashMaxAlphaUpdated();
+    });
 
     return HookResult.Continue;
   }
