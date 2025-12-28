@@ -15,17 +15,24 @@
 
 **SwiftlyS2-Retakes** is a CS2 retakes game mode for **SwiftlyS2**.
 
-> [!CAUTION]
-> This plugin is currently in **beta**. Expect breaking changes and bugs.
-
 It handles:
 
-- **Round flow** (freeze time, allocations, announcements)
-- **Map configs & spawns** (per-map JSON configs in `resources/maps`)
-- **Weapon selection** (menus + preferences)
-- **Queue system** (max players + late joiners)
-- **Utility features** like instant bomb options, anti team-flash, clutch announce
-- **End-of-round damage report** (per opponent)
+- **Round Flow** (automatic site selection, freeze time management, and round cleanup)
+- **Automatic Bomb Planting** (bomb is automatically planted at freeze end at the selected site)
+- **Instant Plant & Defuse** (instant plant support and smart instant defuse logic with molly/enemy checks)
+- **Weapon Allocation** (dynamic weapon, armor, and utility distribution based on round type)
+- **Weapon Preferences** (persistent menus for players to choose their preferred loadouts)
+- **Map Configurations** (custom per-map JSON configs for spawns and smoke scenarios)
+- **Spawn Editor** (comprehensive in-game tools for managing spawns and smokes)
+- **Queue System** (supports max player limits, spectator queues, and late joiners)
+- **Smoke Scenarios** (pre-defined smokes that can be forced or randomly spawned)
+- **AFK Manager** (automatically moves inactive players to spectator or kicks them)
+- **Anti Team-Flash** (blocks teammates from being blinded by friendly flashes)
+- **Solo Bot System** (automatically spawns a bot to play against when only one human is present)
+- **World Breaker** (automatically breaks glass and opens doors at round start for better flow)
+- **Damage Reports** (detailed per-opponent damage summary at the end of each round)
+- **Clutch Announcements** (notifies players of 1vX clutch situations)
+- **Native Message Suppression** (suppresses redundant game messages for a cleaner chat experience)
 
 ## Download Shortcuts
 <ul>
@@ -107,6 +114,8 @@ Each map file contains the spawns used by the retakes allocator.
 | `!editspawns [A/B]` | Enters spawn editing mode. Defaults to showing **Both** sites if no argument is provided. |
 | `!addspawn <T/CT> [planter] [A/B]` | Adds a spawn at your current position. **Note:** If viewing both sites, you must specify `A` or `B`. |
 | `!remove <id>` | Removes the spawn with the specified ID. |
+| `!addsmoke <A/B> [name]` | Adds a smoke scenario at your current position. |
+| `!removesmoke <id>` | Removes the smoke scenario with the specified ID. |
 | `!namespawn <id> <name>` | Sets a descriptive name for the spawn. |
 | `!gotospawn <id>` | Teleports you to the spawn's position. |
 | `!replysmoke <smoke id>` | Instantly deploys/replays the smoke scenario with the specified ID (for testing). Requires spawn edit mode. |
@@ -150,9 +159,6 @@ dotnet build
 - Readme template by [criskkky](https://github.com/criskkky)
 - Release workflow based on [K4ryuu/K4-Guilds-SwiftlyS2 release workflow](https://github.com/K4ryuu/K4-Guilds-SwiftlyS2/blob/main/.github/workflows/release.yml)
 - All contributors listed in the [Contributors Section](https://github.com/agasking1337/PluginsAutoUpdate/graphs/contributors)
-
-### References / inspiration
-
-- https://github.com/B3none/cs2-retakes
-- https://github.com/itsAudioo/CS2BombsiteAnnouncer
-- https://github.com/yonilerner/cs2-retakes-allocator
+- All spawns are based on [B3none/cs2-retakes](https://github.com/B3none/cs2-retakes)
+- Inspired by [itsAudioo/CS2BombsiteAnnouncer](https://github.com/itsAudioo/CS2BombsiteAnnouncer)
+- Inspired by [yonilerner/cs2-retakes-allocator](https://github.com/yonilerner/cs2-retakes-allocator)
