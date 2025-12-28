@@ -37,6 +37,7 @@ public sealed class RoundEventHandlers
   private IConVar<float>? _teamBalanceTerroristRatio;
   private IConVar<bool>? _teamBalanceForceEvenOn10;
 
+  private IConVar<bool>? _smokeScenariosEnabled;
   private IConVar<bool>? _smokeScenarioRandomRoundsEnabled;
   private IConVar<float>? _smokeScenarioRandomRoundChance;
 
@@ -94,6 +95,10 @@ public sealed class RoundEventHandlers
     _teamBalanceTerroristRatio = core.ConVar.CreateOrFind("retakes_team_balance_terrorist_ratio", "Team balance terrorist ratio", 0.45f, 0f, 1f);
     _teamBalanceForceEvenOn10 = core.ConVar.CreateOrFind("retakes_team_balance_force_even_when_players_mod_10", "Force even teams when player count is multiple of 10", true);
 
+    _smokeScenariosEnabled = core.ConVar.CreateOrFind(
+      "retakes_smoke_scenarios_enabled",
+      "Enable smoke scenarios",
+      true);
     _smokeScenarioRandomRoundsEnabled = core.ConVar.CreateOrFind(
       "retakes_smoke_scenarios_random_rounds_enabled",
       "Only spawn smoke scenarios on random rounds",
@@ -151,6 +156,14 @@ public sealed class RoundEventHandlers
   {
     var core = _core;
     if (core is null) return;
+
+    var enabled = _config.Config.SmokeScenarios.Enabled;
+    var forced = _state.SmokesForced;
+
+    if (!enabled && !forced)
+    {
+      return;
+    }
 
     var players = core.PlayerManager.GetAllPlayers()
       .Where(p => p is not null && p.IsValid)
@@ -425,10 +438,17 @@ public sealed class RoundEventHandlers
     {
       shouldSpawnSmokes = true;
     }
-    else if (_smokeScenarioRandomRoundsEnabled?.Value == true)
+    else
     {
-      var chance = Math.Clamp(_smokeScenarioRandomRoundChance?.Value ?? 0f, 0f, 1f);
-      shouldSpawnSmokes = _random.NextDouble() < chance;
+      if (!_config.Config.SmokeScenarios.Enabled)
+      {
+        shouldSpawnSmokes = false;
+      }
+      else if (_smokeScenarioRandomRoundsEnabled?.Value == true)
+      {
+        var chance = Math.Clamp(_smokeScenarioRandomRoundChance?.Value ?? 0f, 0f, 1f);
+        shouldSpawnSmokes = _random.NextDouble() < chance;
+      }
     }
 
     SmokeScenario? chosenScenario = null;

@@ -48,6 +48,7 @@ public sealed class ConVarApplicator
     ApplyBool("retakes_auto_plant", config.Bomb.AutoPlant);
     ApplyBool("retakes_enforce_no_c4", config.Bomb.EnforceNoC4);
 
+    ApplyBool("retakes_smoke_scenarios_enabled", config.SmokeScenarios.Enabled);
     ApplyBool("retakes_smoke_scenarios_random_rounds_enabled", config.SmokeScenarios.RandomRoundsEnabled);
     ApplyFloat("retakes_smoke_scenarios_random_round_chance", config.SmokeScenarios.RandomRoundChance);
 

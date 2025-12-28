@@ -218,6 +218,7 @@ public sealed class RetakesConfigService : IRetakesConfigService
 
       string Key(string pascal, string camel) => smokeScenariosObj.ContainsKey(pascal) ? pascal : smokeScenariosObj.ContainsKey(camel) ? camel : pascal;
 
+      if (smokeScenariosObj[Key("Enabled", "enabled")] is null) smokeScenariosObj[Key("Enabled", "enabled")] = Config.SmokeScenarios.Enabled;
       if (smokeScenariosObj[Key("RandomRoundsEnabled", "randomRoundsEnabled")] is null) smokeScenariosObj[Key("RandomRoundsEnabled", "randomRoundsEnabled")] = Config.SmokeScenarios.RandomRoundsEnabled;
       if (smokeScenariosObj[Key("RandomRoundChance", "randomRoundChance")] is null) smokeScenariosObj[Key("RandomRoundChance", "randomRoundChance")] = Config.SmokeScenarios.RandomRoundChance;
 
