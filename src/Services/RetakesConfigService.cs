@@ -82,6 +82,10 @@ public sealed class RetakesConfigService : IRetakesConfigService
   {
     try
     {
+      if (_core.Configuration.Manager is IConfigurationRoot root)
+      {
+          root.Reload();
+      }
       _logger.LogPluginDebug("Retakes: Swiftly config base path: {Base}", _core.Configuration.BasePath);
       _logger.LogPluginDebug("Retakes: config.json path: {Path}", _path);
 
