@@ -87,9 +87,16 @@ public sealed class SoloBotService : ISoloBotService
         .Where(p => (Team)p.Controller.TeamNum == Team.T || (Team)p.Controller.TeamNum == Team.CT)
         .ToList();
 
-      if (bots.Count > 0 && botsPlaying.Count == 0)
+      if (botsPlaying.Count > 0)
       {
-        _logger.LogPluginDebug("Retakes: solo-bot: bot connecting (bots={Bots}, botsPlaying={BotsPlaying})", bots.Count, botsPlaying.Count);
+        var bot = botsPlaying[0];
+        var botTeam = (Team)bot.Controller.TeamNum;
+        if (botTeam == humanTeam)
+        {
+          _logger.LogPluginDebug("Retakes: solo-bot: moving existing bot to opposite team (botTeam={BotTeam}, humanTeam={HumanTeam})", botTeam, humanTeam);
+          bot.ChangeTeam(desiredBotTeam);
+          _lastActionTick = nowTick;
+        }
         return;
       }
 

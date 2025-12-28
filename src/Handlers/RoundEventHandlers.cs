@@ -323,11 +323,11 @@ public sealed class RoundEventHandlers
 
     var players = core.PlayerManager.GetAllPlayers()
       .Where(p => p.IsValid)
-      .Where(PlayerUtil.IsHuman)
       .Where(p => (Team)p.Controller.TeamNum == Team.T || (Team)p.Controller.TeamNum == Team.CT)
       .ToList();
 
-    var total = players.Count;
+    var humanPlayers = players.Where(PlayerUtil.IsHuman).ToList();
+    var total = humanPlayers.Count;
     if (total < 2) return;
 
     var useEven = forceEven.Value && total % 10 == 0;
@@ -336,13 +336,13 @@ public sealed class RoundEventHandlers
     var targetT = (int)MathF.Round(ratio * total);
     targetT = Math.Clamp(targetT, 1, total - 1);
 
-    var currentT = players.Count(p => (Team)p.Controller.TeamNum == Team.T);
+    var currentT = humanPlayers.Count(p => (Team)p.Controller.TeamNum == Team.T);
     if (currentT == targetT) return;
 
     if (currentT > targetT)
     {
       var moveCount = currentT - targetT;
-      var candidates = players
+      var candidates = humanPlayers
         .Where(p => (Team)p.Controller.TeamNum == Team.T)
         .OrderBy(_ => _random.Next())
         .Take(moveCount)
@@ -364,7 +364,7 @@ public sealed class RoundEventHandlers
     else
     {
       var moveCount = targetT - currentT;
-      var candidates = players
+      var candidates = humanPlayers
         .Where(p => (Team)p.Controller.TeamNum == Team.CT)
         .OrderBy(_ => _random.Next())
         .Take(moveCount)
