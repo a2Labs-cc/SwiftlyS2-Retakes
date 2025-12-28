@@ -82,6 +82,7 @@ public sealed class RetakesCfgGenerator
       mp_autoteambalance 0
       mp_forcecamera 1
       mp_give_player_c4 0
+      mp_defuser_allocation 0
       mp_halftime 0
       mp_ignore_round_win_conditions 0
       mp_join_grace_time 0
