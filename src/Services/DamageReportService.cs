@@ -88,7 +88,7 @@ public sealed class DamageReportService : IDamageReportService
       if (opponents.Count == 0) continue;
 
       var loc = _core.Translation.GetPlayerLocalizer(viewer);
-      _messages.Chat(viewer, loc["damage.report.header"].Colored());
+      _messages.Chat(viewer, "\n" + loc["damage.report.header"].Colored());
 
       foreach (var opp in opponents)
       {

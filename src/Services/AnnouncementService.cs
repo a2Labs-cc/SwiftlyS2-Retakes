@@ -77,7 +77,7 @@ public sealed class AnnouncementService : IAnnouncementService
       var loc = _core.Translation.GetPlayerLocalizer(player);
 
       // Round info: send "Now" and retake/defend as separate chat messages
-      _messages.Chat(player, loc["round.now", roundTypeText].Colored());
+      _messages.Chat(player, "\n" + loc["round.now", roundTypeText].Colored());
 
       var playerTeam = (Team)player.Controller.TeamNum;
       if (playerTeam == Team.CT)
@@ -120,11 +120,11 @@ public sealed class AnnouncementService : IAnnouncementService
 
       if (winner == Team.CT)
       {
-        _messages.Chat(player, loc["round.win_message", "Counter-Terrorists"].Colored());
+        _messages.Chat(player, "\n" + loc["round.win_message", "Counter-Terrorists"].Colored());
       }
       else if (winner == Team.T)
       {
-        _messages.Chat(player, loc["round.win_message", "Terrorists"].Colored());
+        _messages.Chat(player, "\n" + loc["round.win_message", "Terrorists"].Colored());
       }
 
       if (consecutiveWins > 1)

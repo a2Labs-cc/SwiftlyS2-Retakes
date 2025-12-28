@@ -63,14 +63,34 @@ public sealed class MessageService : IMessageService
 
   public void Chat(IPlayer player, string message)
   {
-    if (player is null || !player.IsValid) return;
+    if (player is null || !player.IsValid || string.IsNullOrEmpty(message)) return;
 
-    player.SendMessage(MessageType.Chat, FormatChat(message));
+    var lines = message.Split('\n');
+    foreach (var line in lines)
+    {
+      if (string.IsNullOrWhiteSpace(line))
+      {
+        player.SendMessage(MessageType.Chat, " ");
+        continue;
+      }
+      player.SendMessage(MessageType.Chat, FormatChat(line));
+    }
   }
 
   public void BroadcastChat(string message)
   {
-    _core.PlayerManager.SendChat(FormatChat(message));
+    if (string.IsNullOrEmpty(message)) return;
+
+    var lines = message.Split('\n');
+    foreach (var line in lines)
+    {
+      if (string.IsNullOrWhiteSpace(line))
+      {
+        _core.PlayerManager.SendChat(" ");
+        continue;
+      }
+      _core.PlayerManager.SendChat(FormatChat(line));
+    }
   }
 
   private string GetPrefix()

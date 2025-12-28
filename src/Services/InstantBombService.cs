@@ -60,7 +60,7 @@ public sealed class InstantBombService : IInstantBombService
     {
       if (player is null || !player.IsValid) continue;
       var localizer = _core.Translation.GetPlayerLocalizer(player);
-      player.SendMessage(MessageType.Chat, _messages.FormatChat(localizer[key, args].Colored()));
+      _messages.Chat(player, "\n" + localizer[key, args].Colored());
     }
   }
 
