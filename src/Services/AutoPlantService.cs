@@ -32,8 +32,6 @@ public sealed class AutoPlantService : IAutoPlantService
     _autoPlant = core.ConVar.CreateOrFind("retakes_auto_plant", "Auto plant bomb at freeze end", true);
     _autoPlantStripC4 = core.ConVar.CreateOrFind("retakes_auto_plant_strip_c4", "Auto-plant: remove C4 from planter after planting", false);
     _enforceNoC4 = core.ConVar.CreateOrFind("retakes_enforce_no_c4", "Enforce mp_give_player_c4 0 to avoid C4 when using auto-plant", true);
-
-    EnforceNoC4();
   }
 
   public void EnforceNoC4()

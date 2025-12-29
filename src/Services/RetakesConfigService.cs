@@ -376,9 +376,12 @@ public sealed class RetakesConfigService : IRetakesConfigService
 
   public void ApplyToConvars(bool restartGame = false)
   {
-    _conVarApplicator.ApplyConfig(Config);
-    _cfgGenerator.Apply(Config, restartGame);
-    ApplyLoggingToggles(Config.Server);
+    _core.Scheduler.NextTick(() =>
+    {
+      _conVarApplicator.ApplyConfig(Config);
+      _cfgGenerator.Apply(Config, restartGame);
+      ApplyLoggingToggles(Config.Server);
+    });
   }
 
   private static void ApplyLoggingToggles(ServerConfig server)

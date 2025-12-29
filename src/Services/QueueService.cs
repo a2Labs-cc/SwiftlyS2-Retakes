@@ -136,6 +136,16 @@ public sealed class QueueService : IQueueService
       var loc = _core.Translation.GetPlayerLocalizer(player);
       _messages.Chat(player, loc["queue.added"]);
       _queuePlayers.Add(steamId);
+
+      if (!isWarmup && toTeam != Team.Spectator)
+      {
+        if (player.Controller.PawnIsAlive && player.Pawn is not null)
+        {
+          player.Pawn.CommitSuicide(false, true);
+        }
+
+        player.ChangeTeam(Team.Spectator);
+      }
     }
 
     CheckRoundDone();
@@ -226,6 +236,10 @@ public sealed class QueueService : IQueueService
       var replaceablePlayer = replaceablePlayers.First()!;
 
       // Swap the players
+      if (replaceablePlayer.Controller.PawnIsAlive && replaceablePlayer.Pawn is not null)
+      {
+        replaceablePlayer.Pawn.CommitSuicide(false, true);
+      }
       replaceablePlayer.ChangeTeam(Team.Spectator);
       _activePlayers.Remove(replaceablePlayer.SteamID);
       _queuePlayers.Add(replaceablePlayer.SteamID);

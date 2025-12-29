@@ -170,7 +170,12 @@ public sealed class PlayerEventHandlers
         }
 
         _state.EnqueueJoiner(player.SteamID);
+        if (player.Controller.PawnIsAlive && player.Pawn is not null)
+        {
+          player.Pawn.CommitSuicide(false, true);
+        }
         player.ChangeTeam(Team.Spectator);
+        return HookResult.Handled;
       }
     }
 
