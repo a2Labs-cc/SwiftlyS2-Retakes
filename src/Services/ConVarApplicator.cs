@@ -56,6 +56,8 @@ public sealed class ConVarApplicator
     ApplyBool("retakes_team_balance_enabled", config.TeamBalance.Enabled);
     ApplyFloat("retakes_team_balance_terrorist_ratio", config.TeamBalance.TerroristRatio);
     ApplyBool("retakes_team_balance_force_even_when_players_mod_10", config.TeamBalance.ForceEvenWhenPlayersMod10);
+    ApplyBool("retakes_team_balance_skill_enabled", config.TeamBalance.SkillBasedEnabled);
+    ApplyBool("retakes_team_balance_include_bots", config.TeamBalance.IncludeBots);
 
     // Instant bomb settings
     ApplyBool("retakes_insta_plant", config.InstantBomb.InstaPlant);

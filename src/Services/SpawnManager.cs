@@ -127,9 +127,18 @@ public sealed class SpawnManager : ISpawnManager
 
     var autoPlantEnabled = _core.ConVar.Find<bool>("retakes_auto_plant")?.Value ?? false;
 
-    var availableTSpawns = autoPlantEnabled 
+    var availableTSpawns = autoPlantEnabled
       ? tSpawns.Where(s => !s.CanBePlanter).ToList()
       : tSpawns;
+
+    if (autoPlantEnabled && availableTSpawns.Count < tPlayers.Count)
+    {
+      var planterSpawns = tSpawns.Where(s => s.CanBePlanter).ToList();
+      if (planterSpawns.Count > 0)
+      {
+        availableTSpawns.AddRange(planterSpawns);
+      }
+    }
 
     if (availableTSpawns.Count < tPlayers.Count || ctSpawns.Count < ctPlayers.Count)
     {

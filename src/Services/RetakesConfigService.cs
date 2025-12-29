@@ -167,6 +167,8 @@ public sealed class RetakesConfigService : IRetakesConfigService
       if (teamBalanceObj[Key("Enabled", "enabled")] is null) teamBalanceObj[Key("Enabled", "enabled")] = Config.TeamBalance.Enabled;
       if (teamBalanceObj[Key("TerroristRatio", "terroristRatio")] is null) teamBalanceObj[Key("TerroristRatio", "terroristRatio")] = Config.TeamBalance.TerroristRatio;
       if (teamBalanceObj[Key("ForceEvenWhenPlayersMod10", "forceEvenWhenPlayersMod10")] is null) teamBalanceObj[Key("ForceEvenWhenPlayersMod10", "forceEvenWhenPlayersMod10")] = Config.TeamBalance.ForceEvenWhenPlayersMod10;
+      if (teamBalanceObj[Key("IncludeBots", "includeBots")] is null) teamBalanceObj[Key("IncludeBots", "includeBots")] = Config.TeamBalance.IncludeBots;
+      if (teamBalanceObj[Key("SkillBasedEnabled", "skillBasedEnabled")] is null) teamBalanceObj[Key("SkillBasedEnabled", "skillBasedEnabled")] = Config.TeamBalance.SkillBasedEnabled;
 
       if (teamBalanceObj[Key("ScrambleEnabled", "scrambleEnabled")] is null) teamBalanceObj[Key("ScrambleEnabled", "scrambleEnabled")] = Config.TeamBalance.ScrambleEnabled;
       if (teamBalanceObj[Key("RoundsToScramble", "roundsToScramble")] is null) teamBalanceObj[Key("RoundsToScramble", "roundsToScramble")] = Config.TeamBalance.RoundsToScramble;

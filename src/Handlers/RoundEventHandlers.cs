@@ -36,6 +36,8 @@ public sealed class RoundEventHandlers
   private IConVar<bool>? _teamBalanceEnabled;
   private IConVar<float>? _teamBalanceTerroristRatio;
   private IConVar<bool>? _teamBalanceForceEvenOn10;
+  private IConVar<bool>? _teamBalanceSkillEnabled;
+  private IConVar<bool>? _teamBalanceIncludeBots;
 
   private IConVar<bool>? _smokeScenariosEnabled;
   private IConVar<bool>? _smokeScenarioRandomRoundsEnabled;
@@ -94,6 +96,8 @@ public sealed class RoundEventHandlers
     _teamBalanceEnabled = core.ConVar.CreateOrFind("retakes_team_balance_enabled", "Enable team balance", true);
     _teamBalanceTerroristRatio = core.ConVar.CreateOrFind("retakes_team_balance_terrorist_ratio", "Team balance terrorist ratio", 0.45f, 0f, 1f);
     _teamBalanceForceEvenOn10 = core.ConVar.CreateOrFind("retakes_team_balance_force_even_when_players_mod_10", "Force even teams when player count is multiple of 10", true);
+    _teamBalanceSkillEnabled = core.ConVar.CreateOrFind("retakes_team_balance_skill_enabled", "Use skill-based team balance", true);
+    _teamBalanceIncludeBots = core.ConVar.CreateOrFind("retakes_team_balance_include_bots", "Include bots in team balance", false);
 
     _smokeScenariosEnabled = core.ConVar.CreateOrFind(
       "retakes_smoke_scenarios_enabled",
@@ -315,7 +319,9 @@ public sealed class RoundEventHandlers
     var enabled = _teamBalanceEnabled;
     var ratioVar = _teamBalanceTerroristRatio;
     var forceEven = _teamBalanceForceEvenOn10;
-    if (enabled is null || ratioVar is null || forceEven is null) return;
+    var skillEnabled = _teamBalanceSkillEnabled;
+    var includeBots = _teamBalanceIncludeBots;
+    if (enabled is null || ratioVar is null || forceEven is null || skillEnabled is null || includeBots is null) return;
     if (!enabled.Value) return;
 
     var rules = core.EntitySystem.GetGameRules();
@@ -326,8 +332,11 @@ public sealed class RoundEventHandlers
       .Where(p => (Team)p.Controller.TeamNum == Team.T || (Team)p.Controller.TeamNum == Team.CT)
       .ToList();
 
-    var humanPlayers = players.Where(PlayerUtil.IsHuman).ToList();
-    var total = humanPlayers.Count;
+    var balancePlayers = includeBots.Value
+      ? players
+      : players.Where(PlayerUtil.IsHuman).ToList();
+
+    var total = balancePlayers.Count;
     if (total < 2) return;
 
     var useEven = forceEven.Value && total % 10 == 0;
@@ -336,13 +345,161 @@ public sealed class RoundEventHandlers
     var targetT = (int)MathF.Round(ratio * total);
     targetT = Math.Clamp(targetT, 1, total - 1);
 
-    var currentT = humanPlayers.Count(p => (Team)p.Controller.TeamNum == Team.T);
+    var currentT = balancePlayers.Count(p => (Team)p.Controller.TeamNum == Team.T);
+
+    if (skillEnabled.Value)
+    {
+      var desiredT = targetT;
+      var desiredCT = total - targetT;
+
+      if (currentT == desiredT)
+      {
+        if (desiredT == desiredCT) return;
+
+        var lastWinner = _state.LastWinner;
+        if (lastWinner != Team.T && lastWinner != Team.CT) return;
+
+        var otherTeam = lastWinner == Team.T ? Team.CT : Team.T;
+
+        var lastWinnerPlayers = balancePlayers.Where(p => (Team)p.Controller.TeamNum == lastWinner).ToList();
+        var otherPlayers = balancePlayers.Where(p => (Team)p.Controller.TeamNum == otherTeam).ToList();
+
+        if (lastWinnerPlayers.Count <= otherPlayers.Count) return;
+        if (lastWinnerPlayers.Count == 0 || otherPlayers.Count == 0) return;
+
+        var bestWinner = lastWinnerPlayers
+          .Select(p => (Player: p, Score: _damageReport.GetPlayerScore(p)))
+          .OrderByDescending(x => x.Score)
+          .ThenBy(x => x.Player.Slot)
+          .Select(x => x.Player)
+          .FirstOrDefault();
+
+        var worstOther = otherPlayers
+          .Select(p => (Player: p, Score: _damageReport.GetPlayerScore(p)))
+          .OrderBy(x => x.Score)
+          .ThenBy(x => x.Player.Slot)
+          .Select(x => x.Player)
+          .FirstOrDefault();
+
+        if (bestWinner is null || worstOther is null) return;
+
+        _state.BeginTeamChangeBypass();
+        try
+        {
+          bestWinner.ChangeTeam(otherTeam);
+          worstOther.ChangeTeam(lastWinner);
+        }
+        finally
+        {
+          _state.EndTeamChangeBypass();
+        }
+
+        return;
+      }
+
+      var scored = balancePlayers
+        .Select(p => (Player: p, Score: _damageReport.GetPlayerScore(p)))
+        .OrderByDescending(x => x.Score)
+        .ThenBy(x => x.Player.Slot)
+        .ToList();
+
+      var newT = new System.Collections.Generic.List<IPlayer>(desiredT);
+      var newCT = new System.Collections.Generic.List<IPlayer>(desiredCT);
+      float sumT = 0f;
+      float sumCT = 0f;
+
+      foreach (var (player, score) in scored)
+      {
+        if (newT.Count >= desiredT)
+        {
+          newCT.Add(player);
+          sumCT += score;
+          continue;
+        }
+
+        if (newCT.Count >= desiredCT)
+        {
+          newT.Add(player);
+          sumT += score;
+          continue;
+        }
+
+        var avgT = newT.Count == 0 ? 0f : (sumT / newT.Count);
+        var avgCT = newCT.Count == 0 ? 0f : (sumCT / newCT.Count);
+
+        if (avgT < avgCT)
+        {
+          newT.Add(player);
+          sumT += score;
+        }
+        else if (avgCT < avgT)
+        {
+          newCT.Add(player);
+          sumCT += score;
+        }
+        else
+        {
+          // In uneven setups (e.g. 1v2), always prefer the smaller side on ties
+          // so the top-scoring player doesn't end up on the larger team.
+          if (desiredT < desiredCT)
+          {
+            newT.Add(player);
+            sumT += score;
+          }
+          else if (desiredCT < desiredT)
+          {
+            newCT.Add(player);
+            sumCT += score;
+          }
+          else
+          {
+            var lastWinner = _state.LastWinner;
+            if (lastWinner == Team.T && newCT.Count < desiredCT)
+            {
+              newCT.Add(player);
+              sumCT += score;
+            }
+            else if (lastWinner == Team.CT && newT.Count < desiredT)
+            {
+              newT.Add(player);
+              sumT += score;
+            }
+            else
+            {
+              newCT.Add(player);
+              sumCT += score;
+            }
+          }
+        }
+      }
+
+      _state.BeginTeamChangeBypass();
+      try
+      {
+        foreach (var p in newT)
+        {
+          if ((Team)p.Controller.TeamNum != Team.T) p.ChangeTeam(Team.T);
+        }
+
+        foreach (var p in newCT)
+        {
+          if ((Team)p.Controller.TeamNum != Team.CT) p.ChangeTeam(Team.CT);
+        }
+      }
+      finally
+      {
+        _state.EndTeamChangeBypass();
+      }
+
+      return;
+    }
+
     if (currentT == targetT) return;
 
     if (currentT > targetT)
     {
       var moveCount = currentT - targetT;
-      var candidates = humanPlayers
+      var candidates = balancePlayers
         .Where(p => (Team)p.Controller.TeamNum == Team.T)
         .OrderBy(_ => _random.Next())
         .Take(moveCount)
@@ -364,7 +521,7 @@ public sealed class RoundEventHandlers
     else
     {
       var moveCount = targetT - currentT;
-      var candidates = humanPlayers
+      var candidates = balancePlayers
         .Where(p => (Team)p.Controller.TeamNum == Team.CT)
         .OrderBy(_ => _random.Next())
         .Take(moveCount)
@@ -558,6 +715,8 @@ public sealed class RoundEventHandlers
     {
       _clutch.OnRoundEnd(Team.None);
     }
+
+    _damageReport.OnRoundEnd();
 
     _damageReport.PrintRoundReport();
 
