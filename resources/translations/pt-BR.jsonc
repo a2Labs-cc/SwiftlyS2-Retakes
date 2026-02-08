@@ -1,0 +1,98 @@
+{
+  "instadefuse.unsuccessful": "{0} tentou defusar a C4 com [darkred]{1}s[white] restantes (precisa de [darkred]{2}s[white]).",
+  "instadefuse.successful": "{0} defusou C4 com [green]{1}s[white] restantes na bomba.",
+  "instadefuse.not_possible": "Defuse instantâneo não é possível: ameaça ainda presente.",
+  "instadefuse.not_possible_enemy": "Defuse instantâneo não é possível: Ainda há um terrorista vivo.",
+  "instadefuse.not_possible_molly": "Defuse instantâneo não é possível: Incendiária/Molotov perto da bomba.",
+  "instadefuse.not_possible_enemy_molly": "Defuse instantâneo não é possível: Terrorista vivo e Incendiária/<Molotov perto da bomba.",
+
+  "announcement.round_info": "Bombsite: {0} - Tipo de round: {1}",
+  "announcement.round_start": "Um novo round começou. {0} T VS {1} CT. Boa sorte!",
+  "announcement.planting_at": "[white]Plantando C4 em: [green]{0}",
+  "queue.added": "Você foi adicionado à fila espera.",
+  "queue.waiting": "Aguardando na fila espera... ({0}/{1} jogadores ativos)",
+  "queue.moved_out": "Você foi movido para a fila de espera (VIP {0} ficou com sua vaga).",
+  "queue.moved_in": "Prioridade VIP: você substituiu {0}.",
+  "buy.restricted": "{0} não é permitido durante rounds {1}!",
+  "clutch.announce": "{0} venceu um clutch 1v{1}",
+  "chat.prefix": "{0}",
+  "damage.report.header": "[grey]-- Relatório de dano --[white]",
+  "damage.report.line": "[grey]-->[white] ([green]{0} dano[white] / [green]{1} hits[white]) em ([darkred]{2} dano[white] / [darkred]{3} hits[white]) de [orange]{4}[white] ([blue]{5} HP[white])",
+  "round.now": "Agora: [orange]{0}[white]",
+  "round.retake": "[green]Retake[white] [green]{0}[white]: [blue]{1}[white] vs [red]{2}[white]",
+  "round.defend": "Defender [red]{0}[white]: [red]{1}[white] vs [blue]{2}[white]",
+  "round.win_message": "O time [green]{0}[white] venceu!",
+  "round.win_streak": "Venceu [green]{0}[white] rounds consecutivos.",
+  "smokes.scenario.none": "Cenário de smokes: [green]Sem smokes[white]",
+  "smokes.scenario.active": "Cenário de smokes: [green]{0}[white]",
+
+  "command.forcesite.usage": "Use: !forcesite <A/B>",
+  "command.forcesite.forced_a": "[green]Retakes:[white] bombsite A forçado",
+  "command.forcesite.forced_b": "[green]Retakes:[white] bombsite B forçado",
+  "command.forcestop.cleared": "[green]Retakes:[white] bombsite forçado removido",
+
+  "command.editspawns.usage": "Use: !editspawns [A/B]",
+  "command.editspawns.start": "[green]Retakes:[white] editando spawns para {0}",
+  "command.editspawns.commands": "Comandos: !addspawn <T/CT> [planter] [A/B], !remove <id>, !namespawn <id> <nome>, !gotospawn <id>, !savespawns, !stopediting",
+  "command.stopediting.stopped": "[green]Retakes:[white] edição de spawns encerrada",
+
+  "command.addspawn.usage": "Use: !addspawn <T/CT> [planter] [A/B]",
+  "command.addspawn.both_mode_needs_site": "[green]Retakes:[white] ao visualizar ambos os bombsites, você deve especificar o site (A ou B). Uso: !addspawn <T/CT> [planter] <A/B>",
+  "command.addspawn.site_mismatch": "[green]Retakes:[white] você está visualizando o site {0}, mas tentou adicionar um spawn para outro site.",
+  "command.addspawn.only_t_planter": "[green]Retakes:[white] apenas spawns de T podem ser spawns de plantador",
+  "command.addspawn.must_have_pawn": "[green]Retakes:[white] você precisa ter um pawn de jogador",
+  "command.addspawn.read_pos_failed": "[green]Retakes:[white] falha ao ler a posição do jogador",
+  "command.addspawn.added": "[green]Retakes:[white] spawn #{0} adicionado para {1} em {2}{3}",
+
+  "command.remove.usage": "Use: !remove <id>",
+  "command.remove.spawn_not_found": "[green]Retakes:[white] spawn #{0} não encontrado",
+  "command.remove.failed": "[green]Retakes:[white] falha ao remover o spawn #{0}",
+  "command.remove.removed": "[green]Retakes:[white] spawn #{0} removido",
+
+  "command.namespawn.usage": "Use: !namespawn <id> <nome>",
+  "command.namespawn.failed_set": "[green]Retakes:[white] falha ao definir o nome do spawn #{0}",
+  "command.namespawn.named": "[green]Retakes:[white] spawn #{0} nomeado como '{1}'",
+
+  "command.savespawns.no_map_config": "[green]Retakes:[white] nenhuma configuração de mapa carregada",
+  "command.savespawns.saved": "[green]Retakes:[white] {0} spawns salvos em {1}.json",
+  "command.savespawns.failed": "[green]Retakes:[white] falha ao salvar spawns",
+
+  "command.gotospawn.usage": "Use: !gotospawn <id>",
+  "command.gotospawn.not_found": "[green]Retakes:[white] id de spawn {0} não encontrado",
+  "command.gotospawn.teleporting": "[green]Retakes:[white] teleportando para o spawn {0}",
+
+  "command.replysmoke.usage": "Use: !replysmoke <id da smoke>",
+  "command.replysmoke.not_found": "[green]Retakes:[white] id de cenário de smoke {0} não encontrado",
+  "command.replysmoke.spawned": "[green]Retakes:[white] cenário de smoke #{0} reproduzido para {1}{2}",
+
+  "command.loadcfg.usage": "Use: !loadcfg <nomedomapa>",
+  "command.loadcfg.failed": "[green]Retakes:[white] falha ao carregar a configuração do mapa {0}",
+  "command.loadcfg.loaded": "[green]Retakes:[white] {0} carregado ({1} spawns)",
+
+  "command.listcfg.maps_dir_not_found": "[green]Retakes:[white] diretório resources/maps não encontrado",
+  "command.listcfg.none_found": "[green]Retakes:[white] nenhuma configuração de mapa encontrada",
+  "command.listcfg.list": "[green]Retakes cfg:[white] {0}",
+  "command.listcfg.failed": "[green]Retakes:[white] falha ao listar configurações",
+
+  "command.scramble.next_round": "[green]Retakes:[white] os times serão embaralhados no próximo round",
+
+  "command.forcesmokes.enabled": "[green]Retakes:[white] smokes forçadas (irão aparecer todo round)",
+  "command.forcesmokes.disabled": "[green]Retakes:[white] smokes não são mais forçadas (voltando ao normal)",
+
+  "command.voices.enabled": "[green]Retakes:[white] anúncios por voz ativados",
+  "command.voices.disabled": "[green]Retakes:[white] anúncios por voz desativados",
+
+  "command.spawns.enabled": "[green]Retakes:[white] Menu de Spawns ativado",
+  "command.spawns.disabled": "[green]Retakes:[white] Menu de Spawns desativado",
+
+  "command.awp.enabled": "[green]Retakes:[white] preferência de AWP ativada",
+  "command.awp.disabled": "[green]Retakes:[white] preferência de AWP desativada",
+
+  "command.reloadcfg.success": "[green]Retakes:[white] config.json recarregado",
+  "command.reloadcfg.failed": "[green]Retakes:[white] falha ao recarregar config.json",
+
+  "error.plugin_not_ready": "[green]Retakes:[white] plugin não está pronto",
+  "error.must_be_player": "[green]Retakes:[white] este comando deve ser executado por um jogador",
+  "error.must_be_in_spawn_edit_mode": "[green]Retakes:[white] você deve estar no modo de edição de spawns (Use !editspawns A/B)",
+  "spawns.save_hint": "Use !savespawns para salvar as alterações no arquivo"
+}
