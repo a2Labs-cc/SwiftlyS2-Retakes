@@ -43,6 +43,12 @@ jobs:
           cache: true
           cache-dependency-path: "**/*.csproj"
 
+      - name: Checkout Cookies dependency
+        uses: actions/checkout@v4
+        with:
+          repository: SwiftlyS2-Plugins/Cookies
+          path: ../Cookies
+
       - name: Restore and Publish
         run: |
           # Find all csproj files with CreateZip target (these produce release artifacts)

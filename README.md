@@ -8,7 +8,11 @@
 [![GitHub Stars](https://img.shields.io/github/stars/a2Labs-cc/SwiftlyS2-Retakes?style=social)](https://github.com/a2Labs-cc/SwiftlyS2-Retakes/stargazers)<br/>
   <sub>Made by <a href="https://github.com/agasking1337" rel="noopener noreferrer" target="_blank">aga</a></sub>
   <br/>
-
+  <p align="center">
+    <a href="https://discord.com/invite/vmUwHYubyp" target="_blank">
+      <img src="https://img.shields.io/badge/Join%20Discord-5865F2?logo=discord&logoColor=white&style=for-the-badge" alt="Discord">
+    </a>
+  </p>
 </div>
 
 ## Overview
@@ -34,12 +38,27 @@ It handles:
 - **Clutch Announcements** (notifies players of 1vX clutch situations)
 - **Native Message Suppression** (suppresses redundant game messages for a cleaner chat experience)
 
+## Support
+
+Need help or have questions? Join our Discord server:
+
+<p align="center">
+  <a href="https://discord.com/invite/vmUwHYubyp" target="_blank">
+    <img src="https://img.shields.io/badge/Join%20Discord-5865F2?logo=discord&logoColor=white&style=for-the-badge" alt="Discord">
+  </a>
+</p>
+
 ## Download Shortcuts
 <ul>
   <li>
     <code>📦</code>
     <strong>&nbspDownload Latest Plugin Version</strong> ⇢
-    <a href="https://github.com/agasking1337/PluginsAutoUpdate/releases/latest" target="_blank" rel="noopener noreferrer">Click Here</a>
+    <a href="https://github.com/a2Labs-cc/SwiftlyS2-Retakes/releases/latest" target="_blank" rel="noopener noreferrer">Click Here</a>
+  </li>
+  <li>
+    <code>🍪</code>
+    <strong>&nbspDownload Latest Cookies Version</strong> ⇢
+    <a href="https://github.com/SwiftlyS2-Plugins/Cookies/releases/latest" target="_blank" rel="noopener noreferrer">Click Here</a>
   </li>
   <li>
     <code>⚙️</code>
@@ -48,21 +67,71 @@ It handles:
   </li>
 </ul>
 
+## Dependencies
+
+| Plugin | Required | Purpose |
+| :--- | :--- | :--- |
+| [Cookies](https://github.com/SwiftlyS2-Plugins/Cookies) | **Yes** | Persistent player preferences (AWP toggle, weapon loadouts, spawn selections, etc.) |
+
+> **Note:** Without the Cookies plugin installed and loaded, player preferences will **not** be saved between sessions — all settings will reset on disconnect.
+
 ## Installation
 
 1. Download/build the plugin.
-2. Copy the published plugin folder to your server:
+2. Install the **[Cookies](https://github.com/SwiftlyS2-Plugins/Cookies)** plugin (see Dependencies above).
+3. Copy the published plugin folder to your server:
 
 ```
 .../game/csgo/addons/swiftlys2/plugins/Retakes/
 ```
 
-3. Ensure the plugin has its `resources/` folder alongside the DLL (maps, translations, gamedata).
-4. Start/restart the server.
+4. Ensure the plugin has its `resources/` folder alongside the DLL (maps, translations, gamedata).
+5. Start/restart the server.
+
+## Player Preferences & Persistence
+
+The plugin saves **18 different player preferences** using the [Cookies](https://github.com/SwiftlyS2-Plugins/Cookies) plugin for persistent storage across sessions.
+
+### What Gets Saved
+
+All player preferences are automatically saved and persist between disconnects/reconnects:
+
+#### Weapon Preferences
+- **AWP Toggle** (`!awp`) — Whether the player wants to receive an AWP when available
+- **SSG08 Toggle** — Whether the player wants to receive a Scout when available  
+- **AWP Priority** — Whether the player gets priority in AWP allocation
+- **Pistol Round Primary** — Preferred primary weapon for pistol rounds (per-team or shared)
+- **Half-Buy Primary/Secondary** — Preferred weapons for half-buy rounds (per-team or shared)
+- **Full-Buy Primary/Secondary** — Preferred weapons for full-buy rounds (per-team or shared)
+
+#### Spawn Preferences
+- **Spawn Menu Toggle** (`!spawns`) — Whether the CT spawn selection menu is enabled
+- **T Spawn A/B** — Preferred spawn position for T side on each bombsite
+- **CT Spawn A/B** — Preferred spawn position for CT side on each bombsite
+
+### How It Works
+
+1. **On Player Connect** — The Cookies plugin automatically loads all saved preferences from the database
+2. **On Setting Change** — Any preference change (via `!guns`, `!awp`, `!spawns`, etc.) is immediately saved to Cookies
+3. **Auto-Save** — Cookies flushes all changes to the database every 5 seconds
+4. **On Disconnect** — All preferences are saved to the database before the player leaves
+
+### Without Cookies Plugin
+
+If the Cookies plugin is **not installed**, the plugin will still function but:
+- ⚠️ All preferences reset to defaults when a player disconnects
+- ⚠️ Settings like `!awp`, weapon loadouts, and spawn selections are **lost between sessions**
+- ⚠️ Players must reconfigure their preferences every time they join
+
+### Technical Details
+
+- **Storage Keys**: All preferences use the `retakes_*` prefix (e.g., `retakes_wants_awp`, `retakes_ct_spawn_a`)
+- **Data Types**: Booleans for toggles, integers for spawn IDs, strings for weapon names
+- **Per-Team Settings**: Weapon preferences can be configured per-team (T/CT) or shared, based on `config.json` setting `retakes.preferences.usePerTeamPreferences`
 
 ## Configuration
 
-The plugin uses SwiftlyS2’s JSON config system.
+The plugin uses SwiftlyS2's JSON config system.
 
 - **File name**: `config.json`
 - **Section**: `retakes`
@@ -81,6 +150,7 @@ Useful config fields (non-exhaustive):
 - `retakes.queue.*`
 - `retakes.teamBalance.*`
 - `retakes.weapons.*`
+- `retakes.preferences.usePerTeamPreferences` — Enable separate weapon preferences for T/CT
 
 ## Map configs
 

@@ -22,6 +22,13 @@
     <PackageReference Include="SwiftlyS2.CS2" Version="1.0.0" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\GitHub\Forks\Cookies\Cookies.Contract\Cookies.Contract.csproj')">
+    <ProjectReference Include="..\..\..\GitHub\Forks\Cookies\Cookies.Contract\Cookies.Contract.csproj" ExcludeAssets="runtime" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('$(MSBuildThisFileDirectory)..\..\..\GitHub\Forks\Cookies\Cookies.Contract\Cookies.Contract.csproj')">
+    <ProjectReference Include="..\Cookies\Cookies.Contract\Cookies.Contract.csproj" ExcludeAssets="runtime" PrivateAssets="all" />
+  </ItemGroup>
+
   <ItemGroup>
     <Content Include="resources/gamedata/**/*;resources/templates/**/*;resources/translations/**/*;resources/maps/**/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

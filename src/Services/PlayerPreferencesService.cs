@@ -1,3 +1,4 @@
+using Cookies.Contract;
 using Microsoft.Extensions.Logging;
 using SwiftlyS2_Retakes.Interfaces;
 using SwiftlyS2_Retakes.Models;
@@ -8,307 +9,256 @@ public sealed class PlayerPreferencesService : IPlayerPreferencesService
 {
   private readonly ILogger _logger;
   private readonly IRetakesConfigService _config;
-  private readonly IDatabaseService _database;
 
-  private readonly Dictionary<ulong, UserSettings> _cache = new();
-  private readonly object _lock = new();
+  private IPlayerCookiesAPIv1? _cookies;
 
-  private const string TableName = "retakes_user_settings";
+  private const string KeyWantsAwp = "retakes_wants_awp";
+  private const string KeyWantsSsg08 = "retakes_wants_ssg08";
+  private const string KeyWantsAwpPriority = "retakes_wants_awp_priority";
+  private const string KeyWantsCtSpawnMenu = "retakes_wants_ct_spawn_menu";
+  private const string KeyTSpawnA = "retakes_t_spawn_a";
+  private const string KeyTSpawnB = "retakes_t_spawn_b";
+  private const string KeyCtSpawnA = "retakes_ct_spawn_a";
+  private const string KeyCtSpawnB = "retakes_ct_spawn_b";
+  private const string KeyTPistolPrimary = "retakes_t_pistol_primary";
+  private const string KeyTHalfPrimary = "retakes_t_half_primary";
+  private const string KeyTHalfSecondary = "retakes_t_half_secondary";
+  private const string KeyTFullPrimary = "retakes_t_full_primary";
+  private const string KeyTFullSecondary = "retakes_t_full_secondary";
+  private const string KeyCtPistolPrimary = "retakes_ct_pistol_primary";
+  private const string KeyCtHalfPrimary = "retakes_ct_half_primary";
+  private const string KeyCtHalfSecondary = "retakes_ct_half_secondary";
+  private const string KeyCtFullPrimary = "retakes_ct_full_primary";
+  private const string KeyCtFullSecondary = "retakes_ct_full_secondary";
 
-  public PlayerPreferencesService(ILogger logger, IRetakesConfigService config, IDatabaseService database)
+  public PlayerPreferencesService(ILogger logger, IRetakesConfigService config)
   {
     _logger = logger;
     _config = config;
-    _database = database;
+  }
+
+  public void SetCookiesApi(IPlayerCookiesAPIv1 cookies)
+  {
+    _cookies = cookies;
   }
 
   public void Initialize()
   {
-    // Database schema is initialized by DatabaseService
-    _database.InitializeSchema();
   }
 
   public void Clear(ulong steamId)
   {
-    lock (_lock)
-    {
-      _cache.Remove(steamId);
-    }
   }
 
-  public bool WantsAwp(ulong steamId)
-  {
-    return GetOrCreate(steamId).WantsAwp;
-  }
+  public bool WantsAwp(ulong steamId) =>
+    GetBool(steamId, KeyWantsAwp, false);
 
   public bool ToggleAwp(ulong steamId)
   {
-    var row = GetOrCreate(steamId);
-    row.WantsAwp = !row.WantsAwp;
-    Save(row);
-    return row.WantsAwp;
+    var val = !WantsAwp(steamId);
+    SetBool(steamId, KeyWantsAwp, val);
+    return val;
   }
 
-  public bool WantsSsg08(ulong steamId)
-  {
-    return GetOrCreate(steamId).WantsSsg08;
-  }
+  public bool WantsSsg08(ulong steamId) =>
+    GetBool(steamId, KeyWantsSsg08, false);
 
   public bool ToggleSsg08(ulong steamId)
   {
-    var row = GetOrCreate(steamId);
-    row.WantsSsg08 = !row.WantsSsg08;
-    Save(row);
-    return row.WantsSsg08;
+    var val = !WantsSsg08(steamId);
+    SetBool(steamId, KeyWantsSsg08, val);
+    return val;
   }
 
-  public bool WantsAwpPriority(ulong steamId)
-  {
-    return GetOrCreate(steamId).WantsAwpPriority;
-  }
+  public bool WantsAwpPriority(ulong steamId) =>
+    GetBool(steamId, KeyWantsAwpPriority, false);
 
   public bool ToggleAwpPriority(ulong steamId)
   {
-    var row = GetOrCreate(steamId);
-    row.WantsAwpPriority = !row.WantsAwpPriority;
-    Save(row);
-    return row.WantsAwpPriority;
+    var val = !WantsAwpPriority(steamId);
+    SetBool(steamId, KeyWantsAwpPriority, val);
+    return val;
   }
 
-  public bool WantsSpawnMenu(ulong steamId)
-  {
-    return GetOrCreate(steamId).WantsCtSpawnMenu;
-  }
+  public bool WantsSpawnMenu(ulong steamId) =>
+    GetBool(steamId, KeyWantsCtSpawnMenu, false);
 
   public bool ToggleSpawnMenu(ulong steamId)
   {
-    var row = GetOrCreate(steamId);
-    row.WantsCtSpawnMenu = !row.WantsCtSpawnMenu;
-    Save(row);
-    return row.WantsCtSpawnMenu;
+    var val = !WantsSpawnMenu(steamId);
+    SetBool(steamId, KeyWantsCtSpawnMenu, val);
+    return val;
   }
 
   public int? GetPreferredSpawn(ulong steamId, bool isCt, Bombsite bombsite)
   {
-    var row = GetOrCreate(steamId);
-    return (isCt, bombsite) switch
+    var key = (isCt, bombsite) switch
     {
-      (true, Bombsite.A) => row.CtSpawnA,
-      (true, Bombsite.B) => row.CtSpawnB,
-      (false, Bombsite.A) => row.TSpawnA,
-      (false, Bombsite.B) => row.TSpawnB,
-      _ => null,
+      (true, Bombsite.A) => KeyCtSpawnA,
+      (true, Bombsite.B) => KeyCtSpawnB,
+      (false, Bombsite.A) => KeyTSpawnA,
+      _ => KeyTSpawnB,
     };
+    return GetInt(steamId, key);
   }
 
   public void SetPreferredSpawn(ulong steamId, bool isCt, Bombsite bombsite, int? spawnId)
   {
-    var row = GetOrCreate(steamId);
-    if (isCt)
+    var key = (isCt, bombsite) switch
     {
-      if (bombsite == Bombsite.A) row.CtSpawnA = spawnId;
-      else row.CtSpawnB = spawnId;
-    }
-    else
-    {
-      if (bombsite == Bombsite.A) row.TSpawnA = spawnId;
-      else row.TSpawnB = spawnId;
-    }
-    Save(row);
+      (true, Bombsite.A) => KeyCtSpawnA,
+      (true, Bombsite.B) => KeyCtSpawnB,
+      (false, Bombsite.A) => KeyTSpawnA,
+      _ => KeyTSpawnB,
+    };
+    SetInt(steamId, key, spawnId);
   }
 
   public string? GetPistolPrimary(ulong steamId, bool isCt)
   {
-    var row = GetOrCreate(steamId);
-    if (!_config.Config.Preferences.UsePerTeamPreferences) return row.TPistolPrimary;
-    return isCt ? row.CtPistolPrimary : row.TPistolPrimary;
+    if (!_config.Config.Preferences.UsePerTeamPreferences)
+      return GetString(steamId, KeyTPistolPrimary);
+    return GetString(steamId, isCt ? KeyCtPistolPrimary : KeyTPistolPrimary);
   }
 
   public void SetPistolPrimary(ulong steamId, bool isCt, string? weapon)
   {
-    var row = GetOrCreate(steamId);
     if (!_config.Config.Preferences.UsePerTeamPreferences)
     {
-      row.TPistolPrimary = weapon;
-      row.CtPistolPrimary = weapon;
+      SetString(steamId, KeyTPistolPrimary, weapon);
+      SetString(steamId, KeyCtPistolPrimary, weapon);
     }
     else
     {
-      if (isCt) row.CtPistolPrimary = weapon;
-      else row.TPistolPrimary = weapon;
+      SetString(steamId, isCt ? KeyCtPistolPrimary : KeyTPistolPrimary, weapon);
     }
-
-    Save(row);
   }
 
   public (string? Primary, string? Secondary) GetHalfBuyPack(ulong steamId, bool isCt)
   {
-    var row = GetOrCreate(steamId);
-    if (!_config.Config.Preferences.UsePerTeamPreferences) return (row.THalfPrimary, row.THalfSecondary);
-    return isCt ? (row.CtHalfPrimary, row.CtHalfSecondary) : (row.THalfPrimary, row.THalfSecondary);
+    if (!_config.Config.Preferences.UsePerTeamPreferences)
+      return (GetString(steamId, KeyTHalfPrimary), GetString(steamId, KeyTHalfSecondary));
+    return isCt
+      ? (GetString(steamId, KeyCtHalfPrimary), GetString(steamId, KeyCtHalfSecondary))
+      : (GetString(steamId, KeyTHalfPrimary), GetString(steamId, KeyTHalfSecondary));
   }
 
   public void SetHalfBuyPrimary(ulong steamId, bool isCt, string? weapon)
   {
-    var row = GetOrCreate(steamId);
     if (!_config.Config.Preferences.UsePerTeamPreferences)
     {
-      row.THalfPrimary = weapon;
-      row.CtHalfPrimary = weapon;
+      SetString(steamId, KeyTHalfPrimary, weapon);
+      SetString(steamId, KeyCtHalfPrimary, weapon);
     }
     else
     {
-      if (isCt) row.CtHalfPrimary = weapon;
-      else row.THalfPrimary = weapon;
+      SetString(steamId, isCt ? KeyCtHalfPrimary : KeyTHalfPrimary, weapon);
     }
-    Save(row);
   }
 
   public void SetHalfBuySecondary(ulong steamId, bool isCt, string? weapon)
   {
-    var row = GetOrCreate(steamId);
     if (!_config.Config.Preferences.UsePerTeamPreferences)
     {
-      row.THalfSecondary = weapon;
-      row.CtHalfSecondary = weapon;
+      SetString(steamId, KeyTHalfSecondary, weapon);
+      SetString(steamId, KeyCtHalfSecondary, weapon);
     }
     else
     {
-      if (isCt) row.CtHalfSecondary = weapon;
-      else row.THalfSecondary = weapon;
+      SetString(steamId, isCt ? KeyCtHalfSecondary : KeyTHalfSecondary, weapon);
     }
-    Save(row);
   }
 
   public (string? Primary, string? Secondary) GetFullBuyPack(ulong steamId, bool isCt)
   {
-    var row = GetOrCreate(steamId);
-    if (!_config.Config.Preferences.UsePerTeamPreferences) return (row.TFullPrimary, row.TFullSecondary);
-    return isCt ? (row.CtFullPrimary, row.CtFullSecondary) : (row.TFullPrimary, row.TFullSecondary);
+    if (!_config.Config.Preferences.UsePerTeamPreferences)
+      return (GetString(steamId, KeyTFullPrimary), GetString(steamId, KeyTFullSecondary));
+    return isCt
+      ? (GetString(steamId, KeyCtFullPrimary), GetString(steamId, KeyCtFullSecondary))
+      : (GetString(steamId, KeyTFullPrimary), GetString(steamId, KeyTFullSecondary));
   }
 
   public void SetFullBuyPrimary(ulong steamId, bool isCt, string? weapon)
   {
-    var row = GetOrCreate(steamId);
     if (!_config.Config.Preferences.UsePerTeamPreferences)
     {
-      row.TFullPrimary = weapon;
-      row.CtFullPrimary = weapon;
+      SetString(steamId, KeyTFullPrimary, weapon);
+      SetString(steamId, KeyCtFullPrimary, weapon);
     }
     else
     {
-      if (isCt) row.CtFullPrimary = weapon;
-      else row.TFullPrimary = weapon;
+      SetString(steamId, isCt ? KeyCtFullPrimary : KeyTFullPrimary, weapon);
     }
-    Save(row);
   }
 
   public void SetFullBuySecondary(ulong steamId, bool isCt, string? weapon)
   {
-    var row = GetOrCreate(steamId);
     if (!_config.Config.Preferences.UsePerTeamPreferences)
     {
-      row.TFullSecondary = weapon;
-      row.CtFullSecondary = weapon;
+      SetString(steamId, KeyTFullSecondary, weapon);
+      SetString(steamId, KeyCtFullSecondary, weapon);
     }
     else
     {
-      if (isCt) row.CtFullSecondary = weapon;
-      else row.TFullSecondary = weapon;
-    }
-    Save(row);
-  }
-
-  private UserSettings GetOrCreate(ulong steamId)
-  {
-    lock (_lock)
-    {
-      if (_cache.TryGetValue(steamId, out var cached)) return cached;
-    }
-
-    try
-    {
-      var row = _database.QuerySingleOrDefault<UserSettings>($"SELECT * FROM {TableName} WHERE steam_id=@steamId", new { steamId });
-
-      if (row is null)
-      {
-        row = UserSettings.CreateDefault(steamId);
-        _database.Execute($"INSERT INTO {TableName} (steam_id, updated_at, wants_awp, wants_ssg08, wants_awp_priority, wants_ct_spawn_menu) VALUES (@SteamId, @UpdatedAt, @WantsAwp, @WantsSsg08, @WantsAwpPriority, @WantsCtSpawnMenu)", row);
-      }
-
-      lock (_lock)
-      {
-        _cache[steamId] = row;
-      }
-
-      return row;
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex, "Retakes: failed to load preferences for steamId={SteamId}", steamId);
-      var row = UserSettings.CreateDefault(steamId);
-      lock (_lock)
-      {
-        _cache[steamId] = row;
-      }
-      return row;
+      SetString(steamId, isCt ? KeyCtFullSecondary : KeyTFullSecondary, weapon);
     }
   }
 
-  private void Save(UserSettings row)
+  private bool GetBool(ulong steamId, string key, bool defaultValue)
   {
-    row.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    if (_cookies is null) return defaultValue;
+    try { return _cookies.GetOrDefault<bool>((long)steamId, key, defaultValue); }
+    catch (Exception ex) { _logger.LogError(ex, "Retakes: cookie read failed key={Key}", key); return defaultValue; }
+  }
 
-    lock (_lock)
-    {
-      _cache[row.SteamId] = row;
-    }
+  private void SetBool(ulong steamId, string key, bool value)
+  {
+    if (_cookies is null) return;
+    try { _cookies.Set((long)steamId, key, value); }
+    catch (Exception ex) { _logger.LogError(ex, "Retakes: cookie write failed key={Key}", key); }
+  }
 
+  private int? GetInt(ulong steamId, string key)
+  {
+    if (_cookies is null) return null;
     try
     {
-      var affected = _database.Execute($@"
-UPDATE {TableName}
-SET
-  updated_at=@UpdatedAt,
-  wants_awp=@WantsAwp,
-  wants_ssg08=@WantsSsg08,
-  wants_awp_priority=@WantsAwpPriority,
-  wants_ct_spawn_menu=@WantsCtSpawnMenu,
-  t_spawn_a=@TSpawnA,
-  t_spawn_b=@TSpawnB,
-  ct_spawn_a=@CtSpawnA,
-  ct_spawn_b=@CtSpawnB,
-  t_pistol_primary=@TPistolPrimary,
-  t_half_primary=@THalfPrimary,
-  t_half_secondary=@THalfSecondary,
-  t_full_primary=@TFullPrimary,
-  t_full_secondary=@TFullSecondary,
-  ct_pistol_primary=@CtPistolPrimary,
-  ct_half_primary=@CtHalfPrimary,
-  ct_half_secondary=@CtHalfSecondary,
-  ct_full_primary=@CtFullPrimary,
-  ct_full_secondary=@CtFullSecondary
-WHERE steam_id=@SteamId", row);
+      if (!_cookies.Has((long)steamId, key)) return null;
+      return _cookies.Get<int?>((long)steamId, key);
+    }
+    catch (Exception ex) { _logger.LogError(ex, "Retakes: cookie read failed key={Key}", key); return null; }
+  }
 
-      if (affected == 0)
-      {
-        _database.Execute($@"
-INSERT INTO {TableName} (
-  steam_id, updated_at, wants_awp, wants_ssg08, wants_awp_priority, wants_ct_spawn_menu,
-  t_spawn_a, t_spawn_b, ct_spawn_a, ct_spawn_b,
-  t_pistol_primary, t_half_primary, t_half_secondary, t_full_primary, t_full_secondary,
-  ct_pistol_primary, ct_half_primary, ct_half_secondary, ct_full_primary, ct_full_secondary
-) VALUES (
-  @SteamId, @UpdatedAt, @WantsAwp, @WantsSsg08, @WantsAwpPriority, @WantsCtSpawnMenu,
-  @TSpawnA, @TSpawnB, @CtSpawnA, @CtSpawnB,
-  @TPistolPrimary, @THalfPrimary, @THalfSecondary, @TFullPrimary, @TFullSecondary,
-  @CtPistolPrimary, @CtHalfPrimary, @CtHalfSecondary, @CtFullPrimary, @CtFullSecondary
-)", row);
-      }
-    }
-    catch (Exception ex)
+  private void SetInt(ulong steamId, string key, int? value)
+  {
+    if (_cookies is null) return;
+    try
     {
-      _logger.LogError(ex, "Retakes: failed to save preferences for steamId={SteamId}", row.SteamId);
+      if (value is null) _cookies.Unset((long)steamId, key);
+      else _cookies.Set((long)steamId, key, value.Value);
     }
+    catch (Exception ex) { _logger.LogError(ex, "Retakes: cookie write failed key={Key}", key); }
+  }
+
+  private string? GetString(ulong steamId, string key)
+  {
+    if (_cookies is null) return null;
+    try
+    {
+      if (!_cookies.Has((long)steamId, key)) return null;
+      return _cookies.Get<string>((long)steamId, key);
+    }
+    catch (Exception ex) { _logger.LogError(ex, "Retakes: cookie read failed key={Key}", key); return null; }
+  }
+
+  private void SetString(ulong steamId, string key, string? value)
+  {
+    if (_cookies is null) return;
+    try
+    {
+      if (value is null) _cookies.Unset((long)steamId, key);
+      else _cookies.Set((long)steamId, key, value);
+    }
+    catch (Exception ex) { _logger.LogError(ex, "Retakes: cookie write failed key={Key}", key); }
   }
 }

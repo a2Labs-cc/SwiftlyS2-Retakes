@@ -19,9 +19,6 @@ public static class ServiceCollectionExtensions
     // Register Random as singleton
     services.AddSingleton<Random>();
 
-    // Register database service
-    services.AddSingleton<IDatabaseService, DatabaseService>();
-
     // Register core services
     services.AddSingleton<IRetakesConfigService, RetakesConfigService>();
     services.AddSingleton<IMapConfigService, MapConfigService>();

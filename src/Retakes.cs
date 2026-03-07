@@ -1,3 +1,4 @@
+using Cookies.Contract;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SwiftlyS2.Shared.Plugins;
@@ -10,7 +11,7 @@ using SwiftlyS2_Retakes.Logging;
 
 namespace SwiftlyS2_Retakes;
 
-[PluginMetadata(Id = "Retakes", Version = "1.0.2", Name = "Retakes", Author = "aga", Description = "No description.")]
+[PluginMetadata(Id = "Retakes", Version = "1.1.0", Name = "Retakes", Author = "aga", Description = "No description.")]
 
 public partial class SwiftlyS2_Retakes : BasePlugin
 {
@@ -57,6 +58,15 @@ public partial class SwiftlyS2_Retakes : BasePlugin
 
   public override void UseSharedInterface(IInterfaceManager interfaceManager)
   {
+    var cookiesApi = interfaceManager.GetSharedInterface<IPlayerCookiesAPIv1>("Cookies.Player.v1");
+    if (cookiesApi is null)
+    {
+      Core.Logger.LogPluginError("Retakes: Cookies plugin not found. Player preferences will not be persisted. Make sure the Cookies plugin is installed.");
+      return;
+    }
+
+    var prefs = _serviceProvider?.GetService(typeof(IPlayerPreferencesService)) as IPlayerPreferencesService;
+    prefs?.SetCookiesApi(cookiesApi);
   }
 
   public override void Load(bool hotReload)
