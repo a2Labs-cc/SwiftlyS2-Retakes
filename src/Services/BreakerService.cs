@@ -88,7 +88,7 @@ public sealed class BreakerService : IBreakerService
   {
     var count = 0;
 
-    foreach (var ent in _core.EntitySystem.GetAllEntitiesByDesignerName<CEntityInstance>(designerName))
+    foreach (var ent in _core.EntitySystem.GetAllEntitiesByDesignerName<CEntityInstance>(designerName).ToList())
     {
       if (ent is null || !ent.IsValid) continue;
       ent.AcceptInput(input, string.Empty);
