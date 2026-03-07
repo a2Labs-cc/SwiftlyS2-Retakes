@@ -26,7 +26,7 @@
     <ProjectReference Include="..\..\..\GitHub\Forks\Cookies\Cookies.Contract\Cookies.Contract.csproj" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup Condition="!Exists('$(MSBuildThisFileDirectory)..\..\..\GitHub\Forks\Cookies\Cookies.Contract\Cookies.Contract.csproj')">
-    <ProjectReference Include="..\Cookies\Cookies.Contract\Cookies.Contract.csproj" ExcludeAssets="runtime" PrivateAssets="all" />
+    <ProjectReference Include="Cookies\Cookies.Contract\Cookies.Contract.csproj" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
