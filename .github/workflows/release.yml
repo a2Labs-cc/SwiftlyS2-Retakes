@@ -57,7 +57,8 @@ jobs:
       - name: Restore and Publish
         run: |
           # Find all csproj files with CreateZip target (these produce release artifacts)
-          PROJECTS=$(grep -l "CreateZip" $(find . -name "*.csproj") 2>/dev/null || true)
+          # Exclude Cookies/ — Cookies.Contract is a ProjectReference of Retakes and will be built automatically
+          PROJECTS=$(grep -l "CreateZip" $(find . -name "*.csproj" -not -path "*/Cookies/*") 2>/dev/null || true)
 
           if [ -z "$PROJECTS" ]; then
             echo "::error::No projects with CreateZip target found"
