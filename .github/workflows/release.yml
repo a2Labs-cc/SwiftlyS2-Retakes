@@ -43,22 +43,10 @@ jobs:
           cache: true
           cache-dependency-path: "**/*.csproj"
 
-      - name: Checkout Cookies dependency
-        uses: actions/checkout@v4
-        with:
-          repository: SwiftlyS2-Plugins/Cookies
-          path: Cookies
-
-      - name: Clean up Cookies plugin source
-        run: |
-          # Keep only Cookies.Contract, remove the main Cookies plugin to avoid dependency issues
-          rm -rf Cookies/Cookies
-
       - name: Restore and Publish
         run: |
           # Find all csproj files with CreateZip target (these produce release artifacts)
-          # Exclude Cookies/ — Cookies.Contract is a ProjectReference of Retakes and will be built automatically
-          PROJECTS=$(grep -l "CreateZip" $(find . -name "*.csproj" -not -path "*/Cookies/*") 2>/dev/null || true)
+          PROJECTS=$(grep -l "CreateZip" $(find . -name "*.csproj") 2>/dev/null || true)
 
           if [ -z "$PROJECTS" ]; then
             echo "::error::No projects with CreateZip target found"

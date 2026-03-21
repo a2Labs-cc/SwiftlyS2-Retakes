@@ -206,6 +206,10 @@ public sealed class PlayerEventHandlers
   private HookResult OnPlayerSpawnPost(EventPlayerSpawn @event)
   {
     var player = @event.UserIdPlayer;
+    if (player is null)
+    {
+      return HookResult.Continue;
+    }
     _pawnLifecycle.OnPlayerSpawn(player);
 
     if (!_config.Config.Weapons.BuyMenuEnabled)
