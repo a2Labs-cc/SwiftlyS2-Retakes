@@ -152,6 +152,29 @@ Useful config fields (non-exhaustive):
 - `retakes.weapons.*`
 - `retakes.preferences.usePerTeamPreferences` — Enable separate weapon preferences for T/CT
 
+### Damage Report
+
+| Config field | Default | Description |
+| :--- | :--- | :--- |
+| `retakes.damageReport.enabled` | `true` | Enable/disable the per-opponent damage summary shown in chat at round end |
+
+### Instant Defuse Messages
+
+The instant defuse result messages can be targeted per-audience:
+
+| Config field | Default | Description |
+| :--- | :--- | :--- |
+| `retakes.instantBomb.successfulMessageTarget` | `All` | Who sees the "defused successfully" message |
+| `retakes.instantBomb.unsuccessfulMessageTarget` | `All` | Who sees the "defuse failed" message |
+
+**Accepted values:**
+
+| Value | Behaviour |
+| :--- | :--- |
+| `All` | Sent to every player on the server |
+| `Team` | Sent only to the CT team (the defusing side) |
+| `Player` | Sent only to the player who attempted the defuse |
+
 ## Map configs
 
 Map configs live in:
