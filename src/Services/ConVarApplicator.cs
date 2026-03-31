@@ -81,6 +81,9 @@ public sealed class ConVarApplicator
     ApplyBool("retakes_solo_bot_enabled", config.SoloBot.Enabled);
     ApplyInt("retakes_solo_bot_difficulty", config.SoloBot.Difficulty);
 
+    // Damage report settings
+    ApplyBool("retakes_damage_report_enabled", config.DamageReport.Enabled);
+
     // Apply C4 enforcement
     var autoPlant = _core.ConVar.Find<bool>("retakes_auto_plant")?.Value ?? false;
     var enforceNoC4 = _core.ConVar.Find<bool>("retakes_enforce_no_c4")?.Value ?? false;

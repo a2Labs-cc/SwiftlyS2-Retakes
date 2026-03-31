@@ -19,4 +19,5 @@ public sealed class RetakesConfig
   public ServerConfig Server { get; set; } = new();
   public BreakerConfig Breaker { get; set; } = new();
   public QueueConfig Queue { get; set; } = new();
+  public DamageReportConfig DamageReport { get; set; } = new();
 }

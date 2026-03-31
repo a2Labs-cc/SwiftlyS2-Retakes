@@ -1,4 +1,5 @@
 using SwiftlyS2.Shared;
+using SwiftlyS2.Shared.Convars;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2_Retakes.Interfaces;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ public sealed class DamageReportService : IDamageReportService
 {
   private readonly ISwiftlyCore _core;
   private readonly IMessageService _messages;
+  private readonly IConVar<bool> _enabled;
 
   private readonly Dictionary<ulong, float> _scoreByPlayer = new();
   private const float ScoreDecay = 0.80f;
@@ -39,6 +41,7 @@ public sealed class DamageReportService : IDamageReportService
   {
     _core = core;
     _messages = messages;
+    _enabled = core.ConVar.CreateOrFind("retakes_damage_report_enabled", "Show per-opponent damage report in chat at round end", true);
   }
 
   public void OnRoundStart(bool isWarmup)
@@ -150,6 +153,8 @@ public sealed class DamageReportService : IDamageReportService
 
   public void PrintRoundReport()
   {
+    if (!_enabled.Value) return;
+
     var players = _core.PlayerManager.GetAllPlayers()
       .Where(p => p is not null && p.IsValid)
       .Where(p => (Team)p.Controller.TeamNum == Team.T || (Team)p.Controller.TeamNum == Team.CT)
