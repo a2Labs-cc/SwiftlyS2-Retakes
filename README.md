@@ -129,6 +129,86 @@ If the Cookies plugin is **not installed**, the plugin will still function but:
 - **Data Types**: Booleans for toggles, integers for spawn IDs, strings for weapon names
 - **Per-Team Settings**: Weapon preferences can be configured per-team (T/CT) or shared, based on `config.json` setting `retakes.preferences.usePerTeamPreferences`
 
+## Weapon Allocation
+
+The plugin automatically gives players weapons, armor, and grenades each round. The loadout depends on the **round type** and respects player preferences set via `!guns`.
+
+### Round Types
+
+| Round Type | Armor | Primary | Secondary | Grenades | CT Defuser |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Pistol** | Kevlar | Pistols | ❌ | Flash or smoke | 1 random player |
+| **Half-Buy** | Kevlar + Helmet | SMGs/Budget rifles | ✅ Pistol | Smoke + 1-2 more | Everyone |
+| **Full-Buy** | Kevlar + Helmet | Rifles (or AWP/Scout) | ✅ Pistol | Smoke + 1-2 more | Everyone |
+
+### How Round Types Are Selected
+
+Set via `retakes.allocation.roundType` in config:
+
+| Mode | Description |
+| :--- | :--- |
+| `"random"` **(default)** | Mix of all types based on percentages (20% pistol, 30% half, 50% full) |
+| `"pistol"` or `"p"` | Pistol rounds only |
+| `"half"` or `"h"` | Half-buy rounds only |
+| `"full"` or `"f"` | Full-buy rounds only |
+| `"sequence"` | Custom sequence (e.g., 3 pistol → 2 half → full forever) |
+
+<details>
+<summary><b>Sequence Mode Example</b></summary>
+
+```json
+{
+  "retakes": {
+    "allocation": {
+      "roundType": "sequence",
+      "roundTypeSequence": [
+        { "Type": "Pistol", "Count": 3 },
+        { "Type": "HalfBuy", "Count": 2 },
+        { "Type": "FullBuy", "Count": 25 }
+      ]
+    }
+  }
+}
+```
+Plays 3 pistol rounds, then 2 half-buy, then full-buy for all remaining rounds.
+</details>
+
+### AWP & Scout Allocation
+
+**Only on full-buy rounds.** Players must enable `!awp` or SSG08 in their preferences to be eligible.
+
+#### AWP Settings
+- **How many per team:** `awpPerTeam` (default: 1)
+- **Low population mode:** If team has ≤ 4 players, there's only a 50% chance AWPs spawn
+- **VIP priority:** Players with the `@css/vip` flag (configurable) can get priority AWP picks
+
+#### Scout (SSG08) Settings
+- **How many per team:** `ssg08PerTeam` (default: 0 = disabled)
+- Players who get an AWP won't get a Scout
+
+### Weapon Selection
+
+- **Human players:** Get their preferred weapons from the `!guns` menu
+- **Bots:** Get random weapons from the allowed list
+- If a preference isn't available, a random weapon is chosen
+
+### Grenades
+
+| Round Type | Grenades Given |
+| :--- | :--- |
+| **Pistol** | 1 flashbang OR 1 smoke (random) |
+| **Half-Buy** | 1 smoke + 1 random (flash/HE/molly) |
+| **Full-Buy** | 1 smoke + 1 random + 50% chance for a 2nd random |
+
+### Common Settings
+
+| Config | Default | Description |
+| :--- | :--- | :--- |
+| `retakes.allocation.enabled` | `true` | Enable/disable weapon allocation |
+| `retakes.allocation.stripWeapons` | `true` | Remove old weapons before giving new ones |
+| `retakes.allocation.givePistolOnRifleRounds` | `true` | Give secondary pistol on half/full-buy rounds |
+| `retakes.preferences.usePerTeamPreferences` | `false` | Separate T/CT weapon preferences in `!guns` menu |
+
 ## Configuration
 
 The plugin uses SwiftlyS2's JSON config system.

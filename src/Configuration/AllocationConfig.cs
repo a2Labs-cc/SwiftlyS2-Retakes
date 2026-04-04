@@ -1,3 +1,5 @@
+using SwiftlyS2_Retakes.Models;
+
 namespace SwiftlyS2_Retakes.Configuration;
 
 /// <summary>
@@ -10,6 +12,7 @@ public sealed class AllocationConfig
   public int RoundTypePctPistol { get; set; } = 20;
   public int RoundTypePctHalf { get; set; } = 30;
   public int RoundTypePctFull { get; set; } = 50;
+  public List<RoundTypeSequenceEntry> RoundTypeSequence { get; set; } = new();
 
   public bool AwpEnabled { get; set; } = true;
   public int AwpPerTeam { get; set; } = 1;

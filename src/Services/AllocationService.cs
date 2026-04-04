@@ -45,17 +45,19 @@ public sealed class AllocationService : IAllocationService
   private readonly IConVar<bool> _stripWeapons;
   private readonly IConVar<bool> _givePistolOnRifleRounds;
   private readonly IConVar<bool> _stripRemove;
+  private readonly IRetakesStateService _state;
 
-  public AllocationService(ISwiftlyCore core, ILogger logger, Random random, IPlayerPreferencesService prefs, IRetakesConfigService config)
+  public AllocationService(ISwiftlyCore core, ILogger logger, Random random, IPlayerPreferencesService prefs, IRetakesConfigService config, IRetakesStateService state)
   {
     _core = core;
     _logger = logger;
     _random = random;
     _prefs = prefs;
     _config = config;
+    _state = state;
 
     _enabled = core.ConVar.CreateOrFind("retakes_allocation_enabled", "Enable weapon allocation", true);
-    _roundType = core.ConVar.CreateOrFind("retakes_round_type", "Round type: random|pistol|half|full", "random");
+    _roundType = core.ConVar.CreateOrFind("retakes_round_type", "Round type: random|pistol|half|full|sequence", "random");
 
     _pistolPct = core.ConVar.CreateOrFind("retakes_round_type_pct_pistol", "Random round type pct: pistol", 20, 0, 100);
     _halfBuyPct = core.ConVar.CreateOrFind("retakes_round_type_pct_half", "Random round type pct: half", 30, 0, 100);
@@ -87,6 +89,9 @@ public sealed class AllocationService : IAllocationService
     if (mode.Equals("half", StringComparison.OrdinalIgnoreCase) || mode.Equals("halfbuy", StringComparison.OrdinalIgnoreCase) || mode.Equals("h", StringComparison.OrdinalIgnoreCase)) return RoundType.HalfBuy;
     if (mode.Equals("full", StringComparison.OrdinalIgnoreCase) || mode.Equals("fullbuy", StringComparison.OrdinalIgnoreCase) || mode.Equals("f", StringComparison.OrdinalIgnoreCase)) return RoundType.FullBuy;
 
+    if (mode.Equals("sequence", StringComparison.OrdinalIgnoreCase))
+      return SelectRoundTypeFromSequence();
+
     var pistol = Math.Clamp(_pistolPct.Value, 0, 100);
     var half = Math.Clamp(_halfBuyPct.Value, 0, 100);
     var full = Math.Clamp(_fullBuyPct.Value, 0, 100);
@@ -97,6 +102,33 @@ public sealed class AllocationService : IAllocationService
     var roll = _random.Next(0, total);
     if (roll < pistol) return RoundType.Pistol;
     if (roll < pistol + half) return RoundType.HalfBuy;
+    return RoundType.FullBuy;
+  }
+
+  private RoundType SelectRoundTypeFromSequence()
+  {
+    var sequence = _config.Config.Allocation.RoundTypeSequence;
+    if (sequence is not { Count: > 0 }) return RoundType.FullBuy;
+
+    var roundNumber = Math.Max(1, _state.RoundNumber);
+    var cumulative = 0;
+    for (var i = 0; i < sequence.Count; i++)
+    {
+      cumulative += Math.Max(1, sequence[i].Count);
+      if (roundNumber <= cumulative)
+        return ParseRoundType(sequence[i].Type);
+    }
+
+    // Beyond the total — stay on the last entry's type.
+    return ParseRoundType(sequence[^1].Type);
+  }
+
+  private static RoundType ParseRoundType(string? type)
+  {
+    if (type is null) return RoundType.FullBuy;
+    if (type.Equals("pistol", StringComparison.OrdinalIgnoreCase) || type.Equals("p", StringComparison.OrdinalIgnoreCase)) return RoundType.Pistol;
+    if (type.Equals("half", StringComparison.OrdinalIgnoreCase) || type.Equals("halfbuy", StringComparison.OrdinalIgnoreCase) || type.Equals("h", StringComparison.OrdinalIgnoreCase)) return RoundType.HalfBuy;
+    if (type.Equals("full", StringComparison.OrdinalIgnoreCase) || type.Equals("fullbuy", StringComparison.OrdinalIgnoreCase) || type.Equals("f", StringComparison.OrdinalIgnoreCase)) return RoundType.FullBuy;
     return RoundType.FullBuy;
   }
 
