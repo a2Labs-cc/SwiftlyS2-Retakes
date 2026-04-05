@@ -251,15 +251,6 @@
       "canBePlanter": true,
       "id": 28,
       "name": "Coldzera"
-    },
-    {
-      "vector": "2,599.97 559.97 216.03",
-      "qAngle": "0.00 -177.30 0.00",
-      "team": 2,
-      "bombsite": 0,
-      "canBePlanter": false,
-      "id": 29,
-      "name": null
     }
   ],
   "smokeScenarios": [

@@ -208,15 +208,6 @@
       "name": null
     },
     {
-      "vector": "189.05 723.24 -28.97",
-      "qAngle": "0.00 68.36 0.00",
-      "team": 3,
-      "bombsite": 0,
-      "canBePlanter": false,
-      "id": 24,
-      "name": null
-    },
-    {
       "vector": "800.15 741.65 -149.63",
       "qAngle": "0.00 15.62 0.00",
       "team": 3,
@@ -313,6 +304,15 @@
       "bombsite": 0,
       "canBePlanter": false,
       "id": 35,
+      "name": null
+    },
+    {
+      "vector": "189.50813 730.9582 -28.96875",
+      "qAngle": "3.432084 89.63721 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 36,
       "name": null
     }
   ],

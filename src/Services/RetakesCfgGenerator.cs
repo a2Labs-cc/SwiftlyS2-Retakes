@@ -111,12 +111,9 @@ public sealed class RetakesCfgGenerator
       cash_team_loser_bonus_consecutive_rounds 0
       cash_team_planted_bomb_but_defused 0
       cash_team_rescued_hostage 0
-      cash_team_survive_guardian_wave 0
-      cash_team_t_no_p_bomb_planted_ct_win 0
       cash_team_terrorist_win_bomb 0
       cash_team_win_by_defusing_bomb 0
       cash_team_win_by_hostage_rescue 0
-      cash_team_win_by_time_limit 0
       {playerAwardsLine.TrimEnd()}
       mp_respawn_on_death_ct 0
       mp_respawn_on_death_t 0
