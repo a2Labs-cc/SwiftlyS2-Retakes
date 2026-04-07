@@ -7,6 +7,8 @@ public sealed class WeaponsConfig
 {
   public bool BuyMenuEnabled { get; set; } = true;
 
+  public DefaultWeaponsConfig Defaults { get; set; } = new();
+
   public List<string> Pistols { get; set; } = new()
   {
     "weapon_glock",
@@ -32,6 +34,34 @@ public sealed class WeaponsConfig
     T = new() { "weapon_ak47", "weapon_sg556" },
     Ct = new() { "weapon_m4a1", "weapon_m4a1_silencer", "weapon_aug" },
   };
+}
+
+/// <summary>
+/// Configuration for server-defined default loadouts when players have no saved preference yet.
+/// </summary>
+public sealed class DefaultWeaponsConfig
+{
+  public DefaultRoundLoadoutConfig Pistol { get; set; } = new();
+  public DefaultRoundLoadoutConfig HalfBuy { get; set; } = new();
+  public DefaultRoundLoadoutConfig FullBuy { get; set; } = new();
+}
+
+/// <summary>
+/// Default loadout for a given round type.
+/// </summary>
+public sealed class DefaultRoundLoadoutConfig
+{
+  public DefaultWeaponSelectionConfig Primary { get; set; } = new();
+  public DefaultWeaponSelectionConfig Secondary { get; set; } = new();
+}
+
+/// <summary>
+/// Team-aware default weapon selection.
+/// </summary>
+public sealed class DefaultWeaponSelectionConfig
+{
+  public string? T { get; set; }
+  public string? Ct { get; set; }
 }
 
 /// <summary>

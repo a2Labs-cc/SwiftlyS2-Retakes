@@ -112,6 +112,7 @@ public sealed class RetakesConfigService : IRetakesConfigService
       EnsureSmokeScenariosConfigPresent();
       EnsureSoloBotConfigPresent();
       EnsureAfkManagerConfigPresent();
+      EnsureWeaponDefaultsConfigPresent();
       ApplyLoggingToggles(Config.Server);
     }
     catch (Exception ex)
@@ -347,6 +348,103 @@ public sealed class RetakesConfigService : IRetakesConfigService
     {
       _logger.LogPluginWarning(ex, "Retakes: failed to ensure AfkManager exists in config.json");
     }
+  }
+
+  private void EnsureWeaponDefaultsConfigPresent()
+  {
+    try
+    {
+      if (!File.Exists(_path))
+      {
+        return;
+      }
+
+      var text = File.ReadAllText(_path);
+      if (string.IsNullOrWhiteSpace(text))
+      {
+        return;
+      }
+
+      var rootNode = JsonNode.Parse(text);
+      if (rootNode is not JsonObject rootObj)
+      {
+        return;
+      }
+
+      ConfigSanitizer.SanitizeColonDelimitedKeys(rootObj);
+      ConfigSanitizer.SanitizeCaseInsensitiveDuplicateKeys(rootObj);
+
+      if (rootObj[SectionName] is not JsonObject sectionObj)
+      {
+        sectionObj = new JsonObject();
+        rootObj[SectionName] = sectionObj;
+      }
+
+      var weaponsKey = sectionObj.ContainsKey("Weapons") ? "Weapons"
+        : sectionObj.ContainsKey("weapons") ? "weapons"
+        : "Weapons";
+
+      if (sectionObj[weaponsKey] is not JsonObject weaponsObj)
+      {
+        weaponsObj = new JsonObject();
+        sectionObj[weaponsKey] = weaponsObj;
+      }
+
+      var defaultsKey = weaponsObj.ContainsKey("Defaults") ? "Defaults"
+        : weaponsObj.ContainsKey("defaults") ? "defaults"
+        : "Defaults";
+
+      if (weaponsObj[defaultsKey] is not JsonObject defaultsObj)
+      {
+        defaultsObj = new JsonObject();
+        weaponsObj[defaultsKey] = defaultsObj;
+      }
+
+      EnsureDefaultRoundLoadout(defaultsObj, "Pistol", "pistol", Config.Weapons.Defaults.Pistol);
+      EnsureDefaultRoundLoadout(defaultsObj, "HalfBuy", "halfBuy", Config.Weapons.Defaults.HalfBuy);
+      EnsureDefaultRoundLoadout(defaultsObj, "FullBuy", "fullBuy", Config.Weapons.Defaults.FullBuy);
+
+      var updated = rootObj.ToJsonString(JsonOptions);
+      File.WriteAllText(_path, updated);
+    }
+    catch (Exception ex)
+    {
+      _logger.LogPluginWarning(ex, "Retakes: failed to ensure weapon defaults exist in config.json");
+    }
+  }
+
+  private static void EnsureDefaultRoundLoadout(JsonObject parent, string pascalName, string camelName, DefaultRoundLoadoutConfig defaults)
+  {
+    var roundKey = parent.ContainsKey(pascalName) ? pascalName
+      : parent.ContainsKey(camelName) ? camelName
+      : pascalName;
+
+    if (parent[roundKey] is not JsonObject roundObj)
+    {
+      roundObj = new JsonObject();
+      parent[roundKey] = roundObj;
+    }
+
+    EnsureDefaultWeaponSelection(roundObj, "Primary", "primary", defaults.Primary);
+    EnsureDefaultWeaponSelection(roundObj, "Secondary", "secondary", defaults.Secondary);
+  }
+
+  private static void EnsureDefaultWeaponSelection(JsonObject parent, string pascalName, string camelName, DefaultWeaponSelectionConfig defaults)
+  {
+    var selectionKey = parent.ContainsKey(pascalName) ? pascalName
+      : parent.ContainsKey(camelName) ? camelName
+      : pascalName;
+
+    if (parent[selectionKey] is not JsonObject selectionObj)
+    {
+      selectionObj = new JsonObject();
+      parent[selectionKey] = selectionObj;
+    }
+
+    string Key(string pascal, string camel) => selectionObj.ContainsKey(pascal) ? pascal : selectionObj.ContainsKey(camel) ? camel : pascal;
+
+    if (selectionObj[Key("T", "t")] is null) selectionObj[Key("T", "t")] = defaults.T;
+    if (selectionObj[Key("Ct", "ct")] is null) selectionObj[Key("Ct", "ct")] = defaults.Ct;
   }
 
   public void Save()

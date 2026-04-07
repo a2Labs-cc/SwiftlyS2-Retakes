@@ -103,6 +103,7 @@ All player preferences are automatically saved and persist between disconnects/r
 - **Pistol Round Primary** — Preferred primary weapon for pistol rounds (per-team or shared)
 - **Half-Buy Primary/Secondary** — Preferred weapons for half-buy rounds (per-team or shared)
 - **Full-Buy Primary/Secondary** — Preferred weapons for full-buy rounds (per-team or shared)
+- **Default Weapon Loadouts** - Set default weapon selection based on round type.
 
 #### Spawn Preferences
 - **Spawn Menu Toggle** (`!spawns`) — Whether the CT spawn selection menu is enabled
@@ -190,7 +191,51 @@ Plays 3 pistol rounds, then 2 half-buy, then full-buy for all remaining rounds.
 
 - **Human players:** Get their preferred weapons from the `!guns` menu
 - **Bots:** Get random weapons from the allowed list
-- If a preference isn't available, a random weapon is chosen
+- If a player has no saved preference, the plugin first checks `retakes.weapons.defaults.*`
+- If neither a saved preference nor a configured default is available, a random weapon is chosen
+
+### Default Loadouts
+
+You can define default loadouts that are used before a player chooses their own weapons in `!guns`.
+
+```json
+      "Defaults": {
+        "Pistol": {
+          "Primary": {
+            "T": "weapon_glock",
+            "Ct": "weapon_usp_silencer"
+          },
+          "Secondary": {
+            "T": null,
+            "Ct": null
+          }
+        },
+        "HalfBuy": {
+          "Primary": {
+            "T": "weapon_mac10",
+            "Ct": "weapon_mp7"
+          },
+          "Secondary": {
+            "T": "weapon_deagle",
+            "Ct": "weapon_deagle"
+          }
+        },
+        "FullBuy": {
+          "Primary": {
+            "T": "weapon_ak47",
+            "Ct": "weapon_m4a1"
+          },
+          "Secondary": {
+            "T": "weapon_deagle",
+            "Ct": "weapon_deagle"
+          }
+        }
+      }
+```
+
+- `pistol`, `halfBuy`, and `fullBuy` all support `primary`
+- `halfBuy` and `fullBuy` also support `secondary`
+- Player selections still override these defaults and remain persisted through Cookies
 
 ### Grenades
 

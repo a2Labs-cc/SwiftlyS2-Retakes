@@ -971,7 +971,8 @@ public sealed class CommandHandlers
   {
     var isCt = (Team)player.Controller.TeamNum == Team.CT;
     var selected = _prefs.GetPistolPrimary(player.SteamID, isCt);
-    var selectedText = WeaponOrRandom(selected);
+    var defaultWeapon = ResolveDefaultWeapon(RoundType.Pistol, isCt, isPrimary: true);
+    var selectedText = SelectedOrFallback(selected, defaultWeapon);
 
     var builder = core.MenusAPI.CreateBuilder()
       .Design.SetMenuTitle($"Pistols: Primary {selectedText}")
@@ -990,7 +991,7 @@ public sealed class CommandHandlers
       builder.AddOption(opt);
     }
 
-    var clear = new ButtonMenuOption("Clear (random)");
+    var clear = new ButtonMenuOption(DefaultLabel(defaultWeapon));
     clear.Click += async (_, args) =>
     {
       var ct = (Team)args.Player.Controller.TeamNum == Team.CT;
@@ -1010,14 +1011,16 @@ public sealed class CommandHandlers
       ? _prefs.GetFullBuyPack(player.SteamID, isCt)
       : _prefs.GetHalfBuyPack(player.SteamID, isCt);
 
-    var primaryText = WeaponOrRandom(pack.Primary);
-    var secondaryText = WeaponOrRandom(pack.Secondary);
+    var defaultPrimary = ResolveDefaultWeapon(roundType, isCt, isPrimary: true);
+    var defaultSecondary = ResolveDefaultWeapon(roundType, isCt, isPrimary: false);
+    var primaryText = SelectedOrFallback(pack.Primary, defaultPrimary);
+    var secondaryText = SelectedOrFallback(pack.Secondary, defaultSecondary);
 
     var primary = new SubmenuMenuOption($"Primary: {primaryText}", () => BuildPackSlotMenu(core, player, roundType, isPrimary: true));
     var secondary = new SubmenuMenuOption($"Secondary: {secondaryText}", () => BuildPackSlotMenu(core, player, roundType, isPrimary: false));
 
     return core.MenusAPI.CreateBuilder()
-      .Design.SetMenuTitle(PackTitle(roundType, pack.Primary, pack.Secondary))
+      .Design.SetMenuTitle(PackTitle(roundType, pack.Primary, pack.Secondary, defaultPrimary, defaultSecondary))
       .EnableSound()
       .AddOption(primary)
       .AddOption(secondary)
@@ -1058,7 +1061,8 @@ public sealed class CommandHandlers
       builder.AddOption(opt);
     }
 
-    var clear = new ButtonMenuOption("Clear (random)");
+    var defaultWeapon = ResolveDefaultWeapon(roundType, isCt, isPrimary);
+    var clear = new ButtonMenuOption(DefaultLabel(defaultWeapon));
     clear.Click += async (_, args) =>
     {
       var ct = (Team)args.Player.Controller.TeamNum == Team.CT;
@@ -1079,6 +1083,37 @@ public sealed class CommandHandlers
     builder.AddOption(clear);
 
     return builder.Build();
+  }
+
+  private string? ResolveDefaultWeapon(RoundType roundType, bool isCt, bool isPrimary)
+  {
+    var team = isCt ? Team.CT : Team.T;
+    var defaults = roundType switch
+    {
+      RoundType.Pistol => _config.Config.Weapons.Defaults.Pistol,
+      RoundType.HalfBuy => _config.Config.Weapons.Defaults.HalfBuy,
+      RoundType.FullBuy => _config.Config.Weapons.Defaults.FullBuy,
+      _ => null,
+    };
+
+    if (defaults is null)
+    {
+      return null;
+    }
+
+    var selection = isPrimary ? defaults.Primary : defaults.Secondary;
+    return ResolveDefaultWeaponSelection(selection, team);
+  }
+
+  private static string? ResolveDefaultWeaponSelection(DefaultWeaponSelectionConfig selection, Team team)
+  {
+    if (team == Team.CT && !string.IsNullOrWhiteSpace(selection.Ct))
+      return selection.Ct;
+
+    if (team == Team.T && !string.IsNullOrWhiteSpace(selection.T))
+      return selection.T;
+
+    return null;
   }
 
   private List<string> GetAllowedWeaponsForMenu(RoundType roundType, bool isCt, bool isPrimary)
@@ -1156,26 +1191,32 @@ public sealed class CommandHandlers
     ["weapon_elite"] = "Dual Berettas",
   };
 
-  private static string WeaponOrRandom(string? weapon)
+  private static string SelectedOrFallback(string? weapon, string? defaultWeapon)
   {
-    if (string.IsNullOrWhiteSpace(weapon)) return "(random)";
+    if (string.IsNullOrWhiteSpace(weapon))
+      return string.IsNullOrWhiteSpace(defaultWeapon) ? "(random)" : WeaponDisplayName(defaultWeapon);
+
     return WeaponDisplayName(weapon);
   }
 
-  private static string PackSummary(string label, string? primary, string? secondary)
+  private static string PackTitle(RoundType roundType, string? primary, string? secondary, string? defaultPrimary, string? defaultSecondary)
   {
     if (string.IsNullOrWhiteSpace(primary) && string.IsNullOrWhiteSpace(secondary))
-      return $"{label}: (random)";
+    {
+      if (string.IsNullOrWhiteSpace(defaultPrimary) && string.IsNullOrWhiteSpace(defaultSecondary))
+        return $"{roundType}: (random)";
 
-    return $"{label}: {WeaponOrRandom(primary)} + {WeaponOrRandom(secondary)}";
+      return $"{roundType}: {SelectedOrFallback(null, defaultPrimary)} + {SelectedOrFallback(null, defaultSecondary)}";
+    }
+
+    return $"{roundType}: {SelectedOrFallback(primary, defaultPrimary)} + {SelectedOrFallback(secondary, defaultSecondary)}";
   }
 
-  private static string PackTitle(RoundType roundType, string? primary, string? secondary)
+  private static string DefaultLabel(string? defaultWeapon)
   {
-    if (string.IsNullOrWhiteSpace(primary) && string.IsNullOrWhiteSpace(secondary))
-      return $"{roundType}: (random)";
-
-    return $"{roundType}: {WeaponOrRandom(primary)} + {WeaponOrRandom(secondary)}";
+    return string.IsNullOrWhiteSpace(defaultWeapon)
+      ? "Default (random)"
+      : $"Default ({WeaponDisplayName(defaultWeapon)})";
   }
 
   private static string WeaponDisplayName(string weapon)

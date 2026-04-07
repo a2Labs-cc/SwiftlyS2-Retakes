@@ -312,20 +312,23 @@ public sealed class AllocationService : IAllocationService
     {
       var allowed = _config.Config.Weapons.Pistols;
       var preferred = _prefs.GetPistolPrimary(steamId, team == Team.CT);
-      return PreferOrRandom(preferred, allowed);
+      var configuredDefault = GetConfiguredDefaultPrimary(team, roundType);
+      return PreferOrDefaultOrRandom(preferred, configuredDefault, allowed);
     }
 
     if (roundType == RoundType.HalfBuy)
     {
       var allowed = GetAllowedPrimaryWeapons(roundType, team);
       var pack = _prefs.GetHalfBuyPack(steamId, team == Team.CT);
-      return PreferOrRandom(pack.Primary, allowed);
+      var configuredDefault = GetConfiguredDefaultPrimary(team, roundType);
+      return PreferOrDefaultOrRandom(pack.Primary, configuredDefault, allowed);
     }
 
     // FullBuy
     var fullAllowed = GetAllowedPrimaryWeapons(roundType, team);
     var fullPack = _prefs.GetFullBuyPack(steamId, team == Team.CT);
-    return PreferOrRandom(fullPack.Primary, fullAllowed);
+    var fullConfiguredDefault = GetConfiguredDefaultPrimary(team, roundType);
+    return PreferOrDefaultOrRandom(fullPack.Primary, fullConfiguredDefault, fullAllowed);
   }
 
   private string? SelectSecondary(Team team, RoundType roundType, ulong steamId)
@@ -336,14 +339,52 @@ public sealed class AllocationService : IAllocationService
     if (roundType == RoundType.HalfBuy)
     {
       var pack = _prefs.GetHalfBuyPack(steamId, team == Team.CT);
-      return PreferOrRandom(pack.Secondary, allowed);
+      var configuredDefault = GetConfiguredDefaultSecondary(team, roundType);
+      return PreferOrDefaultOrRandom(pack.Secondary, configuredDefault, allowed);
     }
 
     if (roundType == RoundType.FullBuy)
     {
       var pack = _prefs.GetFullBuyPack(steamId, team == Team.CT);
-      return PreferOrRandom(pack.Secondary, allowed);
+      var configuredDefault = GetConfiguredDefaultSecondary(team, roundType);
+      return PreferOrDefaultOrRandom(pack.Secondary, configuredDefault, allowed);
     }
+
+    return null;
+  }
+
+  private string? GetConfiguredDefaultPrimary(Team team, RoundType roundType)
+  {
+    var defaults = roundType switch
+    {
+      RoundType.Pistol => _config.Config.Weapons.Defaults.Pistol,
+      RoundType.HalfBuy => _config.Config.Weapons.Defaults.HalfBuy,
+      RoundType.FullBuy => _config.Config.Weapons.Defaults.FullBuy,
+      _ => null,
+    };
+
+    return defaults is null ? null : ResolveSelection(defaults.Primary, team);
+  }
+
+  private string? GetConfiguredDefaultSecondary(Team team, RoundType roundType)
+  {
+    var defaults = roundType switch
+    {
+      RoundType.HalfBuy => _config.Config.Weapons.Defaults.HalfBuy,
+      RoundType.FullBuy => _config.Config.Weapons.Defaults.FullBuy,
+      _ => null,
+    };
+
+    return defaults is null ? null : ResolveSelection(defaults.Secondary, team);
+  }
+
+  private static string? ResolveSelection(DefaultWeaponSelectionConfig selection, Team team)
+  {
+    if (team == Team.CT && !string.IsNullOrWhiteSpace(selection.Ct))
+      return selection.Ct;
+
+    if (team == Team.T && !string.IsNullOrWhiteSpace(selection.T))
+      return selection.T;
 
     return null;
   }
@@ -476,11 +517,16 @@ public sealed class AllocationService : IAllocationService
     return selected;
   }
 
-  private string? PreferOrRandom(string? preferred, IReadOnlyList<string> allowed)
+  private string? PreferOrDefaultOrRandom(string? preferred, string? configuredDefault, IReadOnlyList<string> allowed)
   {
     if (!string.IsNullOrWhiteSpace(preferred) && IsAllowed(preferred, allowed))
     {
       return preferred;
+    }
+
+    if (!string.IsNullOrWhiteSpace(configuredDefault) && IsAllowed(configuredDefault, allowed))
+    {
+      return configuredDefault;
     }
 
     return allowed.Count == 0 ? null : allowed[_random.Next(allowed.Count)];
