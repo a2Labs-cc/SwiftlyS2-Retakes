@@ -102,7 +102,22 @@ public sealed class PlayerEventHandlers
       return HookResult.Continue;
     }
 
-    // Block team switching for players already on T/CT outside warmup
+    // Allow switching to spectator (jointeam 1 or spectate command)
+    if (cmd.StartsWith("spectate"))
+    {
+      return HookResult.Continue;
+    }
+
+    if (cmd.StartsWith("jointeam"))
+    {
+      var parts = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+      if (parts.Length >= 2 && parts[1] == "1")
+      {
+        return HookResult.Continue;
+      }
+    }
+
+    // Block T/CT switching for players already on T/CT outside warmup
     return HookResult.Stop;
   }
 
@@ -180,12 +195,13 @@ public sealed class PlayerEventHandlers
     }
 
     // Prevent manual team switching mid-round: keep participants on their locked team.
+    // Allow switching to spectator (voluntary spec).
     if (isHuman && _state.RoundLive && _state.TryGetLockedTeam(player.SteamID, out var lockedTeam))
     {
       var currentTeam = (Team)player.Controller.TeamNum;
       if (lockedTeam == Team.T || lockedTeam == Team.CT)
       {
-        if (currentTeam != lockedTeam)
+        if (currentTeam != lockedTeam && currentTeam != Team.Spectator && currentTeam != Team.None)
         {
           core?.Scheduler.NextTick(() =>
           {
@@ -193,7 +209,8 @@ public sealed class PlayerEventHandlers
             if (!_state.RoundLive) return;
             if (!_state.TryGetLockedTeam(player.SteamID, out var stillLocked)) return;
             if (stillLocked != Team.T && stillLocked != Team.CT) return;
-            if ((Team)player.Controller.TeamNum == stillLocked) return;
+            var teamNow = (Team)player.Controller.TeamNum;
+            if (teamNow == stillLocked || teamNow == Team.Spectator || teamNow == Team.None) return;
             player.ChangeTeam(stillLocked);
           });
         }
