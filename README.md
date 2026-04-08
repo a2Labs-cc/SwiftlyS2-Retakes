@@ -306,11 +306,33 @@ Each map file contains the spawns used by the retakes allocator.
 
 | Command | Description |
 | :--- | :--- |
-| `!guns` / `!gun` | Opens the weapon preference menu. |
+| `!guns` | Opens the weapon preference menu. |
+| `!gun <weapon>` | Quickly sets your preferred weapon via chat (see [Quick Weapon Select](#quick-weapon-select-gun) below). |
 | `!retake` | Opens the main Retakes menu (spawn preference, AWP, etc.). |
 | `!spawns` | Toggles the spawn selection menu. |
 | `!awp` | Toggles AWP preference. |
 | `!voices` | Toggles voice announcements. |
+
+### Quick Weapon Select (`!gun`)
+
+Type `!gun <weapon>` in chat to change your weapon preference **instantly** — no menu needed. The weapon is saved to your preferences and swapped in-hand immediately.
+
+**Accepted input formats:**
+- Entity names: `weapon_ak47`, `weapon_m4a1_silencer`
+- Short names: `ak`, `ak47`, `deag`, `usp`, `m4a1s`, `scout`, `famas`, `galil`, `p250`, `cz`, `57`, `r8`, etc.
+- Display names: `AK-47`, `M4A1-S`, `USP-S`
+
+**Behaviour:**
+- Validates the weapon against the **current round type** (Pistol / HalfBuy / FullBuy)
+- Automatically assigns to the correct slot (primary or secondary)
+- Tells you if the weapon isn't allowed this round or is already your preference
+
+**Examples:**
+```
+!gun ak        → sets AK-47 as your full-buy/half-buy primary
+!gun usp       → sets USP-S as your secondary (or pistol-round weapon)
+!gun m4a1s     → sets M4A1-S as your CT primary
+```
 
 ### Debug
 
