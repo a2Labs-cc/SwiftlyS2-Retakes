@@ -1,0 +1,98 @@
+{
+  "instadefuse.unsuccessful": "{0} bandė defusinti su [darkred]{1}s[white] likę (reikia [darkred]{2}s[white]).",
+  "instadefuse.successful": "{0} defusino su [green]{1}s[white] likę ant bombos.",
+  "instadefuse.not_possible": "Instant defuse negalimas: grėsmė vis dar yra.",
+  "instadefuse.not_possible_enemy": "Instant defuse negalimas: teroristai dar gyvi.",
+  "instadefuse.not_possible_molly": "Instant defuse negalimas: padegamoji/molotovas prie bombos.",
+  "instadefuse.not_possible_enemy_molly": "Instant defuse negalimas: teroristai gyvi ir padegamoji/molotovas prie bombos.",
+  
+  "announcement.round_info": "Bombsite: {0} - Raundo tipas: {1}",
+  "announcement.round_start": "Naujas raundas prasidėjo. {0} T VS {1} CT. Sėkmės!",
+  "announcement.planting_at": "[white]Statom ant: [green]{0}",
+  "queue.added": "Buvai įdėtas į eilę.",
+  "queue.waiting": "Laukiam eilėj... ({0}/{1} aktyvių žaidėjų)",
+  "queue.moved_out": "Buvai perkeltas į eilę (VIP {0} užėmė tavo vietą).",
+  "queue.moved_in": "VIP prioritetas: Pakeitei {0}.",
+  "buy.restricted": "{0} negalima pirkti per {1} raundus!",
+  "clutch.announce": "{0} išclutchino 1v{1}",
+  "chat.prefix": "{0}",
+  "damage.report.header": "[grey]-- Damage reportas --[white]",
+  "damage.report.line": "[grey]-->[white] ([green]{0} dmg[white] / [green]{1} hit[white]) nuo ([darkred]{2} dmg[white] / [darkred]{3} hit[white]) iš [orange]{4}[white] ([blue]{5} HP[white])",
+  "round.now": "Dabar: [orange]{0}[white]",
+  "round.retake": "[green]Retake[white] [green]{0}[white]: [blue]{1}[white] vs [red]{2}[white]",
+  "round.defend": "Defend [red]{0}[white]: [red]{1}[white] vs [blue]{2}[white]",
+  "round.win_message": "[green]{0}[white] komanda laimėjo!",
+  "round.win_streak": "Laimėta [green]{0}[white] raundų iš eilės.",
+  "smokes.scenario.none": "Dūmų scenarijus: [green]Be dūmų[white]",
+  "smokes.scenario.active": "Dūmų scenarijus: [green]{0}[white]",
+
+  "command.forcesite.usage": "Naudojimas: !forcesite <A/B>",
+  "command.forcesite.forced_a": "[green]Retakes:[white] priverstas bombsite A",
+  "command.forcesite.forced_b": "[green]Retakes:[white] priverstas bombsite B",
+  "command.forcestop.cleared": "[green]Retakes:[white] priverstas bombsite nuimtas",
+
+  "command.editspawns.usage": "Naudojimas: !editspawns [A/B]",
+  "command.editspawns.start": "[green]Retakes:[white] redaguojam spawnus {0}",
+  "command.editspawns.commands": "Komandos: !addspawn <T/CT> [planter] [A/B], !remove <id>, !namespawn <id> <name>, !gotospawn <id>, !savespawns, !stopediting",
+  "command.stopediting.stopped": "[green]Retakes:[white] spawnų redagavimas sustabdytas",
+
+  "command.addspawn.usage": "Naudojimas: !addspawn <T/CT> [planter] [A/B]",
+  "command.addspawn.both_mode_needs_site": "[green]Retakes:[white] kai žiūri abu saitus, reikia nurodyti saitą (A arba B). Naudojimas: !addspawn <T/CT> [planter] <A/B>",
+  "command.addspawn.site_mismatch": "[green]Retakes:[white] žiūri saitą {0}, bet bandei pridėti spawną kitam saitui.",
+  "command.addspawn.only_t_planter": "[green]Retakes:[white] tik T spawnai gali būti planter spawnai",
+  "command.addspawn.must_have_pawn": "[green]Retakes:[white] turi turėti žaidėjo pawną",
+  "command.addspawn.read_pos_failed": "[green]Retakes:[white] nepavyko nuskaityti žaidėjo pozicijos",
+  "command.addspawn.added": "[green]Retakes:[white] pridėtas spawnas #{0} komandai {1} ties {2}{3}",
+
+  "command.remove.usage": "Naudojimas: !remove <id>",
+  "command.remove.spawn_not_found": "[green]Retakes:[white] spawnas #{0} nerastas",
+  "command.remove.failed": "[green]Retakes:[white] nepavyko pašalinti spawno #{0}",
+  "command.remove.removed": "[green]Retakes:[white] pašalintas spawnas #{0}",
+
+  "command.namespawn.usage": "Naudojimas: !namespawn <id> <name>",
+  "command.namespawn.failed_set": "[green]Retakes:[white] nepavyko nustatyti vardo spawnui #{0}",
+  "command.namespawn.named": "[green]Retakes:[white] spawnas #{0} pavadintas '{1}'",
+
+  "command.savespawns.no_map_config": "[green]Retakes:[white] nėra užkrauto mapo konfigūracijos",
+  "command.savespawns.saved": "[green]Retakes:[white] išsaugota {0} spawnų į {1}.json",
+  "command.savespawns.failed": "[green]Retakes:[white] nepavyko išsaugoti spawnų",
+
+  "command.gotospawn.usage": "Naudojimas: !gotospawn <id>",
+  "command.gotospawn.not_found": "[green]Retakes:[white] spawno id {0} nerastas",
+  "command.gotospawn.teleporting": "[green]Retakes:[white] teleportuojam į spawną {0}",
+
+  "command.replysmoke.usage": "Naudojimas: !replysmoke <smoke id>",
+  "command.replysmoke.not_found": "[green]Retakes:[white] dūmų scenarijaus id {0} nerastas",
+  "command.replysmoke.spawned": "[green]Retakes:[white] pakartoti dūmai scenarijus #{0} saitui {1}{2}",
+
+  "command.loadcfg.usage": "Naudojimas: !loadcfg <mapname>",
+  "command.loadcfg.failed": "[green]Retakes:[white] nepavyko užkrauti mapo konfigūracijos {0}",
+  "command.loadcfg.loaded": "[green]Retakes:[white] užkrautas {0} ({1} spawnų)",
+
+  "command.listcfg.maps_dir_not_found": "[green]Retakes:[white] resources/maps direktorija nerasta",
+  "command.listcfg.none_found": "[green]Retakes:[white] nerasta jokių mapo konfigūracijų",
+  "command.listcfg.list": "[green]Retakes cfg:[white] {0}",
+  "command.listcfg.failed": "[green]Retakes:[white] nepavyko atvaizduoti konfigūracijų",
+
+  "command.scramble.next_round": "[green]Retakes:[white] komandos bus sumaišytos kitam raunde",
+
+  "command.forcesmokes.enabled": "[green]Retakes:[white] dūmai priversti (spawninsis kiekvieną raundą)",
+  "command.forcesmokes.disabled": "[green]Retakes:[white] dūmai nebepriversti (grįžtam prie normalių raundų)",
+
+  "command.voices.enabled": "[green]Retakes:[white] balso pranešimai įjungti",
+  "command.voices.disabled": "[green]Retakes:[white] balso pranešimai išjungti",
+
+  "command.spawns.enabled": "[green]Retakes:[white] Spawnų meniu įjungtas",
+  "command.spawns.disabled": "[green]Retakes:[white] Spawnų meniu išjungtas",
+
+  "command.awp.enabled": "[green]Retakes:[white] AWP preferencija įjungta",
+  "command.awp.disabled": "[green]Retakes:[white] AWP preferencija išjungta",
+
+  "command.reloadcfg.success": "[green]Retakes:[white] perkrautas config.json",
+  "command.reloadcfg.failed": "[green]Retakes:[white] nepavyko perkrauti config.json",
+
+  "error.plugin_not_ready": "[green]Retakes:[white] pluginas nepasiruošęs",
+  "error.must_be_player": "[green]Retakes:[white] šią komandą gali naudoti tik žaidėjas",
+  "error.must_be_in_spawn_edit_mode": "[green]Retakes:[white] turi būti spawnų redagavimo režime (naudok !editspawns A/B)",
+  "spawns.save_hint": "Naudok !savespawns kad išsaugotum pakeitimus į failą"
+}
