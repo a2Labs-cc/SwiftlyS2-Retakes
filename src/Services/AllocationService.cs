@@ -110,7 +110,10 @@ public sealed class AllocationService : IAllocationService
     var sequence = _config.Config.Allocation.RoundTypeSequence;
     if (sequence is not { Count: > 0 }) return RoundType.FullBuy;
 
-    var roundNumber = Math.Max(1, _state.RoundNumber);
+    // Use actual game scores instead of internal counter — scores reflect completed rounds,
+    // so current round = completed + 1. This stays accurate after mp_restartgame resets.
+    var matchData = _core.Game.MatchData;
+    var roundNumber = Math.Max(1, matchData.CTScoreTotal + matchData.TerroristScoreTotal + 1);
     var cumulative = 0;
     for (var i = 0; i < sequence.Count; i++)
     {

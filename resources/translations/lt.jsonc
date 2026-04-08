@@ -88,6 +88,14 @@
   "command.awp.enabled": "[green]Retakes:[white] AWP preferencija įjungta",
   "command.awp.disabled": "[green]Retakes:[white] AWP preferencija išjungta",
 
+  "command.gun.usage": "[green]Retakes:[white] Naudojimas: !gun <ginklo_pavadinimas>",
+  "command.gun.no_round": "[green]Retakes:[white] Nėra aktyvaus raundo.",
+  "command.gun.not_allowed": "[green]Retakes:[white] {0} neleidžiamas {1} raunduose.",
+  "command.gun.set": "[green]Retakes:[white] Nustatytas [orange]{0}[white] kaip tavo [orange]{1}[white] ginklas.",
+  "command.gun.set_primary": "[green]Retakes:[white] Nustatytas [orange]{0}[white] kaip tavo [orange]{1}[white] pagrindinis ginklas.",
+  "command.gun.set_secondary": "[green]Retakes:[white] Nustatytas [orange]{0}[white] kaip tavo [orange]{1}[white] šalutinis ginklas.",
+  "command.gun.already_set": "[green]Retakes:[white] [orange]{0}[white] jau yra tavo pasirinktas ginklas.",
+
   "command.reloadcfg.success": "[green]Retakes:[white] perkrautas config.json",
   "command.reloadcfg.failed": "[green]Retakes:[white] nepavyko perkrauti config.json",
 

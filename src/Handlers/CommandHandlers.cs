@@ -3,6 +3,7 @@ using SwiftlyS2.Shared.Commands;
 using SwiftlyS2.Shared.Menus;
 using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
+using SwiftlyS2.Shared.SchemaDefinitions;
 using SwiftlyS2.Core.Menus.OptionsBase;
 using SwiftlyS2_Retakes.Configuration;
 using SwiftlyS2_Retakes.Constants;
@@ -28,6 +29,7 @@ public sealed class CommandHandlers
   private readonly IPlayerPreferencesService _prefs;
   private readonly IRetakesConfigService _config;
   private readonly ISmokeScenarioService _smokeScenario;
+  private readonly IAllocationService _allocation;
 
   private readonly List<Guid> _commandGuids = new();
 
@@ -39,7 +41,8 @@ public sealed class CommandHandlers
     IRetakesStateService state,
     IPlayerPreferencesService prefs,
     IRetakesConfigService config,
-    ISmokeScenarioService smokeScenario
+    ISmokeScenarioService smokeScenario,
+    IAllocationService allocation
   )
   {
     _mapConfig = mapConfig;
@@ -50,6 +53,7 @@ public sealed class CommandHandlers
     _prefs = prefs;
     _config = config;
     _smokeScenario = smokeScenario;
+    _allocation = allocation;
   }
 
   public void Register(ISwiftlyCore core)
@@ -82,7 +86,7 @@ public sealed class CommandHandlers
     _commandGuids.Add(core.Command.RegisterCommand("voices", Voices, registerRaw: true));
 
     _commandGuids.Add(core.Command.RegisterCommand("guns", Guns, registerRaw: true));
-    _commandGuids.Add(core.Command.RegisterCommand("gun", Guns, registerRaw: true));
+    _commandGuids.Add(core.Command.RegisterCommand("gun", SelectGun, registerRaw: true));
     _commandGuids.Add(core.Command.RegisterCommand("retake", Retake, registerRaw: true));
     _commandGuids.Add(core.Command.RegisterCommand("spawns", Spawns, registerRaw: true));
     _commandGuids.Add(core.Command.RegisterCommand("awp", Awp, registerRaw: true));
@@ -1190,6 +1194,228 @@ public sealed class CommandHandlers
     // Known weird cases should be added to WeaponNameOverrides.
     return string.Join(' ', s.Split(' ', StringSplitOptions.RemoveEmptyEntries)
       .Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part[1..]));
+  }
+
+  /// <summary>
+  /// Resolves user input to a weapon_ entity name.
+  /// Accepts: weapon_ak47, ak47, AK-47, m4a1-s, M4A1-S, usp, deagle, etc.
+  /// </summary>
+  private static string ResolveWeaponName(string input)
+  {
+    // Already a weapon_ name — use as-is
+    if (input.StartsWith("weapon_", StringComparison.OrdinalIgnoreCase))
+      return input;
+
+    // Check common player aliases first
+    if (WeaponAliases.TryGetValue(input, out var alias))
+      return alias;
+
+    // Try reverse lookup: match input against display names (e.g. "M4A1-S" → "weapon_m4a1_silencer")
+    foreach (var kvp in WeaponNameOverrides)
+    {
+      if (kvp.Value.Equals(input, StringComparison.OrdinalIgnoreCase))
+        return kvp.Key;
+    }
+
+    // Try matching display name with spaces/hyphens removed (e.g. "m4a1s" matches "M4A1-S")
+    var normalized = input.Replace("-", "").Replace(" ", "");
+    if (WeaponAliases.TryGetValue(normalized, out var normalizedAlias))
+      return normalizedAlias;
+
+    foreach (var kvp in WeaponNameOverrides)
+    {
+      var normalizedDisplay = kvp.Value.Replace("-", "").Replace(" ", "");
+      if (normalizedDisplay.Equals(normalized, StringComparison.OrdinalIgnoreCase))
+        return kvp.Key;
+    }
+
+    // Fallback: prepend weapon_ prefix
+    return $"weapon_{input}";
+  }
+
+  private static readonly Dictionary<string, string> WeaponAliases = new(StringComparer.OrdinalIgnoreCase)
+  {
+    // M4 variants
+    ["m4"] = "weapon_m4a1",
+    ["m4a4"] = "weapon_m4a1",
+    ["m4a1"] = "weapon_m4a1_silencer",
+    ["m4a1s"] = "weapon_m4a1_silencer",
+    ["m4a1_s"] = "weapon_m4a1_silencer",
+    ["m4s"] = "weapon_m4a1_silencer",
+    // USP
+    ["usp"] = "weapon_usp_silencer",
+    ["usps"] = "weapon_usp_silencer",
+    ["usp_s"] = "weapon_usp_silencer",
+    // Common shorthands
+    ["deag"] = "weapon_deagle",
+    ["deagle"] = "weapon_deagle",
+    ["ak"] = "weapon_ak47",
+    ["glock"] = "weapon_glock",
+    ["awp"] = "weapon_awp",
+    ["scout"] = "weapon_ssg08",
+    ["ssg"] = "weapon_ssg08",
+    ["galil"] = "weapon_galilar",
+    ["famas"] = "weapon_famas",
+    ["aug"] = "weapon_aug",
+    ["sg553"] = "weapon_sg556",
+    ["krieg"] = "weapon_sg556",
+    ["mac10"] = "weapon_mac10",
+    ["mp7"] = "weapon_mp7",
+    ["mp9"] = "weapon_mp9",
+    ["mp5"] = "weapon_mp5sd",
+    ["ump"] = "weapon_ump45",
+    ["p90"] = "weapon_p90",
+    ["bizon"] = "weapon_bizon",
+    ["p250"] = "weapon_p250",
+    ["cz"] = "weapon_cz75a",
+    ["cz75"] = "weapon_cz75a",
+    ["tec9"] = "weapon_tec9",
+    ["fiveseven"] = "weapon_fiveseven",
+    ["57"] = "weapon_fiveseven",
+    ["revolver"] = "weapon_revolver",
+    ["r8"] = "weapon_revolver",
+    ["dualies"] = "weapon_elite",
+    ["elite"] = "weapon_elite",
+    ["nova"] = "weapon_nova",
+    ["xm"] = "weapon_xm1014",
+    ["mag7"] = "weapon_mag7",
+    ["negev"] = "weapon_negev",
+    ["m249"] = "weapon_m249",
+    ["p2000"] = "weapon_hkp2000",
+  };
+
+  private void SelectGun(ICommandContext context)
+  {
+    if (!context.IsSentByPlayer || context.Sender is null)
+    {
+      context.Reply(Tr(context, "error.must_be_player"));
+      return;
+    }
+
+    if (context.Args.Length < 1)
+    {
+      context.Reply(Tr(context, "command.gun.usage"));
+      return;
+    }
+
+    var roundType = _allocation.CurrentRoundType;
+    if (roundType is null)
+    {
+      context.Reply(Tr(context, "command.gun.no_round"));
+      return;
+    }
+
+    var input = context.Args[0].Trim();
+    var weaponName = ResolveWeaponName(input);
+
+    var player = context.Sender;
+    var isCt = (Team)player.Controller.TeamNum == Team.CT;
+    var weapons = _config.Config.Weapons;
+    var pistols = weapons.Pistols;
+
+    // Check if weapon is a pistol
+    var isPistol = pistols.Any(p => p.Equals(weaponName, StringComparison.OrdinalIgnoreCase));
+
+    // Get allowed primaries for current round type
+    var allowedPrimaries = GetAllowedWeaponsForMenu(roundType.Value, isCt, isPrimary: true);
+    var isPrimary = allowedPrimaries.Any(p => p.Equals(weaponName, StringComparison.OrdinalIgnoreCase));
+
+    // Resolve canonical weapon name from the config lists
+    string? canonicalName = null;
+    if (isPistol)
+      canonicalName = pistols.FirstOrDefault(p => p.Equals(weaponName, StringComparison.OrdinalIgnoreCase));
+    if (isPrimary)
+      canonicalName = allowedPrimaries.FirstOrDefault(p => p.Equals(weaponName, StringComparison.OrdinalIgnoreCase));
+
+    if (canonicalName is null)
+    {
+      context.Reply(Tr(context, "command.gun.not_allowed", WeaponDisplayName(weaponName), roundType.Value));
+      return;
+    }
+
+    var displayName = WeaponDisplayName(canonicalName);
+    var steamId = player.SteamID;
+
+    switch (roundType.Value)
+    {
+      case RoundType.Pistol:
+        if (!isPistol)
+        {
+          context.Reply(Tr(context, "command.gun.not_allowed", displayName, roundType.Value));
+          return;
+        }
+        if (IsAlreadyPreferred(_prefs.GetPistolPrimary(steamId, isCt), canonicalName))
+        {
+          context.Reply(Tr(context, "command.gun.already_set", displayName));
+          return;
+        }
+        _prefs.SetPistolPrimary(steamId, isCt, canonicalName);
+        ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: true);
+        context.Reply(Tr(context, "command.gun.set", displayName, "Pistol"));
+        break;
+
+      case RoundType.HalfBuy:
+      case RoundType.FullBuy:
+        var roundLabel = roundType.Value == RoundType.HalfBuy ? "HalfBuy" : "FullBuy";
+        if (isPrimary && !isPistol)
+        {
+          var currentPrimary = roundType.Value == RoundType.HalfBuy
+            ? _prefs.GetHalfBuyPack(steamId, isCt).Primary
+            : _prefs.GetFullBuyPack(steamId, isCt).Primary;
+          if (IsAlreadyPreferred(currentPrimary, canonicalName))
+          {
+            context.Reply(Tr(context, "command.gun.already_set", displayName));
+            return;
+          }
+          if (roundType.Value == RoundType.HalfBuy)
+            _prefs.SetHalfBuyPrimary(steamId, isCt, canonicalName);
+          else
+            _prefs.SetFullBuyPrimary(steamId, isCt, canonicalName);
+          ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: false);
+          context.Reply(Tr(context, "command.gun.set_primary", displayName, roundLabel));
+        }
+        else if (isPistol)
+        {
+          var currentSecondary = roundType.Value == RoundType.HalfBuy
+            ? _prefs.GetHalfBuyPack(steamId, isCt).Secondary
+            : _prefs.GetFullBuyPack(steamId, isCt).Secondary;
+          if (IsAlreadyPreferred(currentSecondary, canonicalName))
+          {
+            context.Reply(Tr(context, "command.gun.already_set", displayName));
+            return;
+          }
+          if (roundType.Value == RoundType.HalfBuy)
+            _prefs.SetHalfBuySecondary(steamId, isCt, canonicalName);
+          else
+            _prefs.SetFullBuySecondary(steamId, isCt, canonicalName);
+          ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: true);
+          context.Reply(Tr(context, "command.gun.set_secondary", displayName, roundLabel));
+        }
+        else
+        {
+          context.Reply(Tr(context, "command.gun.not_allowed", displayName, roundType.Value));
+        }
+        break;
+    }
+  }
+
+  private static bool IsAlreadyPreferred(string? current, string desired)
+  {
+    return !string.IsNullOrWhiteSpace(current) && current.Equals(desired, StringComparison.OrdinalIgnoreCase);
+  }
+
+  private static void ReplaceWeaponInSlot(IPlayer player, string weaponName, bool isPistolSlot)
+  {
+    var pawn = player.PlayerPawn;
+    if (pawn is null) return;
+
+    var weaponServices = pawn.WeaponServices;
+    var itemServices = pawn.ItemServices;
+    if (weaponServices is null || itemServices is null) return;
+
+    var slot = isPistolSlot ? gear_slot_t.GEAR_SLOT_PISTOL : gear_slot_t.GEAR_SLOT_RIFLE;
+    weaponServices.RemoveWeaponBySlot(slot);
+    itemServices.GiveItem(weaponName);
   }
 
   private void Awp(ICommandContext context)

@@ -88,6 +88,14 @@
   "command.awp.enabled": "[green]Retakes:[white] AWP preference enabled",
   "command.awp.disabled": "[green]Retakes:[white] AWP preference disabled",
 
+  "command.gun.usage": "[green]Retakes:[white] Usage: !gun <weapon_name>",
+  "command.gun.no_round": "[green]Retakes:[white] No round in progress.",
+  "command.gun.not_allowed": "[green]Retakes:[white] {0} is not allowed during {1} rounds.",
+  "command.gun.set": "[green]Retakes:[white] Set [orange]{0}[white] as your [orange]{1}[white] weapon.",
+  "command.gun.set_primary": "[green]Retakes:[white] Set [orange]{0}[white] as your [orange]{1}[white] primary.",
+  "command.gun.set_secondary": "[green]Retakes:[white] Set [orange]{0}[white] as your [orange]{1}[white] secondary.",
+  "command.gun.already_set": "[green]Retakes:[white] [orange]{0}[white] is already your preferred weapon.",
+
   "command.reloadcfg.success": "[green]Retakes:[white] reloaded config.json",
   "command.reloadcfg.failed": "[green]Retakes:[white] failed to reload config.json",
 

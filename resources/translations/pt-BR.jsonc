@@ -88,6 +88,14 @@
   "command.awp.enabled": "[green]Retakes:[white] preferência de AWP ativada",
   "command.awp.disabled": "[green]Retakes:[white] preferência de AWP desativada",
 
+  "command.gun.usage": "[green]Retakes:[white] Use: !gun <nome_da_arma>",
+  "command.gun.no_round": "[green]Retakes:[white] Nenhum round em andamento.",
+  "command.gun.not_allowed": "[green]Retakes:[white] {0} não é permitido durante rounds {1}.",
+  "command.gun.set": "[green]Retakes:[white] Definido [orange]{0}[white] como sua arma de [orange]{1}[white].",
+  "command.gun.set_primary": "[green]Retakes:[white] Definido [orange]{0}[white] como sua primária de [orange]{1}[white].",
+  "command.gun.set_secondary": "[green]Retakes:[white] Definido [orange]{0}[white] como sua secundária de [orange]{1}[white].",
+  "command.gun.already_set": "[green]Retakes:[white] [orange]{0}[white] já é sua arma preferida.",
+
   "command.reloadcfg.success": "[green]Retakes:[white] config.json recarregado",
   "command.reloadcfg.failed": "[green]Retakes:[white] falha ao recarregar config.json",
 

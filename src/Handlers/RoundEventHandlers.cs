@@ -218,7 +218,7 @@ public sealed class RoundEventHandlers
     var core = _core;
     if (core is null) return;
 
-    var rules = core.EntitySystem.GetGameRules();
+    var rules = core.EntitySystem?.GetGameRules();
     if (rules is not null && rules.WarmupPeriod) return;
 
     var cfg = _config.Config.TeamBalance;
@@ -324,7 +324,7 @@ public sealed class RoundEventHandlers
     if (enabled is null || ratioVar is null || forceEven is null || skillEnabled is null || includeBots is null) return;
     if (!enabled.Value) return;
 
-    var rules = core.EntitySystem.GetGameRules();
+    var rules = core.EntitySystem?.GetGameRules();
     if (rules is not null && rules.WarmupPeriod) return;
 
     var players = core.PlayerManager.GetAllPlayers()
@@ -550,7 +550,7 @@ public sealed class RoundEventHandlers
     var core = _core;
     if (core is not null)
     {
-      var rules = core.EntitySystem.GetGameRules();
+      var rules = core.EntitySystem?.GetGameRules();
       isWarmup = rules is not null && rules.WarmupPeriod;
     }
 

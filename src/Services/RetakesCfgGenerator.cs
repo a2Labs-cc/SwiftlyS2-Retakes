@@ -39,7 +39,10 @@ public sealed class RetakesCfgGenerator
 
       if (!Directory.Exists(cfgDir)) Directory.CreateDirectory(cfgDir);
 
-      GenerateCfgFile(cfgPath, freezeTime);
+      if (!File.Exists(cfgPath))
+      {
+        GenerateCfgFile(cfgPath, freezeTime);
+      }
 
       void ExecuteConfig()
       {
