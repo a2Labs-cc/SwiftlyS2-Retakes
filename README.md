@@ -137,7 +137,7 @@ The plugin automatically gives players weapons, armor, and grenades each round. 
 
 | Round Type | Armor | Primary | Secondary | Grenades | CT Defuser |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Pistol** | Kevlar | Pistols | ❌ | Flash or smoke | 1 random player |
+| **Pistol** | Kevlar (no helmet by default) | Pistols | ❌ | Flash or smoke | 1 random player |
 | **Half-Buy** | Kevlar + Helmet | SMGs/Budget rifles | ✅ Pistol | Smoke + 1-2 more | Everyone |
 | **Full-Buy** | Kevlar + Helmet | Rifles (or AWP/Scout) | ✅ Pistol | Smoke + 1-2 more | Everyone |
 
@@ -208,6 +208,7 @@ Plays 3 pistol rounds, then 2 half-buy, then full-buy for all remaining rounds.
 | `retakes.allocation.stripWeapons` | `true` | Remove old weapons before giving new ones |
 | `retakes.allocation.givePistolOnRifleRounds` | `true` | Give secondary pistol on half/full-buy rounds |
 | `retakes.allocation.instantSwap` | `true` | Instantly swap weapons in-hand when a player changes preference mid-round via `!guns` or `!gun` |
+| `retakes.allocation.pistolHelmet` | `false` | Give helmet (kevlar + helmet) on pistol rounds. When `false`, players only receive kevlar |
 | `retakes.preferences.usePerTeamPreferences` | `false` | Separate T/CT weapon preferences in `!guns` menu |
 
 ## Configuration

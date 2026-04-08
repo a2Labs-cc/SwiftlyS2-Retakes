@@ -207,7 +207,7 @@ public sealed class AllocationService : IAllocationService
       TryStripWeapons(pawn);
     }
 
-    if (roundType == RoundType.Pistol)
+    if (roundType == RoundType.Pistol && !_config.Config.Allocation.PistolHelmet)
     {
       itemServices.GiveItem("item_kevlar");
     }
