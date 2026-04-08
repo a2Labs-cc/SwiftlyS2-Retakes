@@ -13,6 +13,11 @@ public interface IAllocationService
   RoundType? CurrentRoundType { get; }
 
   /// <summary>
+  /// Whether instant weapon swap on preference change is enabled.
+  /// </summary>
+  bool InstantSwapEnabled { get; }
+
+  /// <summary>
   /// Selects the round type for the current round.
   /// </summary>
   /// <returns>The selected round type</returns>

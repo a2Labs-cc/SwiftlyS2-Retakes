@@ -27,4 +27,6 @@ public sealed class AllocationConfig
 
   public string AwpPriorityFlag { get; set; } = "";
   public int AwpPriorityPct { get; set; } = 0;
+
+  public bool InstantSwap { get; set; } = true;
 }

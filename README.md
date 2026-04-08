@@ -207,6 +207,7 @@ Plays 3 pistol rounds, then 2 half-buy, then full-buy for all remaining rounds.
 | `retakes.allocation.enabled` | `true` | Enable/disable weapon allocation |
 | `retakes.allocation.stripWeapons` | `true` | Remove old weapons before giving new ones |
 | `retakes.allocation.givePistolOnRifleRounds` | `true` | Give secondary pistol on half/full-buy rounds |
+| `retakes.allocation.instantSwap` | `true` | Instantly swap weapons in-hand when a player changes preference mid-round via `!guns` or `!gun` |
 | `retakes.preferences.usePerTeamPreferences` | `false` | Separate T/CT weapon preferences in `!guns` menu |
 
 ## Configuration

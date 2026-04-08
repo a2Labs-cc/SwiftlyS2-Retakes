@@ -44,6 +44,8 @@ public sealed class ConVarApplicator
     ApplyString("retakes_allocation_awp_priority_flag", config.Allocation.AwpPriorityFlag);
     ApplyInt("retakes_allocation_awp_priority_pct", config.Allocation.AwpPriorityPct);
 
+    ApplyBool("retakes_allocation_instant_swap", config.Allocation.InstantSwap);
+
     // Bomb settings
     ApplyBool("retakes_auto_plant", config.Bomb.AutoPlant);
     ApplyBool("retakes_enforce_no_c4", config.Bomb.EnforceNoC4);

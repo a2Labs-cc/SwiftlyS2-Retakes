@@ -988,6 +988,8 @@ public sealed class CommandHandlers
       {
         var ct = (Team)args.Player.Controller.TeamNum == Team.CT;
         _prefs.SetPistolPrimary(args.Player.SteamID, ct, w);
+        if (_allocation.InstantSwapEnabled && _allocation.CurrentRoundType == RoundType.Pistol)
+          ReplaceWeaponInSlot(args.Player, w, isPistolSlot: true);
         core.MenusAPI.OpenMenuForPlayer(args.Player, BuildPistolMenu(core, args.Player));
         await ValueTask.CompletedTask;
       };
@@ -1055,6 +1057,9 @@ public sealed class CommandHandlers
           if (isPrimary) _prefs.SetHalfBuyPrimary(args.Player.SteamID, ct, w);
           else _prefs.SetHalfBuySecondary(args.Player.SteamID, ct, w);
         }
+
+        if (_allocation.InstantSwapEnabled && _allocation.CurrentRoundType == roundType)
+          ReplaceWeaponInSlot(args.Player, w, isPistolSlot: !isPrimary);
 
         core.MenusAPI.OpenMenuForPlayer(args.Player, BuildRoundPackMenu(core, args.Player, roundType));
         await ValueTask.CompletedTask;
@@ -1350,7 +1355,8 @@ public sealed class CommandHandlers
           return;
         }
         _prefs.SetPistolPrimary(steamId, isCt, canonicalName);
-        ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: true);
+        if (_allocation.InstantSwapEnabled)
+          ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: true);
         context.Reply(Tr(context, "command.gun.set", displayName, "Pistol"));
         break;
 
@@ -1371,7 +1377,8 @@ public sealed class CommandHandlers
             _prefs.SetHalfBuyPrimary(steamId, isCt, canonicalName);
           else
             _prefs.SetFullBuyPrimary(steamId, isCt, canonicalName);
-          ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: false);
+          if (_allocation.InstantSwapEnabled)
+            ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: false);
           context.Reply(Tr(context, "command.gun.set_primary", displayName, roundLabel));
         }
         else if (isPistol)
@@ -1388,7 +1395,8 @@ public sealed class CommandHandlers
             _prefs.SetHalfBuySecondary(steamId, isCt, canonicalName);
           else
             _prefs.SetFullBuySecondary(steamId, isCt, canonicalName);
-          ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: true);
+          if (_allocation.InstantSwapEnabled)
+            ReplaceWeaponInSlot(player, canonicalName, isPistolSlot: true);
           context.Reply(Tr(context, "command.gun.set_secondary", displayName, roundLabel));
         }
         else

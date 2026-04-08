@@ -19,6 +19,7 @@ public sealed class AllocationService : IAllocationService
   private readonly IRetakesConfigService _config;
 
   public RoundType? CurrentRoundType { get; private set; }
+  public bool InstantSwapEnabled => _instantSwap.Value;
 
   private bool _stripWeaponsDisabled;
 
@@ -42,6 +43,7 @@ public sealed class AllocationService : IAllocationService
   private readonly IConVar<string> _awpPriorityFlag;
   private readonly IConVar<int> _awpPriorityPct;
 
+  private readonly IConVar<bool> _instantSwap;
   private readonly IConVar<bool> _stripWeapons;
   private readonly IConVar<bool> _givePistolOnRifleRounds;
   private readonly IConVar<bool> _stripRemove;
@@ -77,6 +79,7 @@ public sealed class AllocationService : IAllocationService
     _awpPriorityFlag = core.ConVar.CreateOrFind("retakes_allocation_awp_priority_flag", "Permission flag eligible for AWP priority (empty=disabled)", "");
     _awpPriorityPct = core.ConVar.CreateOrFind("retakes_allocation_awp_priority_pct", "Chance (0-100) to pick a priority player for each AWP slot", 0, 0, 100);
 
+    _instantSwap = core.ConVar.CreateOrFind("retakes_allocation_instant_swap", "Instantly swap weapons when player changes preference mid-round", true);
     _stripWeapons = core.ConVar.CreateOrFind("retakes_allocation_strip_weapons", "Drop existing weapons before giving loadout (prevents duplicates)", true);
     _givePistolOnRifleRounds = core.ConVar.CreateOrFind("retakes_allocation_give_pistol_on_rifle_rounds", "Give a configured pistol on half/full buy rounds", true);
     _stripRemove = core.ConVar.CreateOrFind("retakes_allocation_strip_remove", "Remove weapons instead of dropping them (recommended; keeps ground clean)", true);
