@@ -23,8 +23,8 @@ public sealed class WeaponsConfig
 
   public RoundWeaponsConfig HalfBuy { get; set; } = new()
   {
-    T = new() { "weapon_galilar", "weapon_mac10", "weapon_mp7" },
-    Ct = new() { "weapon_famas", "weapon_mac10", "weapon_mp7" },
+    T = new() { "weapon_galilar", "weapon_mac10", "weapon_mp7", "weapon_ump45", "weapon_nova", "weapon_xm1014", "weapon_sawedoff" },
+    Ct = new() { "weapon_famas", "weapon_mp9", "weapon_mp7", "weapon_ump45", "weapon_nova", "weapon_xm1014", "weapon_mag7" },
   };
 
   public RoundWeaponsConfig FullBuy { get; set; } = new()
