@@ -282,6 +282,12 @@ public sealed class RoundEventHandlers
       .OrderBy(_ => _random.Next())
       .ToList();
 
+    var maxPlayers = _config.Config.Queue.Enabled ? _config.Config.Queue.MaxPlayers : int.MaxValue;
+    if (players.Count > maxPlayers)
+    {
+      players = players.Take(maxPlayers).ToList();
+    }
+
     var total = players.Count;
     if (total < 2)
     {
@@ -358,6 +364,17 @@ public sealed class RoundEventHandlers
     var balancePlayers = (includeBots?.Value ?? false)
       ? players
       : players.Where(PlayerUtil.IsHuman).ToList();
+
+    // Cap the players we balance to MaxPlayers — any excess should have been
+    // removed by QueueService.EnforceMaxPlayers already, but guard here too.
+    var maxPlayers = _config.Config.Queue.Enabled ? _config.Config.Queue.MaxPlayers : int.MaxValue;
+    if (balancePlayers.Count > maxPlayers)
+    {
+      balancePlayers = balancePlayers
+        .OrderBy(p => p.Slot)
+        .Take(maxPlayers)
+        .ToList();
+    }
 
     var total = balancePlayers.Count;
     if (total < 2) return;

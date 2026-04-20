@@ -176,6 +176,10 @@ public sealed class QueueService : IQueueService
     _logger.LogDebug("QueueService: Update: Max={Max}, Active={Active}, Queue={Queue}",
       cfg.MaxPlayers, _activePlayers.Count, _queuePlayers.Count);
 
+    // Hard-enforce MaxPlayers: any human on T/CT beyond the limit gets moved to spectator.
+    // This catches players who bypassed queue tracking (engine auto-assign, warmup overflow, etc.)
+    EnforceMaxPlayers(cfg);
+
     var playersToAdd = cfg.MaxPlayers - _activePlayers.Count;
     if (playersToAdd > 0 && _queuePlayers.Count > 0)
     {
@@ -217,6 +221,63 @@ public sealed class QueueService : IQueueService
         var loc = _core.Translation.GetPlayerLocalizer(player);
         _messages.Chat(player, loc["queue.waiting", _activePlayers.Count, cfg.MaxPlayers]);
       }
+    }
+  }
+
+  private void EnforceMaxPlayers(Configuration.QueueConfig cfg)
+  {
+    var allPlayers = _core.PlayerManager.GetAllPlayers().Where(p => p.IsValid).ToList();
+
+    // Get all humans currently on T or CT
+    var teamPlayers = allPlayers
+      .Where(PlayerUtil.IsHuman)
+      .Where(p => (Team)p.Controller.TeamNum == Team.T || (Team)p.Controller.TeamNum == Team.CT)
+      .ToList();
+
+    // Sync _activePlayers with reality: add any untracked team players, remove stale entries
+    foreach (var p in teamPlayers)
+    {
+      _activePlayers.Add(p.SteamID);
+      _queuePlayers.Remove(p.SteamID);
+    }
+
+    if (teamPlayers.Count <= cfg.MaxPlayers)
+      return;
+
+    var maxPerTeam = cfg.MaxPlayers / 2;
+    var excessCount = teamPlayers.Count - cfg.MaxPlayers;
+
+    // Pick excess players to remove: newest first (highest slot), non-VIP first
+    var toRemove = teamPlayers
+      .OrderBy(p => HasQueuePriority(p) ? 1 : 0)
+      .ThenByDescending(p => p.Slot)
+      .Take(excessCount)
+      .ToList();
+
+    _state.BeginTeamChangeBypass();
+    try
+    {
+      foreach (var player in toRemove)
+      {
+        _activePlayers.Remove(player.SteamID);
+        _queuePlayers.Add(player.SteamID);
+
+        if (player.Controller.PawnIsAlive && player.Pawn is not null)
+        {
+          player.Pawn.CommitSuicide(false, true);
+        }
+
+        player.ChangeTeam(Team.Spectator);
+
+        var loc = _core.Translation.GetPlayerLocalizer(player);
+        _messages.Chat(player, loc["queue.added"]);
+        _logger.LogInformation("QueueService: [{Name}] Moved to spectator (MaxPlayers={Max} exceeded, {Total} on teams)",
+          player.Controller.PlayerName, cfg.MaxPlayers, teamPlayers.Count);
+      }
+    }
+    finally
+    {
+      _state.EndTeamChangeBypass();
     }
   }
 
