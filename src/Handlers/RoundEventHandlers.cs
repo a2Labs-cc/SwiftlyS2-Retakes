@@ -8,6 +8,7 @@ using SwiftlyS2_Retakes.Models;
 using SwiftlyS2_Retakes.Utils;
 using System;
 using System.Linq;
+using SwiftlyS2.Shared.GameEvents;
 
 namespace SwiftlyS2_Retakes.Handlers;
 
@@ -684,6 +685,28 @@ public sealed class RoundEventHandlers
 
     _damageReport.PrintRoundReport();
 
+    return HookResult.Continue;
+  }
+
+  [GameEventHandler(HookMode.Pre)]
+  public HookResult FixPlayerGhosts(EventRoundFreezeEnd @event)
+  {
+    var core = _core;
+    if (core is null) return HookResult.Continue;
+
+    var players = core.PlayerManager.GetAllValidPlayers().Where(p => 
+        p.IsAlive && 
+        p.PlayerPawn != null && 
+        p.PlayerPawn.Team == Team.Spectator);
+
+    foreach (var player in players)
+    {
+        if (!player.IsValid) continue;
+        if (player.PlayerPawn == null) continue;
+        
+        player.ChangeTeam(Team.None);
+        player.ChangeTeam(Team.Spectator);
+    }
     return HookResult.Continue;
   }
 }
