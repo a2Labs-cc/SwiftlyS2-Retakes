@@ -380,6 +380,11 @@ public sealed class QueueService : IQueueService
     var rules = _core.EntitySystem.GetGameRules();
     if (rules is null || rules.WarmupPeriod) return;
 
+    // If the round is already ending (e.g. bomb defused, EventRoundEnd already fired),
+    // do not call TerminateRound again — it would override the in-progress round-end
+    // delay and cause the next round to start almost instantly.
+    if (!_state.RoundLive) return;
+
     var allPlayers = _core.PlayerManager.GetAllPlayers().Where(p => p.IsValid).ToList();
     
     var tCount = allPlayers.Count(p => (Team)p.Controller.TeamNum == Team.T && p.Controller.PawnIsAlive);
@@ -391,10 +396,14 @@ public sealed class QueueService : IQueueService
       
       // Determine winner based on who has players left
       var reason = ctCount == 0 ? RoundEndReason.TerroristsWin : RoundEndReason.CTsWin;
+
+      // Use the server's configured round-restart delay so the scoreboard is shown
+      // for the expected duration (mp_round_restart_delay, defaulting to 2s).
+      var restartDelay = _core.ConVar.CreateOrFind("mp_round_restart_delay", "", 2.0f)?.Value ?? 2.0f;
       
       try
       {
-        rules.TerminateRound(reason, 0.1f);
+        rules.TerminateRound(reason, restartDelay);
       }
       catch (Exception ex)
       {

@@ -113,7 +113,9 @@ public sealed class PlayerEventHandlers
     if (cmd.StartsWith("jointeam"))
     {
       var parts = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-      if (parts.Length >= 2 && parts[1] == "1")
+      // Only enforce queue when joining T (2) or CT (3). Allow team 0 (none/auto)
+      // and team 1 (spectator) through unconditionally.
+      if (parts.Length >= 2 && parts[1] != "2" && parts[1] != "3")
       {
         return HookResult.Continue;
       }
@@ -157,6 +159,10 @@ public sealed class PlayerEventHandlers
 
     var fromTeam = (Team)player.Controller.TeamNum;
     var toTeam = (Team)@event.Team;
+
+    // Only queue when the player is trying to join T or CT. Joining
+    // None (0) or Spectator (1) should bypass queue logic entirely.
+    if (toTeam != Team.T && toTeam != Team.CT) return HookResult.Continue;
 
     return _queue.OnPlayerJoinedTeam(player, fromTeam, toTeam);
   }
