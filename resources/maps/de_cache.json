@@ -1,0 +1,302 @@
+{
+  "spawns": [
+    {
+      "vector": "530.5122 -135.95178 1748.0312",
+      "qAngle": "0 138.06793 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 1,
+      "name": "CT Site A - 1"
+    },
+    {
+      "vector": "-564.94867 -435.6573 1659.0205",
+      "qAngle": "0 131.95471 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 2,
+      "name": "CT Site A - 2"
+    },
+    {
+      "vector": "370.14374 460.2083 1616.3209",
+      "qAngle": "0 169.67767 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 3,
+      "name": "CT Site A - 3"
+    },
+    {
+      "vector": "1055.1146 150.50739 1612.0312",
+      "qAngle": "0 -171.81519 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 4,
+      "name": "CT Site A - 4"
+    },
+    {
+      "vector": "-965.4935 -486.7514 1612.0938",
+      "qAngle": "0 89.897 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 5,
+      "name": "CT Site A - 5"
+    },
+    {
+      "vector": "-52.70166 2028.946 1687.0312",
+      "qAngle": "0 -129.94046 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 6,
+      "name": "T Site A - Planter 1"
+    },
+    {
+      "vector": "-167.70996 2009.9249 1687.0312",
+      "qAngle": "0 -92.82898 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 7,
+      "name": "T Site A - Planter 2"
+    },
+    {
+      "vector": "1675.7158 433.6111 1612.0312",
+      "qAngle": "0 160.41205 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 8,
+      "name": "CT Site A - 6"
+    },
+    {
+      "vector": "220.42476 1943.33 1687.2749",
+      "qAngle": "0 -119.349976 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 9,
+      "name": "T Site A - Support"
+    },
+    {
+      "vector": "-537.23694 -93.11426 1666.0049",
+      "qAngle": "0 30.952606 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 10,
+      "name": "CT Site A - 7"
+    },
+    {
+      "vector": "-85.16113 1829.0667 1687.0326",
+      "qAngle": "0 138.84143 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": true,
+      "id": 11,
+      "name": "T Site A - Planter 3"
+    },
+    {
+      "vector": "-454.53986 253.37761 1664.0875",
+      "qAngle": "0 -93.64712 0",
+      "team": 3,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 12,
+      "name": "CT Site A - 8"
+    },
+    {
+      "vector": "-260.18933 -263.54498 1612.0315",
+      "qAngle": "0 -42.288437 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 13,
+      "name": "T Site B - Support"
+    },
+    {
+      "vector": "-39.28589 -1089.934 1659.0312",
+      "qAngle": "0 159.6159 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 14,
+      "name": "T Site B - Planter 1"
+    },
+    {
+      "vector": "204.96872 -1454.9694 1659.7084",
+      "qAngle": "0 121.152405 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 15,
+      "name": "T Site B - Planter 2"
+    },
+    {
+      "vector": "181.90877 -1275.5289 1660.0312",
+      "qAngle": "0 146.85425 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 16,
+      "name": "T Site B - Planter 3"
+    },
+    {
+      "vector": "73.0746 -1449.4857 1659.0312",
+      "qAngle": "0 148.2114 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 17,
+      "name": "T Site B - Planter 4"
+    },
+    {
+      "vector": "-547.1575 163.76521 1662.0312",
+      "qAngle": "0 -178.13199 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 18,
+      "name": "CT Site B - 1"
+    },
+    {
+      "vector": "-1210.2491 319.78955 1612.2812",
+      "qAngle": "0 -55.701714 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 19,
+      "name": "CT Site B - 2"
+    },
+    {
+      "vector": "1786.6544 -703.06866 1612.0759",
+      "qAngle": "0 178.40802 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 20,
+      "name": "CT Site B - 3"
+    },
+    {
+      "vector": "-825.3157 606.30457 1633.837",
+      "qAngle": "0 -92.024574 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 21,
+      "name": "CT Site B - 4"
+    },
+    {
+      "vector": "-266.07788 399.4657 1613.0312",
+      "qAngle": "0 -24.039795 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 22,
+      "name": "CT Site B - 5"
+    },
+    {
+      "vector": "555.2382 653.47833 1613.0312",
+      "qAngle": "0 -90.55927 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 23,
+      "name": "CT Site B - 6"
+    },
+    {
+      "vector": "1050.5557 -231.46716 1612.0312",
+      "qAngle": "0 -104.38248 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 24,
+      "name": "CT Site B - 7"
+    },
+    {
+      "vector": "-980.65094 1009.6074 1681.4651",
+      "qAngle": "0 -86.84452 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 25,
+      "name": "CT Site B - 8"
+    },
+    {
+      "vector": "246.33647 439.47473 1615.7766",
+      "qAngle": "0 -58.32573 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 26,
+      "name": "CT Site B - 9"
+    },
+    {
+      "vector": "-300.5824 618.87946 1639.1337",
+      "qAngle": "0 -58.32573 0",
+      "team": 3,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 27,
+      "name": "CT Site B - 10"
+    },
+    {
+      "vector": "-391.09406 2216.4553 1688.0312",
+      "qAngle": "0 -79.01861 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 28,
+      "name": "T Site A - Support 2"
+    },
+    {
+      "vector": "-5.749738 2193.6453 1688.0312",
+      "qAngle": "0 -106.6493 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 29,
+      "name": "T Site A - Support 3"
+    },
+    {
+      "vector": "710.691 1945.2 1700.0312",
+      "qAngle": "0 -129.48158 0",
+      "team": 2,
+      "bombsite": 0,
+      "canBePlanter": false,
+      "id": 30,
+      "name": "T Site A - Support 4"
+    },
+    {
+      "vector": "143.66579 -303.22278 1612.0312",
+      "qAngle": "0 -42.360085 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 31,
+      "name": "T Site B - Support 2"
+    },
+    {
+      "vector": "177.99171 -1009.9588 1588.9506",
+      "qAngle": "0 150.58562 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": false,
+      "id": 32,
+      "name": "T Site B - Support 3"
+    },
+    {
+      "vector": "-133.93964 -1526.4548 1660.0312",
+      "qAngle": "0 71.26262 0",
+      "team": 2,
+      "bombsite": 1,
+      "canBePlanter": true,
+      "id": 33,
+      "name": "T Site B - Planter 5"
+    }
+  ],
+  "smokeScenarios": []
+}
