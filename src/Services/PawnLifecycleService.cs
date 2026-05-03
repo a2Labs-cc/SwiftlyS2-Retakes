@@ -33,7 +33,7 @@ public sealed class PawnLifecycleService : IPawnLifecycleService
     if (player is null) return;
     if (action is null) return;
 
-    if (player.IsValid && player.Pawn is not null)
+    if (player.IsValid && player.Pawn is not null && player.IsAlive)
     {
       action(player);
       return;

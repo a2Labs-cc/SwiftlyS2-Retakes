@@ -214,16 +214,22 @@ public sealed class PlayerEventHandlers
               core.Engine.ExecuteCommand("mp_restartgame 1");
             }
 
-            return HookResult.Continue;
+            // Block this spawn; SwitchTeam will trigger a fresh one with correct team context.
+            return HookResult.Handled;
           }
         }
 
         _state.EnqueueJoiner(player.SteamID);
-        if (player.Controller.PawnIsAlive && player.Pawn is not null)
+        var latePlayer = player;
+        core?.Scheduler.NextTick(() =>
         {
-          player.Pawn.CommitSuicide(false, true);
-        }
-        player.ChangeTeam(Team.Spectator);
+          if (latePlayer is null || !latePlayer.IsValid) return;
+          if (latePlayer.Controller.PawnIsAlive && latePlayer.Pawn is not null)
+          {
+            latePlayer.Pawn.CommitSuicide(false, true);
+          }
+          latePlayer.ChangeTeam(Team.Spectator);
+        });
         return HookResult.Handled;
       }
     }
