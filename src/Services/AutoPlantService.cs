@@ -204,6 +204,18 @@ public sealed class AutoPlantService : IAutoPlantService
             rulesGuard.BombDefused = false;
             rulesGuard.BombPlantedUpdated();
 
+            // Manual planted_c4 spawn bypasses the engine's natural plant path that
+            // bumps m_iRoundTime; without this, mp_roundtime_defuse can expire before
+            // mp_c4timer and the round ends while the bomb is still ticking.
+            var c4Timer = _core.ConVar.Find<int>("mp_c4timer")?.Value ?? 40;
+            var elapsed = _core.Engine.GlobalVars.CurrentTime - rulesGuard.RoundStartTime.Value;
+            var requiredRoundTime = (int)Math.Ceiling(elapsed) + c4Timer + 1;
+            if (rulesGuard.RoundTime < requiredRoundTime)
+            {
+              rulesGuard.RoundTime = requiredRoundTime;
+              rulesGuard.RoundTimeUpdated();
+            }
+
             var site = (short)(bombsiteSnapshot == Bombsite.A ? 0 : 1);
             if (planterSnapshot is not null && planterSnapshot.IsValid)
             {
