@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SwiftlyS2.Shared;
 using SwiftlyS2.Shared.Events;
+using SwiftlyS2.Shared.GameHooks;
 using SwiftlyS2.Shared.Misc;
 using SwiftlyS2.Shared.Natives;
 using SwiftlyS2.Shared.Players;
@@ -47,7 +48,7 @@ public sealed class AfkManagerService : IAfkManagerService
     if (_tickHandlerRegistered) return;
     _core.Event.OnTick += OnTick;
     _core.Event.OnClientDisconnected += OnClientDisconnected;
-    _core.Event.OnClientProcessUsercmds += OnClientProcessUsercmds;
+    _core.GameHooks.Controller.ProcessUsercmds.Pre += OnClientProcessUsercmds;
     _tickHandlerRegistered = true;
   }
 
@@ -56,30 +57,30 @@ public sealed class AfkManagerService : IAfkManagerService
     if (!_tickHandlerRegistered) return;
     _core.Event.OnTick -= OnTick;
     _core.Event.OnClientDisconnected -= OnClientDisconnected;
-    _core.Event.OnClientProcessUsercmds -= OnClientProcessUsercmds;
+    _core.GameHooks.Controller.ProcessUsercmds.Pre -= OnClientProcessUsercmds;
     _tickHandlerRegistered = false;
     _states.Clear();
   }
 
-  private void OnClientProcessUsercmds(IOnClientProcessUsercmdsEvent @event)
+  private void OnClientProcessUsercmds(ref ProcessUsercmdsPreContext ctx)
   {
     try
     {
       var cfg = _config.Config.AfkManager;
       if (!cfg.Enabled) return;
-      if (@event.Paused) return;
+      if (ctx.Params.Paused) return;
 
       var rules = _core.EntitySystem.GetGameRules();
       if (rules is not null && (rules.WarmupPeriod || rules.FreezePeriod)) return;
 
-      var player = _core.PlayerManager.GetPlayer(@event.PlayerId);
+      var player = ctx.Params.Player;
       if (player is null || !player.IsValid) return;
       if (!PlayerUtil.IsHuman(player)) return;
 
       var nowMs = Environment.TickCount64;
       var state = GetOrCreateAfkState(player.SteamID, nowMs);
 
-      if (!HasPlayerInput(@event.Usercmds)) return;
+      if (!HasPlayerInput(ctx.Params.Usercmds)) return;
 
       ResetAfkState(state, nowMs);
     }
@@ -201,10 +202,12 @@ public sealed class AfkManagerService : IAfkManagerService
     }
   }
 
-  private bool HasPlayerInput(IEnumerable<CSGOUserCmdPB> usercmds)
+  private bool HasPlayerInput(IEnumerable<IUserCmd> usercmds)
   {
-    foreach (var cmd in usercmds)
+    foreach (var ucmd in usercmds)
     {
+      if (ucmd is null) continue;
+      var cmd = ucmd.CSGOUserCmd;
       if (cmd is null) continue;
 
       var buttons = cmd.Base.ButtonsPb;
