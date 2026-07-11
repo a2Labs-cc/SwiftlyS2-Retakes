@@ -89,6 +89,9 @@
   "command.awp.enabled": "[green]Retakes:[white] AWP preferencija įjungta",
   "command.awp.disabled": "[green]Retakes:[white] AWP preferencija išjungta",
 
+  "command.ssg08.enabled": "[green]Retakes:[white] SSG08 preferencija įjungta",
+  "command.ssg08.disabled": "[green]Retakes:[white] SSG08 preferencija išjungta",
+
   "command.gun.usage": "[green]Retakes:[white] Naudojimas: !gun <ginklo_pavadinimas>",
   "command.gun.no_round": "[green]Retakes:[white] Nėra aktyvaus raundo.",
   "command.gun.not_allowed": "[green]Retakes:[white] {0} neleidžiamas {1} raunduose.",

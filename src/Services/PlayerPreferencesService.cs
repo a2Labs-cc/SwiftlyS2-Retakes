@@ -14,6 +14,7 @@ public sealed class PlayerPreferencesService : IPlayerPreferencesService
 
   private const string KeyWantsAwp = "retakes_wants_awp";
   private const string KeyWantsSsg08 = "retakes_wants_ssg08";
+  private const string KeyWantsSsg08HalfBuy = "retakes_wants_ssg08_half";
   private const string KeyWantsAwpPriority = "retakes_wants_awp_priority";
   private const string KeyWantsCtSpawnMenu = "retakes_wants_ct_spawn_menu";
   private const string KeyTSpawnA = "retakes_t_spawn_a";
@@ -67,6 +68,16 @@ public sealed class PlayerPreferencesService : IPlayerPreferencesService
   {
     var val = !WantsSsg08(steamId);
     SetBool(steamId, KeyWantsSsg08, val);
+    return val;
+  }
+
+  public bool WantsSsg08HalfBuy(ulong steamId) =>
+    GetBool(steamId, KeyWantsSsg08HalfBuy, false);
+
+  public bool ToggleSsg08HalfBuy(ulong steamId)
+  {
+    var val = !WantsSsg08HalfBuy(steamId);
+    SetBool(steamId, KeyWantsSsg08HalfBuy, val);
     return val;
   }
 

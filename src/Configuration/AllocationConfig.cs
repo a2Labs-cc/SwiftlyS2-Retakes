@@ -25,6 +25,10 @@ public sealed class AllocationConfig
   public int Ssg08PerTeam { get; set; } = 0;
   public bool Ssg08AllowEveryone { get; set; } = false;
 
+  public bool Ssg08HalfEnabled { get; set; } = true;
+  public int Ssg08HalfPerTeam { get; set; } = 0;
+  public bool Ssg08HalfAllowEveryone { get; set; } = false;
+
   public string AwpPriorityFlag { get; set; } = "";
   public int AwpPriorityPct { get; set; } = 0;
 

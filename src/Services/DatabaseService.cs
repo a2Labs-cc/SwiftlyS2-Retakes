@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS {UserSettingsTable} (
   updated_at BIGINT NOT NULL,
   wants_awp TINYINT NOT NULL DEFAULT 0,
   wants_ssg08 TINYINT NOT NULL DEFAULT 0,
+  wants_ssg08_half TINYINT NOT NULL DEFAULT 0,
   wants_awp_priority TINYINT NOT NULL DEFAULT 0,
   wants_ct_spawn_menu TINYINT NOT NULL DEFAULT 1,
   t_spawn_a INT NULL,
@@ -69,6 +70,7 @@ CREATE TABLE IF NOT EXISTS {UserSettingsTable} (
 
       // Add columns that may not exist in older schemas
       TryAddColumn(connection, UserSettingsTable, "wants_ssg08 TINYINT NOT NULL DEFAULT 0");
+      TryAddColumn(connection, UserSettingsTable, "wants_ssg08_half TINYINT NOT NULL DEFAULT 0");
       TryAddColumn(connection, UserSettingsTable, "wants_awp_priority TINYINT NOT NULL DEFAULT 0");
       TryAddColumn(connection, UserSettingsTable, "wants_ct_spawn_menu TINYINT NOT NULL DEFAULT 1");
       TryAddColumn(connection, UserSettingsTable, "t_spawn_a INT NULL");

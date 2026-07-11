@@ -18,6 +18,9 @@ public interface IPlayerPreferencesService
   bool WantsSsg08(ulong steamId);
   bool ToggleSsg08(ulong steamId);
 
+  bool WantsSsg08HalfBuy(ulong steamId);
+  bool ToggleSsg08HalfBuy(ulong steamId);
+
   bool WantsAwpPriority(ulong steamId);
   bool ToggleAwpPriority(ulong steamId);
 

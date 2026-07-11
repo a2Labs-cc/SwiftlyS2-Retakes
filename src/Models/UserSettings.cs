@@ -9,6 +9,7 @@ public sealed class UserSettings
   public long UpdatedAt { get; set; }
   public bool WantsAwp { get; set; }
   public bool WantsSsg08 { get; set; }
+  public bool WantsSsg08HalfBuy { get; set; }
   public bool WantsAwpPriority { get; set; }
   public bool WantsCtSpawnMenu { get; set; }
 
@@ -38,6 +39,7 @@ public sealed class UserSettings
     UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
     WantsAwp = false,
     WantsSsg08 = false,
+    WantsSsg08HalfBuy = false,
     WantsAwpPriority = false,
     WantsCtSpawnMenu = false,
   };

@@ -89,6 +89,9 @@
   "command.awp.enabled": "[green]Retakes:[white] preferência de AWP ativada",
   "command.awp.disabled": "[green]Retakes:[white] preferência de AWP desativada",
 
+  "command.ssg08.enabled": "[green]Retakes:[white] preferência de SSG08 ativada",
+  "command.ssg08.disabled": "[green]Retakes:[white] preferência de SSG08 desativada",
+
   "command.gun.usage": "[green]Retakes:[white] Use: !gun <nome_da_arma>",
   "command.gun.no_round": "[green]Retakes:[white] Nenhum round em andamento.",
   "command.gun.not_allowed": "[green]Retakes:[white] {0} não é permitido durante rounds {1}.",

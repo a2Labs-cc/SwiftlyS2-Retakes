@@ -84,7 +84,7 @@ The plugin saves player preferences using the [Cookies](https://github.com/Swift
 
 | Category | Preferences |
 | :--- | :--- |
-| **Weapons** | AWP toggle, SSG08 toggle, AWP priority, pistol round primary, half-buy primary/secondary, full-buy primary/secondary |
+| **Weapons** | AWP toggle, SSG08 toggle (full-buy), SSG08 half-buy toggle, AWP priority, pistol round primary, half-buy primary/secondary, full-buy primary/secondary |
 | **Spawns** | Spawn menu toggle, T/CT preferred spawn per bombsite (A and B) |
 
 ### Configuration
@@ -104,7 +104,7 @@ The plugin saves player preferences using the [Cookies](https://github.com/Swift
 | Round Type | Armor | Primary | Secondary | CT Defuser |
 | :--- | :--- | :--- | :--- | :--- |
 | **Pistol** | Kevlar only (no helmet by default) | Pistol | ❌ | 1 random CT player |
-| **Half-Buy** | Kevlar + Helmet | SMGs / budget rifles | ✅ Pistol | All CTs |
+| **Half-Buy** | Kevlar + Helmet | SMGs / budget rifles (or Scout) | ✅ Pistol | All CTs |
 | **Full-Buy** | Kevlar + Helmet | Rifles (or AWP / Scout) | ✅ Pistol | All CTs |
 
 ### Round Type Selection
@@ -217,6 +217,18 @@ Only on full-buy rounds. Players who receive an AWP are excluded.
 | `Allocation.Ssg08Enabled` | `true` | Enable SSG08 allocation |
 | `Allocation.Ssg08PerTeam` | `0` | Maximum SSG08s given per team (0 = disabled) |
 | `Allocation.Ssg08AllowEveryone` | `false` | Ignore player preference — everyone is eligible |
+
+### Scout (SSG08) Half-Buy Allocation
+
+Half-buy rounds only. Independent of the full-buy SSG08 preference — players toggle it separately in the `!retake` menu ("Play with SSG08 on half-buy"). Disabled by default; opt in by raising `Ssg08HalfPerTeam`.
+
+| Field | Default | Description |
+| :--- | :--- | :--- |
+| `Allocation.Ssg08HalfEnabled` | `true` | Enable SSG08 allocation on half-buy rounds |
+| `Allocation.Ssg08HalfPerTeam` | `0` | Maximum SSG08s given per team on half-buy (0 = disabled) |
+| `Allocation.Ssg08HalfAllowEveryone` | `false` | Ignore player preference — everyone is eligible |
+
+> `!scout` / `!ssg` / `!ssg08` toggle the SSG08 preference for **both** full-buy and half-buy at once (single switch, mirrors `!awp`). Use the `!retake` menu for per-round-type control.
 
 ### Weapon Stripping
 
