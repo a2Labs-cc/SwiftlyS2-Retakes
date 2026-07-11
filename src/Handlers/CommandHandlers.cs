@@ -93,7 +93,12 @@ public sealed class CommandHandlers
     _commandGuids.Add(core.Command.RegisterCommand("gun", SelectGun, registerRaw: true));
     _commandGuids.Add(core.Command.RegisterCommand("retake", Retake, registerRaw: true));
     _commandGuids.Add(core.Command.RegisterCommand("spawns", Spawns, registerRaw: true));
-    _commandGuids.Add(core.Command.RegisterCommand("awp", Awp, registerRaw: true));
+    // NOTE: `!awp` is intentionally NOT registered here — it comes from the
+    // alias loop below (guns.jsonc maps `weapon_awp` → ["awp", "sniper"]).
+    // Registering it in both places caused SwiftlyS2 to fire both handlers on
+    // one chat command, toggling the AWP preference twice (net zero, but the
+    // user saw "enabled" then "disabled" flicker). Same pattern as !scout /
+    // !ssg / !ssg08 / !sniper — they only exist in the alias loop.
     _commandGuids.Add(core.Command.RegisterCommand("reloadcfg", ReloadCfg, registerRaw: true, permission: RetakesPermissions.Root));
 
     _commandGuids.Add(core.Command.RegisterCommand("debugqueues", DebugQueues, registerRaw: true));
@@ -905,6 +910,17 @@ public sealed class CommandHandlers
     };
     builder.AddOption(ssgToggle);
 
+    var ssgHalfEnabled = _prefs.WantsSsg08HalfBuy(player.SteamID);
+    var ssgHalfToggleText = ssgHalfEnabled ? "Play with SSG08 on half-buy: ON" : "Play with SSG08 on half-buy: OFF";
+    var ssgHalfToggle = new ButtonMenuOption(ssgHalfToggleText);
+    ssgHalfToggle.Click += async (_, args) =>
+    {
+      _prefs.ToggleSsg08HalfBuy(args.Player.SteamID);
+      OpenRetakeMenu(core, args.Player);
+      await ValueTask.CompletedTask;
+    };
+    builder.AddOption(ssgHalfToggle);
+
     var requiredFlag = (_config.Config.Allocation.AwpPriorityFlag ?? string.Empty).Trim();
     var pct = Math.Clamp(_config.Config.Allocation.AwpPriorityPct, 0, 100);
     if (!string.IsNullOrWhiteSpace(requiredFlag) && pct > 0)
@@ -1336,8 +1352,10 @@ public sealed class CommandHandlers
     ["ak"] = "weapon_ak47",
     ["glock"] = "weapon_glock",
     ["awp"] = "weapon_awp",
+    ["sniper"] = "weapon_awp",
     ["scout"] = "weapon_ssg08",
     ["ssg"] = "weapon_ssg08",
+    ["ssg08"] = "weapon_ssg08",
     ["galil"] = "weapon_galilar",
     ["famas"] = "weapon_famas",
     ["aug"] = "weapon_aug",
@@ -1376,6 +1394,15 @@ public sealed class CommandHandlers
       return;
     }
 
+    var weaponName = ResolveWeaponName(alias);
+
+    // Preference-toggle aliases (!awp / !sniper / !scout / !ssg / !ssg08) always
+    // set the persistent preference, regardless of whether a round is in progress
+    // and regardless of whether the weapon is in the current round's allowed
+    // primaries list. Handle them BEFORE the roundType check so the toggle also
+    // works between rounds (matching the dedicated Awp handler).
+    if (TryHandlePreferenceAlias(context, weaponName)) return;
+
     var roundType = _allocation.CurrentRoundType;
     if (roundType is null)
     {
@@ -1383,7 +1410,6 @@ public sealed class CommandHandlers
       return;
     }
 
-    var weaponName = ResolveWeaponName(alias);
     HandleGunSelection(context, roundType.Value, weaponName);
   }
 
@@ -1401,6 +1427,13 @@ public sealed class CommandHandlers
       return;
     }
 
+    var input = context.Args[0].Trim();
+    var weaponName = ResolveWeaponName(input);
+
+    // See note in SelectGunByAlias: `!gun awp` / `!gun scout` etc. also route
+    // to the preference toggle before any round-scoped allowed-primaries check.
+    if (TryHandlePreferenceAlias(context, weaponName)) return;
+
     var roundType = _allocation.CurrentRoundType;
     if (roundType is null)
     {
@@ -1408,15 +1441,51 @@ public sealed class CommandHandlers
       return;
     }
 
-    var input = context.Args[0].Trim();
-    var weaponName = ResolveWeaponName(input);
     HandleGunSelection(context, roundType.Value, weaponName);
+  }
+
+  private bool TryHandlePreferenceAlias(ICommandContext context, string weaponName)
+  {
+    var player = context.Sender;
+    if (player is null) return false;
+
+    if (weaponName.Equals("weapon_awp", StringComparison.OrdinalIgnoreCase))
+    {
+      var enabled = _prefs.ToggleAwp(player.SteamID);
+      context.Reply(enabled ? Tr(context, "command.awp.enabled") : Tr(context, "command.awp.disabled"));
+      return true;
+    }
+
+    if (weaponName.Equals("weapon_ssg08", StringComparison.OrdinalIgnoreCase))
+    {
+      // Single logical "scout preference" — the two cookies gate FullBuy and
+      // HalfBuy allocation independently, but from the chat-command surface we
+      // treat them as one switch to mirror `!awp`. If either is on, turn both
+      // off; otherwise turn both on. Precise per-round-type control is still
+      // available in the `!retake` menu.
+      var currentlyOn = _prefs.WantsSsg08(player.SteamID) || _prefs.WantsSsg08HalfBuy(player.SteamID);
+      var target = !currentlyOn;
+      if (_prefs.WantsSsg08(player.SteamID) != target) _prefs.ToggleSsg08(player.SteamID);
+      if (_prefs.WantsSsg08HalfBuy(player.SteamID) != target) _prefs.ToggleSsg08HalfBuy(player.SteamID);
+      context.Reply(target ? Tr(context, "command.ssg08.enabled") : Tr(context, "command.ssg08.disabled"));
+      return true;
+    }
+
+    return false;
   }
 
   private void HandleGunSelection(ICommandContext context, RoundType roundType, string weaponName)
   {
     var player = context.Sender;
     if (player is null) return;
+
+    // Defense-in-depth: weapon_awp / weapon_ssg08 are governed by dedicated
+    // preference toggles (WantsAwp / WantsSsg08) and MUST NEVER fall through
+    // to SetFullBuyPrimary / SetHalfBuyPrimary / ReplaceWeaponInSlot below.
+    // Every current caller already gates via TryHandlePreferenceAlias, but
+    // this guarantees the invariant even if a future entry point forgets to.
+    if (TryHandlePreferenceAlias(context, weaponName)) return;
+
     var isCt = (Team)player.Controller.TeamNum == Team.CT;
     var weapons = _config.Config.Weapons;
     var pistols = weapons.Pistols;
@@ -1541,18 +1610,6 @@ public sealed class CommandHandlers
     var slot = isPistolSlot ? gear_slot_t.GEAR_SLOT_PISTOL : gear_slot_t.GEAR_SLOT_RIFLE;
     await weaponServices.RemoveWeaponBySlotAsync(slot);
     await itemServices.GiveItemAsync(weaponName);
-  }
-
-  private void Awp(ICommandContext context)
-  {
-    if (!context.IsSentByPlayer || context.Sender is null)
-    {
-      context.Reply(Tr(context, "error.must_be_player"));
-      return;
-    }
-
-    var enabled = _prefs.ToggleAwp(context.Sender.SteamID);
-    context.Reply(enabled ? Tr(context, "command.awp.enabled") : Tr(context, "command.awp.disabled"));
   }
 
   private void ReloadCfg(ICommandContext context)
