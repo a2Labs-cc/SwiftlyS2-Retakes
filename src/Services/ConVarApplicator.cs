@@ -40,6 +40,11 @@ public sealed class ConVarApplicator
     ApplyInt("retakes_allocation_ssg08_per_team", config.Allocation.Ssg08PerTeam);
     ApplyBool("retakes_allocation_ssg08_allow_everyone", config.Allocation.Ssg08AllowEveryone);
 
+    // SSG08 (half-buy) settings
+    ApplyBool("retakes_allocation_ssg08_half_enabled", config.Allocation.Ssg08HalfEnabled);
+    ApplyInt("retakes_allocation_ssg08_half_per_team", config.Allocation.Ssg08HalfPerTeam);
+    ApplyBool("retakes_allocation_ssg08_half_allow_everyone", config.Allocation.Ssg08HalfAllowEveryone);
+
     // AWP priority settings
     ApplyString("retakes_allocation_awp_priority_flag", config.Allocation.AwpPriorityFlag);
     ApplyInt("retakes_allocation_awp_priority_pct", config.Allocation.AwpPriorityPct);

@@ -40,6 +40,10 @@ public sealed class AllocationService : IAllocationService
   private readonly IConVar<int> _ssg08PerTeam;
   private readonly IConVar<bool> _ssg08AllowEveryone;
 
+  private readonly IConVar<bool> _ssg08HalfEnabled;
+  private readonly IConVar<int> _ssg08HalfPerTeam;
+  private readonly IConVar<bool> _ssg08HalfAllowEveryone;
+
   private readonly IConVar<string> _awpPriorityFlag;
   private readonly IConVar<int> _awpPriorityPct;
 
@@ -77,6 +81,10 @@ public sealed class AllocationService : IAllocationService
     _ssg08Enabled = core.ConVar.CreateOrFind("retakes_allocation_ssg08_enabled", "Enable SSG08 preference allocation on FullBuy", true);
     _ssg08PerTeam = core.ConVar.CreateOrFind("retakes_allocation_ssg08_per_team", "Number of SSG08s per team on FullBuy", 0, 0, 5);
     _ssg08AllowEveryone = core.ConVar.CreateOrFind("retakes_allocation_ssg08_allow_everyone", "Ignore player preference and allow everyone to receive SSG08", false);
+
+    _ssg08HalfEnabled = core.ConVar.CreateOrFind("retakes_allocation_ssg08_half_enabled", "Enable SSG08 preference allocation on HalfBuy", true);
+    _ssg08HalfPerTeam = core.ConVar.CreateOrFind("retakes_allocation_ssg08_half_per_team", "Number of SSG08s per team on HalfBuy", 0, 0, 5);
+    _ssg08HalfAllowEveryone = core.ConVar.CreateOrFind("retakes_allocation_ssg08_half_allow_everyone", "Ignore player preference and allow everyone to receive SSG08 on HalfBuy", false);
 
     _awpPriorityFlag = core.ConVar.CreateOrFind("retakes_allocation_awp_priority_flag", "Permission flag eligible for AWP priority (empty=disabled)", "");
     _awpPriorityPct = core.ConVar.CreateOrFind("retakes_allocation_awp_priority_pct", "Chance (0-100) to pick a priority player for each AWP slot", 0, 0, 100);
@@ -175,6 +183,12 @@ public sealed class AllocationService : IAllocationService
     {
       foreach (var steamId in PickSsg08Receivers(ct.Where(PlayerUtil.IsHuman).ToList(), awpReceivers)) ssg08Receivers.Add(steamId);
       foreach (var steamId in PickSsg08Receivers(t.Where(PlayerUtil.IsHuman).ToList(), awpReceivers)) ssg08Receivers.Add(steamId);
+    }
+
+    if (roundType == RoundType.HalfBuy && _ssg08HalfEnabled.Value)
+    {
+      foreach (var steamId in PickSsg08HalfBuyReceivers(ct.Where(PlayerUtil.IsHuman).ToList())) ssg08Receivers.Add(steamId);
+      foreach (var steamId in PickSsg08HalfBuyReceivers(t.Where(PlayerUtil.IsHuman).ToList())) ssg08Receivers.Add(steamId);
     }
 
     var pistolDefuserSlot = -1;
@@ -279,6 +293,10 @@ public sealed class AllocationService : IAllocationService
       primary = "weapon_awp";
     }
     else if (roundType == RoundType.FullBuy && ssg08Receivers.Contains(player.SteamID))
+    {
+      primary = "weapon_ssg08";
+    }
+    else if (roundType == RoundType.HalfBuy && ssg08Receivers.Contains(player.SteamID))
     {
       primary = "weapon_ssg08";
     }
@@ -553,6 +571,32 @@ public sealed class AllocationService : IAllocationService
     var candidates = _ssg08AllowEveryone.Value
       ? basePool
       : basePool.Where(p => _prefs.WantsSsg08(p.SteamID)).ToList();
+
+    if (candidates.Count == 0) return Array.Empty<ulong>();
+    if (candidates.Count <= perTeam) return candidates.Select(p => p.SteamID).ToList();
+
+    var selected = new List<ulong>(perTeam);
+    var pool = candidates.ToList();
+    for (var i = 0; i < perTeam && pool.Count > 0; i++)
+    {
+      var idx = _random.Next(pool.Count);
+      selected.Add(pool[idx].SteamID);
+      pool.RemoveAt(idx);
+    }
+
+    return selected;
+  }
+
+  private IEnumerable<ulong> PickSsg08HalfBuyReceivers(List<IPlayer> players)
+  {
+    var perTeam = Math.Clamp(_ssg08HalfPerTeam.Value, 0, 10);
+    if (perTeam <= 0) return Array.Empty<ulong>();
+
+    if (players.Count == 0) return Array.Empty<ulong>();
+
+    var candidates = _ssg08HalfAllowEveryone.Value
+      ? players
+      : players.Where(p => _prefs.WantsSsg08HalfBuy(p.SteamID)).ToList();
 
     if (candidates.Count == 0) return Array.Empty<ulong>();
     if (candidates.Count <= perTeam) return candidates.Select(p => p.SteamID).ToList();
