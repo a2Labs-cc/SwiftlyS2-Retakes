@@ -340,7 +340,7 @@ public sealed class SpawnVisualizationService : ISpawnVisualizationService
       beam.Amplitude = 0;
       beam.Speed = 50;
       beam.BeamFlags = 0;
-      beam.BeamType = BeamType_t.BEAM_HOSE;
+      beam.BeamType = BeamType_t.BEAM_POINTS;
       beam.FadeLength = 10.0f;
       beam.Render = color;
       beam.TurnedOff = false;
@@ -395,7 +395,7 @@ public sealed class SpawnVisualizationService : ISpawnVisualizationService
       beam.Amplitude = 0;
       beam.Speed = 50;
       beam.BeamFlags = 0;
-      beam.BeamType = BeamType_t.BEAM_HOSE;
+      beam.BeamType = BeamType_t.BEAM_POINTS;
       beam.FadeLength = 10.0f;
       beam.Render = color;
       beam.TurnedOff = false;
