@@ -1,4 +1,3 @@
-using Cookies.Contract;
 using Microsoft.Extensions.Logging;
 using SwiftlyS2_Retakes.Interfaces;
 using SwiftlyS2_Retakes.Models;
@@ -10,7 +9,7 @@ public sealed class PlayerPreferencesService : IPlayerPreferencesService
   private readonly ILogger _logger;
   private readonly IRetakesConfigService _config;
 
-  private IPlayerCookiesAPIv1? _cookies;
+  private CookiesBridge? _cookies;
 
   private const string KeyWantsAwp = "retakes_wants_awp";
   private const string KeyWantsSsg08 = "retakes_wants_ssg08";
@@ -38,7 +37,7 @@ public sealed class PlayerPreferencesService : IPlayerPreferencesService
     _config = config;
   }
 
-  public void SetCookiesApi(IPlayerCookiesAPIv1 cookies)
+  public void SetCookiesApi(CookiesBridge? cookies)
   {
     _cookies = cookies;
   }

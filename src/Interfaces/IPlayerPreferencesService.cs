@@ -1,5 +1,5 @@
-using Cookies.Contract;
 using SwiftlyS2_Retakes.Models;
+using SwiftlyS2_Retakes.Services;
 
 namespace SwiftlyS2_Retakes.Interfaces;
 
@@ -10,7 +10,7 @@ public interface IPlayerPreferencesService
 {
   void Initialize();
   void Clear(ulong steamId);
-  void SetCookiesApi(IPlayerCookiesAPIv1 cookies);
+  void SetCookiesApi(CookiesBridge? cookies);
 
   bool WantsAwp(ulong steamId);
   bool ToggleAwp(ulong steamId);

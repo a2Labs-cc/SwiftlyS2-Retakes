@@ -20,13 +20,13 @@
   <ItemGroup>
     <Reference Include="Cookies.Contract">
       <HintPath>resources/exports/Cookies.Contract.dll</HintPath>
-      <Private>true</Private>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 
 
   <ItemGroup>
-    <Content Include="resources/gamedata/**/*;resources/templates/**/*;resources/translations/**/*;resources/maps/**/*;resources/exports/**/*">
+    <Content Include="resources/gamedata/**/*;resources/templates/**/*;resources/translations/**/*;resources/maps/**/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
