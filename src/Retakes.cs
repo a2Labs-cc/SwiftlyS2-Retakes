@@ -1,4 +1,3 @@
-using Cookies.Contract;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SwiftlyS2.Shared.Plugins;
@@ -8,6 +7,7 @@ using SwiftlyS2_Retakes.DependencyInjection;
 using SwiftlyS2_Retakes.Handlers;
 using SwiftlyS2_Retakes.Interfaces;
 using SwiftlyS2_Retakes.Logging;
+using SwiftlyS2_Retakes.Services;
 
 namespace SwiftlyS2_Retakes;
 
@@ -59,22 +59,21 @@ public partial class SwiftlyS2_Retakes : BasePlugin
 
     public override void UseSharedInterface(IInterfaceManager interfaceManager)
     {
-        const string cookiesKey = "Cookies.Player.v1";
-        if (!interfaceManager.HasSharedInterface(cookiesKey))
+        CookiesBridge? cookies = null;
+        try
         {
-            Core.Logger.LogPluginWarning("Retakes: Cookies shared interface is not registered. Player preferences will not be persisted.");
-            return;
+            cookies = CookiesBridge.TryCreate(interfaceManager);
+        }
+        catch (Exception ex)
+        {
+            Core.Logger.LogPluginError(ex, "Retakes: failed to bind to the Cookies API.");
         }
 
-        var cookiesApi = interfaceManager.GetSharedInterface<IPlayerCookiesAPIv1>(cookiesKey);
-        if (cookiesApi is null)
-        {
-            Core.Logger.LogPluginError("Retakes: Cookies plugin not found. Player preferences will not be persisted. Make sure the Cookies plugin is installed.");
-            return;
-        }
+        if (cookies is null)
+            Core.Logger.LogPluginWarning("Retakes: Cookies plugin is not loaded. Player preferences will not be persisted.");
 
         var prefs = _serviceProvider?.GetService(typeof(IPlayerPreferencesService)) as IPlayerPreferencesService;
-        prefs?.SetCookiesApi(cookiesApi);
+        prefs?.SetCookiesApi(cookies);
     }
 
     public override void Load(bool hotReload)
